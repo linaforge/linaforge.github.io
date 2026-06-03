@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CanopyWorx — Shade Quote Builder</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --sand:#f5f0e8;
+  --sand-dark:#ede6d6;
+  --sand-mid:#e8dfc8;
+  --terra:#c4622d;
+  --terra-dark:#9e4a1e;
+  --terra-light:#f5e8df;
+  --brown:#3d2b1f;
+  --brown-mid:#5c3d2a;
+  --brown-light:#8b6347;
+  --cream:#faf7f2;
+  --border:#d9cdb8;
+  --border-light:#ede6d6;
+  --text:#2c1f14;
+  --muted:#7a6550;
+  --light:#b8a898;
+  --white:#ffffff;
+  --radius:4px;
+  --shadow:0 2px 12px rgba(60,40,20,0.08);
+}
+
+html,body{height:100%;overflow:hidden}
+body{
+  font-family:'DM Sans',sans-serif;
+  font-size:13px;line-height:1.5;
+  color:var(--text);
+  background:var(--sand);
+  display:flex;flex-direction:column;
+}
+
+/* TEXTURE OVERLAY */
+body::before{
+  content:'';position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:0;opacity:0.4;
+}
+
+/* HEADER */
+.header{
+  background:var(--cream);
+  border-bottom:1px solid var(--border);
+  padding:0 24px;
+  display:flex;align-items:center;justify-content:space-between;
+  height:58px;flex-shrink:0;position:relative;z-index:10;
+  box-shadow:var(--shadow);
+}
+.logo-area{display:flex;align-items:center;gap:12px}
+.logo-sun{
+  width:38px;height:38px;flex-shrink:0;
+}
+.logo-words{display:flex;flex-direction:column;line-height:1}
+.logo-main{
+  font-family:'Playfair Display',serif;
+  font-size:17px;font-weight:700;
+  letter-spacing:0.5px;color:var(--brown);
+}
+.logo-main span{color:var(--terra)}
+.logo-sub{font-size:8px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-top:2px}
+.header-tag{
+  background:var(--terra);color:var(--white);
+  font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;
+  padding:5px 13px;border-radius:20px;
+  font-family:'DM Sans',sans-serif;
+}
+
+/* LAYOUT */
+.app{
+  flex:1;display:grid;grid-template-columns:1fr 400px;
+  overflow:hidden;min-height:0;position:relative;z-index:1;
+}
+
+/* LEFT */
+.left{
+  display:flex;flex-direction:column;overflow:hidden;
+  background:var(--cream);border-right:1px solid var(--border);
+}
+.left-top{padding:14px 22px 12px;flex-shrink:0;display:flex;flex-direction:column;gap:10px}
+.left-scroll{flex:1;overflow-y:auto;padding:4px 22px 24px;display:flex;flex-direction:column;gap:16px}
+.left-scroll::-webkit-scrollbar{width:3px}
+.left-scroll::-webkit-scrollbar-track{background:transparent}
+.left-scroll::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.left-scroll::-webkit-scrollbar-thumb:hover{background:var(--terra)}
+
+/* BUILD QUOTE BUTTON */
+.gen-btn{
+  background:var(--terra);color:var(--white);border:none;
+  border-radius:var(--radius);padding:12px 20px;
+  font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;
+  letter-spacing:1px;text-transform:uppercase;cursor:pointer;
+  width:100%;transition:all 0.2s;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  box-shadow:0 3px 10px rgba(196,98,45,0.3);
+}
+.gen-btn:hover{background:var(--terra-dark);box-shadow:0 4px 14px rgba(196,98,45,0.4);transform:translateY(-1px)}
+.gen-btn:active{transform:translateY(0)}
+
+.divider{height:1px;background:var(--border-light);flex-shrink:0}
+
+/* SECTION HEADERS */
+.sec{display:flex;align-items:center;gap:9px;margin-bottom:8px}
+.sec-icon{
+  width:22px;height:22px;border-radius:50%;
+  background:var(--terra-light);border:1.5px solid var(--terra);
+  color:var(--terra);font-size:9px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  font-family:'DM Mono',monospace;
+}
+.sec-title{
+  font-family:'Playfair Display',serif;font-size:13px;font-weight:600;
+  color:var(--brown);letter-spacing:0.3px;flex:1;
+  border-bottom:1px solid var(--border-light);padding-bottom:4px;
+}
+
+/* SHAPE SELECTOR */
+.shape-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.shape-opt{
+  background:var(--sand);border:1.5px solid var(--border);
+  border-radius:var(--radius);padding:10px 8px;
+  cursor:pointer;transition:all 0.15s;text-align:center;
+}
+.shape-opt:hover{border-color:var(--terra)}
+.shape-opt.on{border-color:var(--terra);background:var(--terra-light)}
+.shape-icon{font-size:20px;margin-bottom:4px;display:block}
+.shape-label{font-size:10px;font-weight:600;color:var(--brown);letter-spacing:0.5px;text-transform:uppercase}
+
+/* DIMS */
+.dims-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.dims-row.three{grid-template-columns:1fr 1fr 1fr}
+.field{display:flex;flex-direction:column;gap:4px}
+.field.span2{grid-column:1/-1}
+label{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);font-weight:600}
+input,select{
+  background:var(--white);border:1px solid var(--border);
+  border-radius:var(--radius);color:var(--text);
+  font-family:'DM Sans',sans-serif;font-size:13px;
+  padding:8px 10px;outline:none;transition:border-color 0.2s;width:100%;
+}
+input:focus,select:focus{border-color:var(--terra)}
+select option{background:white}
+input::placeholder{color:var(--light)}
+
+/* FABRIC WIDTH TOGGLE */
+.width-toggle{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.width-opt{
+  background:var(--sand);border:1.5px solid var(--border);
+  border-radius:var(--radius);padding:8px 4px;
+  cursor:pointer;transition:all 0.15s;text-align:center;
+}
+.width-opt:hover{border-color:var(--terra)}
+.width-opt.on{border-color:var(--terra);background:var(--terra-light)}
+.width-val{font-family:'DM Mono',monospace;font-size:13px;font-weight:500;color:var(--brown);display:block}
+.width-lbl{font-size:9px;color:var(--muted);margin-top:2px}
+
+/* FABRIC CARDS */
+.fabric-grid{display:flex;flex-direction:column;gap:8px}
+.fabric-card{
+  background:var(--white);border:1.5px solid var(--border);
+  border-radius:var(--radius);padding:10px 12px;
+  display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:10px;
+  cursor:pointer;transition:border-color 0.15s,background 0.15s;
+}
+.fabric-card:hover:not([style*="terra"]){border-color:var(--brown-light);}
+.fabric-name{font-size:12px;font-weight:600;color:var(--brown)}
+.fabric-sub{font-size:10px;color:var(--muted);margin-top:1px}
+.price-input-wrap{display:flex;align-items:center;gap:3px}
+.price-sym{font-size:12px;color:var(--muted);font-family:'DM Mono',monospace}
+.price-input{width:76px;text-align:right;font-family:'DM Mono',monospace;font-size:13px;padding:5px 7px}
+.price-unit{font-size:10px;color:var(--light)}
+.fabric-sel-btn{
+  width:28px;height:28px;border-radius:50%;
+  border:1.5px solid var(--border);background:var(--sand);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:all 0.15s;flex-shrink:0;
+}
+.fabric-sel-btn:hover{border-color:var(--terra)}
+.fabric-sel-btn.on{border-color:var(--terra);background:var(--terra)}
+.fabric-sel-btn svg{display:none}
+.fabric-sel-btn.on svg{display:block}
+
+/* LINE ITEMS */
+.line-grid{display:flex;flex-direction:column;gap:8px}
+.line-item{
+  background:var(--white);border:1px solid var(--border);
+  border-radius:var(--radius);padding:9px 12px;
+  display:grid;grid-template-columns:1fr auto;align-items:center;gap:10px;
+}
+.line-lbl{font-size:12px;font-weight:500;color:var(--brown)}
+.line-sub{font-size:10px;color:var(--muted);margin-top:1px}
+
+/* MARKUP */
+.markup-row{display:flex;align-items:center;gap:12px}
+.markup-slider{flex:1;accent-color:var(--terra)}
+.markup-val{font-family:'DM Mono',monospace;font-size:14px;font-weight:500;color:var(--terra);min-width:40px;text-align:right}
+
+/* CLIENT INFO */
+.client-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* RIGHT */
+.right{background:var(--sand);padding:16px 20px;overflow-y:auto;display:flex;flex-direction:column;gap:14px}
+
+.right-head{display:flex;align-items:center;gap:9px;flex-shrink:0}
+.right-icon{
+  width:22px;height:22px;border-radius:50%;
+  background:var(--brown);color:var(--cream);
+  font-size:10px;display:flex;align-items:center;justify-content:center;
+}
+
+/* FABRIC COMPARISON BOX */
+.compare-box{
+  background:var(--cream);border:1px solid var(--border);
+  border-radius:var(--radius);padding:14px;
+  display:none;
+}
+.compare-box.show{display:block;animation:fadeUp 0.3s ease}
+.compare-title{
+  font-family:'Playfair Display',serif;font-size:11px;font-weight:600;
+  color:var(--brown);letter-spacing:0.5px;margin-bottom:10px;
+  display:flex;align-items:center;gap:8px;
+}
+.compare-title::after{content:'';flex:1;height:1px;background:var(--border-light)}
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.compare-card{
+  background:var(--white);border:1px solid var(--border);border-radius:var(--radius);
+  padding:10px;text-align:center;
+}
+.compare-card.best{border-color:var(--terra);background:var(--terra-light)}
+.cw-label{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.cw-width{font-family:'DM Mono',monospace;font-size:14px;font-weight:500;color:var(--brown)}
+.cw-yards{font-size:11px;color:var(--muted);margin-top:2px}
+.cw-cost{font-family:'DM Mono',monospace;font-size:16px;font-weight:600;color:var(--terra);margin-top:4px}
+.cw-save{font-size:10px;color:var(--terra);font-weight:600;margin-top:2px}
+.best-badge{
+  background:var(--terra);color:white;font-size:8px;
+  letter-spacing:1px;text-transform:uppercase;font-weight:700;
+  padding:2px 7px;border-radius:10px;display:inline-block;margin-bottom:6px;
+}
+
+/* EMPTY STATE */
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;text-align:center;gap:10px;min-height:300px}
+.empty-ico{font-size:40px;opacity:0.15}
+.empty-msg{font-size:12px;color:var(--light);max-width:190px;line-height:1.7}
+
+/* STATUS */
+.status-pill{background:var(--terra-light);border:1px solid var(--terra);border-radius:20px;padding:6px 12px;font-size:11px;color:var(--terra);display:none;align-items:center;gap:6px;font-weight:600;width:fit-content}
+.status-pill.on{display:flex}
+.s-dot{width:5px;height:5px;border-radius:50%;background:var(--terra);animation:blink 1s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.2}}
+
+/* QUOTE DOC */
+.quote-doc{display:none}
+.quote-doc.show{display:block;animation:fadeUp 0.35s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+.doc-wrap{
+  background:var(--white);border:1px solid var(--border);
+  border-radius:var(--radius);overflow:hidden;
+  box-shadow:var(--shadow);
+}
+.doc-top-stripe{height:4px;background:var(--terra)}
+.doc-inner{padding:20px}
+
+.doc-head{
+  display:flex;justify-content:space-between;align-items:flex-start;
+  margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--border-light);
+}
+.doc-logo{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--brown);line-height:1}
+.doc-logo span{color:var(--terra)}
+.doc-tagline{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-top:3px}
+.doc-meta{text-align:right;font-size:10px;color:var(--muted);line-height:1.9}
+.doc-meta .qid{color:var(--terra);font-family:'DM Mono',monospace;font-size:11px;font-weight:500}
+.doc-meta strong{color:var(--text)}
+
+.doc-sec-label{
+  font-family:'DM Sans',sans-serif;font-size:8px;font-weight:700;letter-spacing:3px;
+  text-transform:uppercase;color:var(--terra);margin-bottom:8px;
+  display:flex;align-items:center;gap:8px;
+}
+.doc-sec-label::after{content:'';flex:1;height:1px;background:var(--border-light)}
+
+.doc-row{display:flex;justify-content:space-between;font-size:11px;padding:5px 0;border-bottom:1px solid var(--border-light)}
+.doc-key{color:var(--muted)}
+.doc-val{color:var(--text);font-weight:500;text-align:right}
+
+.doc-section{margin-bottom:15px}
+
+.line-doc{display:flex;justify-content:space-between;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--border-light);gap:8px}
+.line-doc-name{font-size:11px;font-weight:600;color:var(--brown)}
+.line-doc-sub{font-size:9px;color:var(--muted);margin-top:2px}
+.line-doc-price{font-family:'DM Mono',monospace;font-size:11px;color:var(--terra);white-space:nowrap;font-weight:500}
+
+.subtotal-area{margin:12px 0}
+.subtotal-row{display:flex;justify-content:space-between;font-size:11px;padding:4px 0;color:var(--muted)}
+.subtotal-row.total-row{
+  border-top:1px solid var(--border);margin-top:6px;padding-top:10px;
+  font-size:14px;font-weight:700;color:var(--brown);
+}
+.subtotal-row.total-row .price{color:var(--terra);font-family:'DM Mono',monospace;font-size:16px}
+
+.doc-note{
+  background:var(--terra-light);border-left:3px solid var(--terra);
+  padding:10px 12px;border-radius:0 var(--radius) var(--radius) 0;
+  font-size:11px;color:var(--brown);line-height:1.7;margin-bottom:14px;
+  font-style:italic;
+}
+
+.doc-footer{text-align:center;padding-top:12px;border-top:1px solid var(--border-light);font-size:9px;color:var(--light);line-height:1.9}
+.doc-footer strong{color:var(--muted)}
+
+.doc-actions{display:flex;gap:8px;margin-top:10px}
+.doc-btn{
+  flex:1;padding:9px;border-radius:var(--radius);
+  font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;
+  cursor:pointer;transition:all 0.15s;display:flex;align-items:center;justify-content:center;gap:5px;
+}
+.doc-btn-out{background:var(--white);border:1.5px solid var(--border);color:var(--brown)}
+.doc-btn-out:hover{border-color:var(--terra);color:var(--terra)}
+.doc-btn-fill{background:var(--terra);border:none;color:var(--white)}
+.doc-btn-fill:hover{background:var(--terra-dark)}
+
+/* NOTE BOX */
+.note-box{
+  background:var(--sand-mid);border:1px solid var(--border);border-radius:var(--radius);
+  padding:10px 13px;font-size:11px;color:var(--muted);line-height:1.7;
+}
+.note-box strong{color:var(--brown)}
+
+@media print{
+  .left,.header,.doc-actions,.compare-box,.status-pill{display:none!important}
+  html,body{height:auto;overflow:visible}
+  .app{grid-template-columns:1fr;height:auto}
+  .right{padding:0;background:white;overflow:visible;height:auto}
+  .doc-wrap{border:none;box-shadow:none}
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="logo-area">
+    <!-- Sun logo SVG inspired by CanopyWorx mark -->
+    <img src="data:image/png;base64,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" alt="CanopyWorx" style="height:46px;width:auto;object-fit:contain;">
+  </div>
+  <div class="header-tag">Shade Quote Builder</div>
+</header>
+
+<div class="app">
+
+  <!-- LEFT -->
+  <div class="left">
+    <div class="left-top">
+      <button class="gen-btn" onclick="buildQuote()">
+        ☀ Build Quote
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+      <div class="divider"></div>
+    </div>
+
+    <div class="left-scroll">
+
+      <!-- 1. SHADE SHAPE -->
+      <div>
+        <div class="sec"><div class="sec-icon">1</div><div class="sec-title">Shade Shape</div></div>
+        <div class="shape-row">
+          <div class="shape-opt on" id="sh-triangle" onclick="setShape('triangle')">
+            <span class="shape-icon">△</span>
+            <div class="shape-label">Triangle</div>
+          </div>
+          <div class="shape-opt" id="sh-rectangle" onclick="setShape('rectangle')">
+            <span class="shape-icon">▭</span>
+            <div class="shape-label">Rectangle</div>
+          </div>
+          <div class="shape-opt" id="sh-custom" onclick="setShape('custom')">
+            <span class="shape-icon">⬠</span>
+            <div class="shape-label">Custom</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. DIMENSIONS -->
+      <div>
+        <div class="sec"><div class="sec-icon">2</div><div class="sec-title">Dimensions (feet)</div></div>
+        <div id="dims-triangle" class="dims-row three">
+          <div class="field"><label>Side A</label><input type="number" id="d-a" placeholder="e.g. 20" min="1" oninput="recalc()"></div>
+          <div class="field"><label>Side B</label><input type="number" id="d-b" placeholder="e.g. 20" min="1" oninput="recalc()"></div>
+          <div class="field"><label>Side C</label><input type="number" id="d-c" placeholder="e.g. 28" min="1" oninput="recalc()"></div>
+        </div>
+        <div id="dims-rectangle" class="dims-row" style="display:none">
+          <div class="field"><label>Width (ft)</label><input type="number" id="d-w" placeholder="e.g. 20" min="1" oninput="recalc()"></div>
+          <div class="field"><label>Length (ft)</label><input type="number" id="d-l" placeholder="e.g. 30" min="1" oninput="recalc()"></div>
+        </div>
+        <div id="dims-custom" style="display:none">
+          <div class="field" style="margin-bottom:8px"><label>Total Square Footage</label><input type="number" id="d-sqft" placeholder="Enter sq ft directly" min="1" oninput="recalc()"></div>
+          <div class="note-box">For irregular polygons, enter your calculated square footage directly. A 10–15% waste factor will be applied automatically.</div>
+        </div>
+
+        <!-- LIVE CALC RESULT -->
+        <div id="calc-result" style="display:none;margin-top:10px;background:var(--terra-light);border:1px solid var(--terra);border-radius:var(--radius);padding:8px 12px;font-size:11px;color:var(--brown)">
+          <span style="font-family:'DM Mono',monospace;font-weight:600" id="calc-sqft">—</span> sq ft calculated
+          <span style="color:var(--muted);margin-left:6px" id="calc-note"></span>
+        </div>
+      </div>
+
+      <!-- 3. FABRIC SELECTION & PRICING -->
+      <div>
+        <div class="sec"><div class="sec-icon">3</div><div class="sec-title">Fabric &amp; Supplier Pricing</div></div>
+        <div class="note-box" style="margin-bottom:10px">Enter your current Trivantage (or supplier) price per yard below. Select the fabric for this project.</div>
+        <div class="fabric-grid" id="fabric-grid"></div>
+      </div>
+
+      <!-- 4. FABRIC WIDTH -->
+      <div>
+        <div class="sec"><div class="sec-icon">4</div><div class="sec-title">Fabric Roll Width</div></div>
+        <div class="note-box" style="margin-bottom:10px">Width affects yardage yield. Toggle to compare costs across widths your supplier has in stock.</div>
+        <div class="width-toggle">
+          <div class="width-opt" id="w-60" onclick="setWidth(60)">
+            <span class="width-val">60"</span>
+            <div class="width-lbl">Standard</div>
+          </div>
+          <div class="width-opt" id="w-80" onclick="setWidth(80)">
+            <span class="width-val">80"</span>
+            <div class="width-lbl">Wide</div>
+          </div>
+          <div class="width-opt on" id="w-96" onclick="setWidth(96)">
+            <span class="width-val">96"</span>
+            <div class="width-lbl">X-Wide</div>
+          </div>
+          <div class="width-opt" id="w-118" onclick="setWidth(118)">
+            <span class="width-val">118"</span>
+            <div class="width-lbl">HDPE</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. WASTE & MARGIN -->
+      <div>
+        <div class="sec"><div class="sec-icon">5</div><div class="sec-title">Waste &amp; Markup</div></div>
+        <div class="dims-row" style="margin-bottom:12px">
+          <div class="field">
+            <label>Waste Factor</label>
+            <select id="waste">
+              <option value="0.10">10% — Simple shapes</option>
+              <option value="0.15" selected>15% — Typical</option>
+              <option value="0.20">20% — Complex / irregular</option>
+              <option value="0.25">25% — Multi-panel</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Seam Allowance</label>
+            <select id="seam">
+              <option value="2">2" per panel</option>
+              <option value="3" selected>3" per panel</option>
+              <option value="4">4" per panel</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label style="display:block;margin-bottom:6px">Profit Markup</label>
+          <div class="markup-row">
+            <input type="range" class="markup-slider" id="markup" min="0" max="100" value="35" oninput="document.getElementById('markup-val').textContent=this.value+'%';recalc()">
+            <div class="markup-val" id="markup-val">35%</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6. OTHER LINE ITEMS -->
+      <div>
+        <div class="sec"><div class="sec-icon">6</div><div class="sec-title">Additional Line Items</div></div>
+        <div class="line-grid">
+          <div class="line-item">
+            <div><div class="line-lbl">Labor & Installation</div><div class="line-sub">Design, fabrication, and site install</div></div>
+            <div class="price-input-wrap"><span class="price-sym">$</span><input type="number" class="price-input" id="labor" placeholder="0" min="0" oninput="recalc()"></div>
+          </div>
+          <div class="line-item">
+            <div><div class="line-lbl">Hardware & Rigging</div><div class="line-sub">Posts, cables, turnbuckles, anchors</div></div>
+            <div class="price-input-wrap"><span class="price-sym">$</span><input type="number" class="price-input" id="hardware" placeholder="0" min="0" oninput="recalc()"></div>
+          </div>
+          <div class="line-item">
+            <div><div class="line-lbl">Engineering / Permits</div><div class="line-sub">Structural drawings, permit fees</div></div>
+            <div class="price-input-wrap"><span class="price-sym">$</span><input type="number" class="price-input" id="permits" placeholder="0" min="0" oninput="recalc()"></div>
+          </div>
+          <div class="line-item">
+            <div><div class="line-lbl">Other</div><div class="line-sub">Delivery, travel, misc.</div></div>
+            <div class="price-input-wrap"><span class="price-sym">$</span><input type="number" class="price-input" id="other" placeholder="0" min="0" oninput="recalc()"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 7. CLIENT -->
+      <div>
+        <div class="sec"><div class="sec-icon">7</div><div class="sec-title">Client Details</div></div>
+        <div class="client-grid">
+          <div class="field"><label>Client / Company</label><input id="c-name" placeholder="e.g. The Long Center"></div>
+          <div class="field"><label>Contact</label><input id="c-contact" placeholder="e.g. Maria Lopez"></div>
+          <div class="field span2"><label>Project Name</label><input id="c-project" placeholder="e.g. North Terrace Shade Sail — Phase 1"></div>
+          <div class="field"><label>Email</label><input id="c-email" type="email" placeholder="contact@venue.com"></div>
+          <div class="field"><label>Phone</label><input id="c-phone" placeholder="(512) 000-0000"></div>
+        </div>
+      </div>
+
+    </div><!-- end left-scroll -->
+  </div>
+
+  <!-- RIGHT -->
+  <div class="right">
+
+    <div class="right-head">
+      <div class="right-icon">✓</div>
+      <div class="sec-title">Quote Preview</div>
+    </div>
+
+    <!-- WIDTH COMPARISON (shown after calc) -->
+    <div class="compare-box" id="compare-box">
+      <div class="compare-title">Fabric Width Cost Comparison</div>
+      <div class="compare-grid" id="compare-grid"></div>
+    </div>
+
+    <div class="empty-state" id="empty-state">
+      <div class="empty-ico">☀</div>
+      <div class="empty-msg">Enter your shade dimensions, select a fabric, and click Build Quote to generate a customer-facing estimate.</div>
+    </div>
+
+    <div class="quote-doc" id="quote-doc">
+      <div class="doc-wrap">
+        <div class="doc-top-stripe"></div>
+        <div class="doc-inner">
+
+          <div class="doc-head">
+            <div>
+              <div class="doc-logo">CANOPY<span>WORX</span></div>
+              <div class="doc-tagline">Extend Time Outside — Shade Project Estimate</div>
+            </div>
+            <div class="doc-meta">
+              <div class="qid" id="d-qid">—</div>
+              <div><strong id="d-date">—</strong></div>
+              <div style="color:var(--terra);font-size:9px;margin-top:2px">Valid 30 days</div>
+            </div>
+          </div>
+
+          <div class="doc-section">
+            <div class="doc-sec-label">Prepared For</div>
+            <div class="doc-row"><span class="doc-key">Client</span><span class="doc-val" id="d-client">—</span></div>
+            <div class="doc-row"><span class="doc-key">Contact</span><span class="doc-val" id="d-contact">—</span></div>
+            <div class="doc-row"><span class="doc-key">Project</span><span class="doc-val" id="d-project">—</span></div>
+            <div class="doc-row"><span class="doc-key">Email</span><span class="doc-val" id="d-email">—</span></div>
+            <div class="doc-row"><span class="doc-key">Phone</span><span class="doc-val" id="d-phone">—</span></div>
+          </div>
+
+          <div class="doc-section">
+            <div class="doc-sec-label">Shade Specifications</div>
+            <div class="doc-row"><span class="doc-key">Shape</span><span class="doc-val" id="d-shape">—</span></div>
+            <div class="doc-row"><span class="doc-key">Dimensions</span><span class="doc-val" id="d-dims">—</span></div>
+            <div class="doc-row"><span class="doc-key">Net Area</span><span class="doc-val" id="d-area">—</span></div>
+            <div class="doc-row"><span class="doc-key">Fabric</span><span class="doc-val" id="d-fabric">—</span></div>
+            <div class="doc-row"><span class="doc-key">Roll Width</span><span class="doc-val" id="d-width">—</span></div>
+            <div class="doc-row"><span class="doc-key">Yards Required</span><span class="doc-val" id="d-yards">—</span></div>
+          </div>
+
+          <div class="doc-section">
+            <div class="doc-sec-label">Project Estimate</div>
+            <div id="line-items-doc"></div>
+            <div class="subtotal-area" id="subtotal-area"></div>
+          </div>
+
+          <div class="doc-note" id="d-notes-text">
+            This estimate is based on current supplier pricing and standard waste factors for shade sail fabrication. Final pricing may vary based on site conditions, structural requirements, and material availability. CanopyWorx stands behind every installation with our S.H.A.D.E.™ process — from survey to ensure.
+          </div>
+
+          <div class="doc-footer">
+            <strong>CanopyWorx — Extend Time Outside</strong><br>
+            4402 Weletka Drive, Suite 200, Austin, TX 78734<br>
+            (512) 815-3857 · bc@canopyworx.com · canopyworx.com
+          </div>
+        </div>
+      </div>
+
+      <div class="doc-actions">
+        <button class="doc-btn doc-btn-out" id="copy-btn" onclick="copyQuote()">📋 Copy</button>
+        <button class="doc-btn doc-btn-fill" onclick="window.print()">🖨 Print / PDF</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ─── DATA ───────────────────────────────────────────────────────
+const FABRICS = [
+  {id:'polytex',name:'Polyfab Polytex+',sub:'HDPE mesh — 95% UV block, breathable',defaultPrice:5.50,typicalWidth:118},
+  {id:'comtex',name:'Comtex+ HDPE',sub:'Commercial mesh — architectural grade',defaultPrice:6.20,typicalWidth:118},
+  {id:'solamesh',name:'SolaMesh® (Trivantage)',sub:'Exclusive HDPE mesh, 10-yr warranty',defaultPrice:7.80,typicalWidth:118},
+  {id:'sunbrella60',name:'Sunbrella Awning 60"',sub:'Solution-dyed acrylic — solid/waterproof',defaultPrice:22.00,typicalWidth:60},
+  {id:'sunbrella80',name:'Sunbrella Awning 80"',sub:'Wider acrylic — fewer seams',defaultPrice:24.50,typicalWidth:80},
+  {id:'comm95',name:'Commercial NinetyFive 340',sub:'FR-rated HDPE — hospitality / commercial',defaultPrice:8.40,typicalWidth:118},
+];
+
+let selectedFabricId = null;
+let currentShape = 'triangle';
+let currentWidth = 96;
+
+// ─── INIT ────────────────────────────────────────────────────────
+function buildFabricGrid(){
+  document.getElementById('fabric-grid').innerHTML = FABRICS.map(f=>`
+    <div class="fabric-card" id="fc-${f.id}" onclick="selectFabric('${f.id}')">
+      <div>
+        <div class="fabric-name">${f.name}</div>
+        <div class="fabric-sub">${f.sub} · Typical roll: ${f.typicalWidth}"</div>
+      </div>
+      <div class="price-input-wrap">
+        <span class="price-sym">$</span>
+        <input type="number" class="price-input" id="fp-${f.id}" value="${f.defaultPrice.toFixed(2)}" min="0" step="0.01" oninput="recalc()">
+        <span class="price-unit">/yd</span>
+      </div>
+      <button class="fabric-sel-btn" id="fsb-${f.id}" title="Select this fabric" style="pointer-events:none">
+        <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,6 5,9 10,3"/></svg>
+      </button>
+    </div>`).join('');
+}
+
+function selectFabric(id){
+  selectedFabricId = id;
+  FABRICS.forEach(f=>{
+    document.getElementById('fc-'+f.id).style.borderColor = f.id===id ? 'var(--terra)' : 'var(--border)';
+    document.getElementById('fc-'+f.id).style.background = f.id===id ? 'var(--terra-light)' : 'var(--white)';
+    document.getElementById('fsb-'+f.id).classList.toggle('on', f.id===id);
+  });
+  recalc();
+}
+
+function setShape(s){
+  currentShape = s;
+  ['triangle','rectangle','custom'].forEach(x=>{
+    document.getElementById('sh-'+x).classList.toggle('on', x===s);
+    document.getElementById('dims-'+x).style.display = x===s ? '' : 'none';
+  });
+  recalc();
+}
+
+function setWidth(w){
+  currentWidth = w;
+  [60,80,96,118].forEach(x=>{
+    document.getElementById('w-'+x).classList.toggle('on', x===w);
+  });
+  recalc();
+}
+
+// ─── CALCULATIONS ─────────────────────────────────────────────────
+function calcSqFt(){
+  if(currentShape==='triangle'){
+    const a=parseFloat(document.getElementById('d-a').value)||0;
+    const b=parseFloat(document.getElementById('d-b').value)||0;
+    const c=parseFloat(document.getElementById('d-c').value)||0;
+    if(a>0 && b>0 && c>0){
+      // Heron's formula
+      const s=(a+b+c)/2;
+      const area=Math.sqrt(s*(s-a)*(s-b)*(s-c));
+      return isNaN(area)||area<=0 ? 0 : area;
+    }
+    return 0;
+  } else if(currentShape==='rectangle'){
+    const w=parseFloat(document.getElementById('d-w').value)||0;
+    const l=parseFloat(document.getElementById('d-l').value)||0;
+    return w*l;
+  } else {
+    return parseFloat(document.getElementById('d-sqft').value)||0;
+  }
+}
+
+function sqftToYards(sqft, widthInches, wasteFactor, seamInches){
+  // Convert fabric width from inches to feet
+  const widthFt = widthInches / 12;
+  // Linear yards needed = sqft / (width in feet) — gives linear feet, divide by 3 for yards
+  const linearYards = (sqft / widthFt) / 3;
+  // Add waste
+  const withWaste = linearYards * (1 + wasteFactor);
+  // Round up to nearest 0.5 yard
+  return Math.ceil(withWaste * 2) / 2;
+}
+
+function recalc(){
+  const sqft = calcSqFt();
+  const calcResult = document.getElementById('calc-result');
+  if(sqft > 0){
+    calcResult.style.display='block';
+    document.getElementById('calc-sqft').textContent = sqft.toFixed(1);
+    if(currentShape==='triangle') document.getElementById('calc-note').textContent = '(Heron\'s formula)';
+    else document.getElementById('calc-note').textContent = '';
+    // Run comparison
+    updateComparison(sqft);
+  } else {
+    calcResult.style.display='none';
+    document.getElementById('compare-box').classList.remove('show');
+  }
+}
+
+function updateComparison(sqft){
+  if(!selectedFabricId || sqft<=0) return;
+  const fabric = FABRICS.find(f=>f.id===selectedFabricId);
+  if(!fabric) return;
+  const price = parseFloat(document.getElementById('fp-'+fabric.id).value)||0;
+  const waste = parseFloat(document.getElementById('waste').value)||0.15;
+  const seam = parseInt(document.getElementById('seam').value)||3;
+
+  const widths = [60,80,96,118];
+  const costs = widths.map(w=>({
+    width:w,
+    yards:sqftToYards(sqft,w,waste,seam),
+    cost:sqftToYards(sqft,w,waste,seam)*price
+  }));
+  const minCost = Math.min(...costs.map(c=>c.cost));
+
+  document.getElementById('compare-box').classList.add('show');
+  document.getElementById('compare-grid').innerHTML = costs.map(c=>{
+    const isBest = c.cost === minCost && c.cost > 0;
+    const isCurrent = c.width === currentWidth;
+    return `
+      <div class="compare-card ${isBest?'best':''}">
+        ${isBest?'<div class="best-badge">Best Value</div>':''}
+        <div class="cw-label">${c.width}" roll${isCurrent?' · selected':''}</div>
+        <div class="cw-width">${c.width}"</div>
+        <div class="cw-yards">${c.yards} yards</div>
+        <div class="cw-cost">$${c.cost.toFixed(0)}</div>
+        ${isBest&&c.cost<Math.max(...costs.map(x=>x.cost))?`<div class="cw-save">vs $${Math.max(...costs.map(x=>x.cost)).toFixed(0)} at 60"</div>`:''}
+      </div>`;
+  }).join('');
+}
+
+function buildQuote(){
+  const sqft = calcSqFt();
+  if(sqft <= 0){alert('Please enter your shade dimensions first.');return;}
+  if(!selectedFabricId){alert('Please select a fabric for this project.');return;}
+
+  const fabric = FABRICS.find(f=>f.id===selectedFabricId);
+  const price = parseFloat(document.getElementById('fp-'+fabric.id).value)||0;
+  const waste = parseFloat(document.getElementById('waste').value)||0.15;
+  const seam = parseInt(document.getElementById('seam').value)||3;
+  const markup = (parseFloat(document.getElementById('markup').value)||35)/100;
+  const labor = parseFloat(document.getElementById('labor').value)||0;
+  const hardware = parseFloat(document.getElementById('hardware').value)||0;
+  const permits = parseFloat(document.getElementById('permits').value)||0;
+  const other = parseFloat(document.getElementById('other').value)||0;
+
+  const yards = sqftToYards(sqft, currentWidth, waste, seam);
+  const fabricCost = yards * price;
+  const fabricWithMarkup = fabricCost * (1 + markup);
+
+  // Build dims string
+  let dimsStr='', shapeStr='';
+  if(currentShape==='triangle'){
+    const a=document.getElementById('d-a').value, b=document.getElementById('d-b').value, c=document.getElementById('d-c').value;
+    dimsStr=`${a}' × ${b}' × ${c}'`; shapeStr='Triangle';
+  } else if(currentShape==='rectangle'){
+    const w=document.getElementById('d-w').value, l=document.getElementById('d-l').value;
+    dimsStr=`${w}' × ${l}'`; shapeStr='Rectangle';
+  } else {
+    dimsStr=`${sqft} sq ft (custom)`; shapeStr='Custom';
+  }
+
+  // Line items
+  const lineItems = [
+    {name:`${fabric.name} Fabric`,sub:`${yards} yards × ${currentWidth}" roll · ${(waste*100).toFixed(0)}% waste factor`,cost:fabricWithMarkup},
+    labor>0?{name:'Labor & Installation',sub:'Design, fabrication, site install',cost:labor}:null,
+    hardware>0?{name:'Hardware & Rigging',sub:'Posts, cables, turnbuckles, anchors',cost:hardware}:null,
+    permits>0?{name:'Engineering / Permits',sub:'Structural drawings, permit fees',cost:permits}:null,
+    other>0?{name:'Other',sub:'Delivery, travel, misc.',cost:other}:null,
+  ].filter(Boolean);
+
+  const subtotal = lineItems.reduce((s,i)=>s+i.cost,0);
+  const total = subtotal;
+
+  const qid = 'CW-'+new Date().getFullYear()+'-'+String(Math.floor(1000+Math.random()*9000));
+  const dateStr = new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+
+  // Populate doc
+  document.getElementById('d-qid').textContent = qid;
+  document.getElementById('d-date').textContent = dateStr;
+  document.getElementById('d-client').textContent = document.getElementById('c-name').value||'—';
+  document.getElementById('d-contact').textContent = document.getElementById('c-contact').value||'—';
+  document.getElementById('d-project').textContent = document.getElementById('c-project').value||'—';
+  document.getElementById('d-email').textContent = document.getElementById('c-email').value||'—';
+  document.getElementById('d-phone').textContent = document.getElementById('c-phone').value||'—';
+  document.getElementById('d-shape').textContent = shapeStr;
+  document.getElementById('d-dims').textContent = dimsStr;
+  document.getElementById('d-area').textContent = sqft.toFixed(1)+' sq ft';
+  document.getElementById('d-fabric').textContent = fabric.name;
+  document.getElementById('d-width').textContent = currentWidth+'"';
+  document.getElementById('d-yards').textContent = yards+' linear yards (incl. '+Math.round(waste*100)+'% waste)';
+
+  document.getElementById('line-items-doc').innerHTML = lineItems.map(i=>`
+    <div class="line-doc">
+      <div><div class="line-doc-name">${i.name}</div><div class="line-doc-sub">${i.sub}</div></div>
+      <div class="line-doc-price">$${i.cost.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}</div>
+    </div>`).join('');
+
+  document.getElementById('subtotal-area').innerHTML = `
+    <div class="subtotal-row"><span>Subtotal</span><span>$${subtotal.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}</span></div>
+    <div class="subtotal-row total-row"><span>Total Estimate</span><span class="price">$${total.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}</span></div>`;
+
+  document.getElementById('empty-state').style.display='none';
+  document.getElementById('quote-doc').classList.add('show');
+  updateComparison(sqft);
+}
+
+function copyQuote(){
+  const client = document.getElementById('c-name').value||'—';
+  const project = document.getElementById('c-project').value||'—';
+  const total = document.getElementById('subtotal-area').querySelector('.price')?.textContent||'—';
+  const txt = `CANOPYWORX — SHADE PROJECT ESTIMATE\n${document.getElementById('d-qid').textContent} | ${document.getElementById('d-date').textContent}\n\nClient: ${client}\nProject: ${project}\n\nTotal Estimate: ${total}\n\nThis estimate is valid for 30 days.\n\nCanopyWorx — Extend Time Outside\n4402 Weletka Drive Suite 200, Austin TX 78734\n(512) 815-3857 · bc@canopyworx.com · canopyworx.com`;
+  navigator.clipboard.writeText(txt).then(()=>{
+    const b=document.getElementById('copy-btn');b.textContent='✓ Copied!';
+    setTimeout(()=>b.textContent='📋 Copy',2000);
+  });
+}
+
+// INIT
+buildFabricGrid();
+setShape('triangle');
+document.getElementById('w-96').classList.add('on');
+document.getElementById('waste').value='0.15';
+</script>
+</body>
+</html>
