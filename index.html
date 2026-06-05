@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Lina Forge builds automation tools for manufacturing companies: quoting, reporting, onboarding, and documentation.">
+<title>Lina Forge | Manufacturing Automation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #F5F0E8;
+    --cream-dark: #EDE7DD;
+    --coal: #18140F;
+    --coal-mid: #221D16;
+    --coal-light: #2E271E;
+    --copper: #B45A1A;
+    --copper-mid: #CA6A22;
+    --copper-light: #F5E8D8;
+    --text-primary: #18140F;
+    --text-secondary: #6B6157;
+    --text-muted: #9C9088;
+    --border: #DDD5C8;
+    --font-display: 'Barlow Condensed', sans-serif;
+    --font-body: 'Lora', serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; font-size: 16px; }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--cream);
+    color: var(--text-primary);
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 200;
+    background: var(--coal);
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2.5rem;
+    border-bottom: 2px solid var(--copper);
+  }
+
+  .nav-logo {
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--copper);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .nav-logo:hover { color: var(--copper-mid); }
+
+  .nav-contact-link {
+    font-family: var(--font-display);
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #8A7F75;
+    text-decoration: none;
+    border: 1px solid rgba(180,90,26,0.35);
+    padding: 0.4rem 1rem;
+    border-radius: 2px;
+    transition: color 0.2s, border-color 0.2s, background 0.2s;
+  }
+  .nav-contact-link:hover {
+    color: var(--copper);
+    border-color: var(--copper);
+    background: rgba(180,90,26,0.06);
+  }
+
+  /* CONTACT SECTION */
+  .contact { background: var(--coal); }
+  .contact .section-title { color: #F5F0E8; }
+
+  .contact-layout {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 5rem;
+    align-items: start;
+    margin-top: 3rem;
+  }
+
+  .contact-intro {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    color: #5A514A;
+    line-height: 1.8;
+    margin-top: 1.25rem;
+  }
+
+  .contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .form-label {
+    font-family: var(--font-display);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--copper);
+  }
+
+  .form-input,
+  .form-textarea {
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    color: #D4CEC8;
+    background: var(--coal-mid);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 3px;
+    padding: 0.75rem 1rem;
+    width: 100%;
+    transition: border-color 0.2s, background 0.2s;
+    outline: none;
+    line-height: 1.5;
+    -webkit-appearance: none;
+  }
+  .form-input::placeholder,
+  .form-textarea::placeholder { color: #3E3830; }
+  .form-input:focus,
+  .form-textarea:focus {
+    border-color: var(--copper);
+    background: var(--coal-light);
+  }
+
+  .form-textarea { resize: vertical; min-height: 140px; }
+
+  .form-submit {
+    font-family: var(--font-display);
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #F5F0E8;
+    background: var(--copper);
+    border: none;
+    border-radius: 3px;
+    padding: 0.85rem 2rem;
+    cursor: pointer;
+    align-self: flex-start;
+    transition: background 0.2s, transform 0.1s;
+  }
+  .form-submit:hover { background: var(--copper-mid); }
+  .form-submit:active { transform: scale(0.98); }
+  .form-submit:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  .form-status {
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    padding: 0.75rem 1rem;
+    border-radius: 3px;
+    display: none;
+  }
+  .form-status.success {
+    display: block;
+    color: #8FD4A8;
+    background: rgba(143,212,168,0.08);
+    border: 1px solid rgba(143,212,168,0.2);
+  }
+  .form-status.error {
+    display: block;
+    color: #E08080;
+    background: rgba(224,128,128,0.08);
+    border: 1px solid rgba(224,128,128,0.2);
+  }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    background: var(--coal);
+    display: flex;
+    align-items: center;
+    padding: 8rem 2.5rem 6rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-bg-line {
+    position: absolute;
+    top: 0; bottom: 0;
+    right: 160px;
+    width: 1px;
+    background: rgba(255,255,255,0.04);
+    pointer-events: none;
+  }
+  .hero-bg-shape {
+    position: absolute;
+    pointer-events: none;
+  }
+  .hero-bg-shape-1 {
+    right: -60px; top: 50%;
+    transform: translateY(-50%) rotate(12deg);
+    width: 420px; height: 420px;
+    border: 48px solid rgba(180,90,26,0.07);
+  }
+  .hero-bg-shape-2 {
+    right: 80px; top: 50%;
+    transform: translateY(-50%) rotate(12deg);
+    width: 220px; height: 220px;
+    border: 32px solid rgba(180,90,26,0.05);
+  }
+  .hero-bg-shape-3 {
+    left: -80px; bottom: -80px;
+    width: 300px; height: 300px;
+    border: 40px solid rgba(255,255,255,0.025);
+    transform: rotate(-8deg);
+  }
+  .hero-grid-overlay {
+    position: absolute; inset: 0;
+    background-image:
+      repeating-linear-gradient(0deg, transparent, transparent 79px, rgba(255,255,255,0.018) 79px, rgba(255,255,255,0.018) 80px),
+      repeating-linear-gradient(90deg, transparent, transparent 79px, rgba(255,255,255,0.018) 79px, rgba(255,255,255,0.018) 80px);
+    pointer-events: none;
+  }
+
+  .hero-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    width: 100%;
+    position: relative;
+  }
+
+  .hero-eyebrow {
+    font-family: var(--font-display);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--copper);
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    animation: fadeUp 0.7s ease forwards;
+  }
+  .hero-eyebrow::before {
+    content: '';
+    display: block;
+    width: 36px; height: 2px;
+    background: var(--copper);
+    flex-shrink: 0;
+  }
+
+  .hero h1 {
+    font-family: var(--font-display);
+    font-size: clamp(3.5rem, 9vw, 7.5rem);
+    font-weight: 700;
+    line-height: 0.92;
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+    color: #FFFFFF;
+    margin-bottom: 2.5rem;
+    opacity: 0;
+    animation: fadeUp 0.7s ease 0.14s forwards;
+  }
+  .hero h1 em {
+    font-style: normal;
+    color: var(--copper);
+    display: block;
+  }
+
+  .hero-sub {
+    font-family: var(--font-body);
+    font-size: clamp(1rem, 2.2vw, 1.1rem);
+    color: #7A706A;
+    max-width: 540px;
+    line-height: 1.8;
+    padding-left: 1.5rem;
+    border-left: 2px solid var(--copper);
+    opacity: 0;
+    animation: fadeUp 0.7s ease 0.28s forwards;
+  }
+
+  .hero-scroll {
+    position: absolute;
+    bottom: 2.5rem; left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    opacity: 0;
+    animation: fadeUp 0.7s ease 0.5s forwards;
+  }
+  .hero-scroll span {
+    font-family: var(--font-display);
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #4A4440;
+  }
+  .hero-scroll-line {
+    width: 1px; height: 40px;
+    background: linear-gradient(to bottom, #4A4440, transparent);
+    animation: scrollPulse 2s ease-in-out infinite;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(22px); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes scrollPulse {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 1; }
+  }
+
+  /* SECTION BASE */
+  .section { padding: 6rem 2.5rem; }
+  .section-inner { max-width: 1100px; margin: 0 auto; }
+
+  .section-label {
+    font-family: var(--font-display);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--copper);
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin-bottom: 0.85rem;
+  }
+  .section-label::before {
+    content: '';
+    display: block;
+    width: 24px; height: 2px;
+    background: var(--copper);
+    flex-shrink: 0;
+  }
+
+  .section-title {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 5vw, 3.4rem);
+    font-weight: 700;
+    text-transform: uppercase;
+    line-height: 0.97;
+    color: var(--coal);
+    letter-spacing: -0.01em;
+  }
+
+  /* PROBLEM SECTION */
+  .problem { background: var(--cream-dark); }
+
+  .problem-layout {
+    display: grid;
+    grid-template-columns: 1fr 1.6fr;
+    gap: 5rem;
+    align-items: start;
+    margin-top: 3.5rem;
+  }
+
+  .problem-left .section-intro {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    line-height: 1.8;
+    margin-top: 1.5rem;
+    font-style: italic;
+  }
+
+  .problem-list { list-style: none; }
+
+  .problem-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.25rem;
+    padding: 1.5rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .problem-item:first-child { border-top: 1px solid var(--border); }
+
+  .problem-num {
+    font-family: var(--font-display);
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--copper);
+    padding-top: 4px;
+    flex-shrink: 0;
+    width: 20px;
+  }
+
+  .problem-text {
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.25;
+    letter-spacing: 0.01em;
+  }
+  .problem-sub {
+    font-family: var(--font-body);
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    margin-top: 0.35rem;
+    line-height: 1.6;
+  }
+
+  /* SERVICES SECTION */
+  .services { background: var(--cream); }
+
+  .services-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 3.5rem;
+    gap: 2rem;
+  }
+  .services-intro {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    max-width: 380px;
+    line-height: 1.7;
+  }
+
+  .service-row {
+    display: grid;
+    grid-template-columns: 2.5rem 1fr 2.1fr;
+    gap: 0 2.5rem;
+    padding: 2.25rem 1rem;
+    border-top: 1px solid var(--border);
+    align-items: start;
+    margin: 0 -1rem;
+    border-radius: 4px;
+    transition: background 0.25s;
+  }
+  .service-row:last-child { border-bottom: 1px solid var(--border); }
+  .service-row:hover { background: var(--copper-light); }
+
+  .service-row-num {
+    font-family: var(--font-display);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--copper);
+    padding-top: 6px;
+  }
+
+  .service-row-name {
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: var(--coal);
+    line-height: 1.1;
+    margin-bottom: 0.45rem;
+  }
+  .service-tag {
+    display: inline-block;
+    font-family: var(--font-display);
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--copper);
+    background: var(--copper-light);
+    border: 1px solid rgba(180,90,26,0.2);
+    padding: 2px 8px;
+    border-radius: 2px;
+  }
+  .service-row-desc {
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    line-height: 1.75;
+    padding-top: 4px;
+  }
+
+  /* APPROACH SECTION */
+  .approach { background: var(--coal); }
+  .approach .section-title { color: #F5F0E8; }
+
+  .approach-intro {
+    font-size: 1rem;
+    color: #5A514A;
+    max-width: 500px;
+    line-height: 1.75;
+    margin-top: 0.75rem;
+    font-style: italic;
+  }
+
+  .approach-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    margin-top: 3.5rem;
+  }
+
+  .approach-card {
+    background: var(--coal-mid);
+    padding: 2.5rem 2rem;
+    border-top: 3px solid var(--coal-light);
+    transition: border-color 0.3s, background 0.3s;
+  }
+  .approach-card:hover {
+    border-top-color: var(--copper);
+    background: var(--coal-light);
+  }
+
+  .approach-card-num {
+    font-family: var(--font-display);
+    font-size: 3.5rem;
+    font-weight: 700;
+    line-height: 1;
+    color: rgba(180,90,26,0.15);
+    margin-bottom: 1.5rem;
+    transition: color 0.3s;
+  }
+  .approach-card:hover .approach-card-num { color: rgba(180,90,26,0.3); }
+
+  .approach-card-title {
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #F0EAE0;
+    margin-bottom: 0.85rem;
+    line-height: 1.1;
+  }
+  .approach-card-desc {
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    color: #9A9088;
+    line-height: 1.7;
+  }
+
+  /* WHO WE WORK WITH */
+  .who { background: var(--cream-dark); }
+
+  .who-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: start;
+    margin-top: 2rem;
+  }
+
+  .who-title {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 700;
+    text-transform: uppercase;
+    line-height: 1;
+    color: var(--coal);
+    letter-spacing: -0.01em;
+    margin-bottom: 1.25rem;
+  }
+
+  .who-sub {
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    line-height: 1.7;
+    font-style: italic;
+  }
+
+  .who-detail {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    color: var(--text-secondary);
+    line-height: 1.8;
+    padding-top: 0.25rem;
+  }
+
+  /* ENGAGEMENT NOTE */
+  .engagement-note {
+    margin-top: 2.5rem;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    padding-top: 2.5rem;
+    max-width: 640px;
+  }
+
+  .engagement-text {
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    color: #5A514A;
+    line-height: 1.8;
+    font-style: italic;
+  }
+
+  /* FOOTER */
+  footer {
+    background: var(--coal);
+    border-top: 1px solid rgba(255,255,255,0.05);
+    padding: 3rem 2.5rem;
+  }
+  .footer-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+  }
+  .footer-logo {
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--copper);
+    display: block;
+    margin-bottom: 0.3rem;
+  }
+  .footer-tagline {
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    color: #3E3830;
+    font-style: italic;
+  }
+  .footer-copy {
+    font-family: var(--font-display);
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    color: #302A25;
+    text-transform: uppercase;
+  }
+
+  /* SCROLL REVEAL */
+  [data-reveal] {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.55s ease, transform 0.55s ease;
+  }
+  [data-reveal].is-visible { opacity: 1; transform: none; }
+  [data-reveal][data-delay="1"] { transition-delay: 0.08s; }
+  [data-reveal][data-delay="2"] { transition-delay: 0.16s; }
+  [data-reveal][data-delay="3"] { transition-delay: 0.24s; }
+  [data-reveal][data-delay="4"] { transition-delay: 0.32s; }
+  [data-reveal][data-delay="5"] { transition-delay: 0.40s; }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    .problem-layout { grid-template-columns: 1fr; gap: 2.5rem; }
+    .approach-grid { grid-template-columns: 1fr; gap: 2px; }
+    .services-header { flex-direction: column; align-items: flex-start; }
+    .service-row { grid-template-columns: 2rem 1fr; gap: 1rem; }
+    .service-row-desc { grid-column: 2; }
+    .who-layout { grid-template-columns: 1fr; gap: 2rem; }
+    .contact-layout { grid-template-columns: 1fr; gap: 2.5rem; }
+    .form-row { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 640px) {
+    nav { padding: 0 1.25rem; }
+    .section { padding: 4rem 1.25rem; }
+    .hero { padding: 7rem 1.25rem 5rem; }
+    .footer-inner { flex-direction: column; align-items: flex-start; }
+    .footer-right { text-align: left; }
+    .service-row { grid-template-columns: 1fr; padding: 1.75rem 0; }
+    .service-row-num { display: none; }
+    .service-row-desc { padding-top: 0.5rem; }
+    .contact-layout { gap: 2rem; }
+    .form-row { grid-template-columns: 1fr; }
+    .approach-card { padding: 2rem 1.25rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav role="banner">
+  <a href="#" class="nav-logo" aria-label="Lina Forge home">Lina Forge</a>
+  <a href="#contact" class="nav-contact-link">Get in Touch</a>
+</nav>
+
+<main>
+
+  <!-- HERO -->
+  <section class="hero" aria-labelledby="hero-heading">
+    <div class="hero-grid-overlay" aria-hidden="true"></div>
+    <div class="hero-bg-line" aria-hidden="true"></div>
+    <div class="hero-bg-shape hero-bg-shape-1" aria-hidden="true"></div>
+    <div class="hero-bg-shape hero-bg-shape-2" aria-hidden="true"></div>
+    <div class="hero-bg-shape hero-bg-shape-3" aria-hidden="true"></div>
+
+    <div class="hero-inner">
+      <p class="hero-eyebrow" aria-hidden="true">Manufacturing Automation</p>
+      <h1 id="hero-heading">
+        Automation Tools<br>
+        <em>Built for</em>
+        Manufacturing.
+      </h1>
+      <p class="hero-sub">
+        Lina Forge builds automation tools for manufacturing companies, covering the areas where manual work tends to pile up: quoting, reporting, onboarding, and documentation.
+      </p>
+    </div>
+
+    <div class="hero-scroll" aria-hidden="true">
+      <span>Scroll</span>
+      <div class="hero-scroll-line"></div>
+    </div>
+  </section>
+
+  <!-- WHERE TIME GETS LOST -->
+  <section class="section problem" id="problem" aria-labelledby="problem-heading">
+    <div class="section-inner">
+      <p class="section-label" aria-hidden="true">Where Time Gets Lost</p>
+      <h2 class="section-title" id="problem-heading" data-reveal>
+        Work That Adds Up<br>Across Every Week
+      </h2>
+
+      <div class="problem-layout">
+        <div class="problem-left" data-reveal data-delay="1">
+          <p class="section-intro">
+            In most manufacturing shops, a meaningful portion of the workweek goes to tasks that are manual and repetitive. These are the areas where the right automation tends to make the most difference.
+          </p>
+        </div>
+
+        <ul class="problem-list" aria-label="Common operational bottlenecks">
+          <li class="problem-item" data-reveal data-delay="1">
+            <span class="problem-num" aria-hidden="true">01</span>
+            <div>
+              <p class="problem-text">Quoting done by hand</p>
+              <p class="problem-sub">Pulling material costs, calculating labor, and formatting estimates manually takes significant time, and the process often lives with one person.</p>
+            </div>
+          </li>
+          <li class="problem-item" data-reveal data-delay="2">
+            <span class="problem-num" aria-hidden="true">02</span>
+            <div>
+              <p class="problem-text">Reports compiled on demand</p>
+              <p class="problem-sub">When visibility into operations requires someone to stop and pull data from multiple places, it either doesn't happen consistently or takes up time it shouldn't.</p>
+            </div>
+          </li>
+          <li class="problem-item" data-reveal data-delay="3">
+            <span class="problem-num" aria-hidden="true">03</span>
+            <div>
+              <p class="problem-text">Onboarding that depends on who's available</p>
+              <p class="problem-sub">Without structured materials, new hire training varies based on who's doing it that week, and your experienced people absorb the cost of that inconsistency.</p>
+            </div>
+          </li>
+          <li class="problem-item" data-reveal data-delay="4">
+            <span class="problem-num" aria-hidden="true">04</span>
+            <div>
+              <p class="problem-text">Process knowledge that isn't written down</p>
+              <p class="problem-sub">Procedures, workarounds, and institutional knowledge stored in experienced workers' heads aren't transferable and create real gaps when those people are unavailable.</p>
+            </div>
+          </li>
+          <li class="problem-item" data-reveal data-delay="5">
+            <span class="problem-num" aria-hidden="true">05</span>
+            <div>
+              <p class="problem-text">Documentation that falls out of date</p>
+              <p class="problem-sub">SOPs and work instructions that are difficult to update stop getting used. Teams end up reverting to informal methods, and the documentation becomes a formality.</p>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHAT WE BUILD -->
+  <section class="section services" id="services" aria-labelledby="services-heading">
+    <div class="section-inner">
+      <div class="services-header">
+        <div>
+          <p class="section-label" aria-hidden="true">What We Build</p>
+          <h2 class="section-title" id="services-heading" data-reveal>Five Tools for<br>Manufacturing Operations</h2>
+        </div>
+        <p class="services-intro" data-reveal data-delay="2">
+          Each tool we build targets a specific, recurring time drain. We scope it to your operation, build it to fit how your team works, and make sure it's something your people will actually use.
+        </p>
+      </div>
+
+      <div role="list" aria-label="Lina Forge services">
+
+        <div class="service-row" role="listitem" data-reveal data-delay="1">
+          <span class="service-row-num" aria-hidden="true">01</span>
+          <div>
+            <p class="service-row-name">Automated Quote Generator</p>
+            <span class="service-tag">Estimating</span>
+          </div>
+          <p class="service-row-desc">
+            A system that generates accurate quotes using your existing pricing, materials, and labor data. It connects to how your shop already calculates jobs and outputs estimates in a consistent format, reducing the time required per quote and keeping the process from depending on one person's spreadsheet.
+          </p>
+        </div>
+
+        <div class="service-row" role="listitem" data-reveal data-delay="1">
+          <span class="service-row-num" aria-hidden="true">02</span>
+          <div>
+            <p class="service-row-name">Automated Reporting</p>
+            <span class="service-tag">Operations</span>
+          </div>
+          <p class="service-row-desc">
+            Scheduled reports built around the metrics your operation tracks: production output, job status, cost by job, or whatever your team actually needs to see. Data is pulled and formatted automatically, delivered on a schedule, without requiring anyone to compile it by hand.
+          </p>
+        </div>
+
+        <div class="service-row" role="listitem" data-reveal data-delay="1">
+          <span class="service-row-num" aria-hidden="true">03</span>
+          <div>
+            <p class="service-row-name">Sales Prep Workflow</p>
+            <span class="service-tag">Sales</span>
+          </div>
+          <p class="service-row-desc">
+            Before a call with a prospect, your sales team gets a structured briefing: company background, likely pain points based on their industry and size, and specific areas where your products or services could add value. It turns a cold call into a prepared conversation and cuts the time it takes to get ready for a meeting.
+          </p>
+        </div>
+
+        <div class="service-row" role="listitem" data-reveal data-delay="1">
+          <span class="service-row-num" aria-hidden="true">04</span>
+          <div>
+            <p class="service-row-name">Hiring &amp; Onboarding Materials</p>
+            <span class="service-tag">People</span>
+          </div>
+          <p class="service-row-desc">
+            Structured materials that standardize how your shop hires and brings people on: job descriptions, interview guides, training checklists, and step-by-step onboarding flows. Reduces the variation in how onboarding gets done and takes the burden off your experienced staff to recreate the process every time.
+          </p>
+        </div>
+
+        <div class="service-row" role="listitem" data-reveal data-delay="1">
+          <span class="service-row-num" aria-hidden="true">05</span>
+          <div>
+            <p class="service-row-name">Process Knowledge Tools</p>
+            <span class="service-tag">Knowledge</span>
+          </div>
+          <p class="service-row-desc">
+            Software that answers questions about how work gets done in your shop, based on your own documented processes. A new hire or a worker on a different shift can type in a question and get an answer pulled directly from your SOPs and work instructions, without having to find someone to ask.
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- WHO WE WORK WITH -->
+  <section class="section who" id="who" aria-labelledby="who-heading">
+    <div class="section-inner">
+      <p class="section-label" aria-hidden="true">Who We Work With</p>
+      <div class="who-layout" data-reveal>
+        <div>
+          <h2 class="who-title" id="who-heading">
+            Job Shops.<br>
+            Fabricators.<br>
+            Contract Manufacturers.
+          </h2>
+          <p class="who-sub">Typically 10 to 100 employees, running custom or short-run work.</p>
+        </div>
+        <p class="who-detail">
+          If your shop takes on custom jobs, manages work orders across a small team, and depends on a handful of experienced people to keep things running, the problems we address will be familiar. These tools are built for that environment, not for large-scale industrial operations with dedicated IT departments and six-figure software budgets.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW WE WORK -->
+  <section class="section approach" id="approach" aria-labelledby="approach-heading">
+    <div class="section-inner">
+      <p class="section-label" aria-hidden="true">How We Work</p>
+      <h2 class="section-title" id="approach-heading" data-reveal>
+        What to Expect<br>Working With Us
+      </h2>
+      <p class="approach-intro" data-reveal data-delay="1">
+        We keep things straightforward. Here's how an engagement with Lina Forge typically goes.
+      </p>
+
+      <div class="approach-grid">
+
+        <div class="approach-card" data-reveal data-delay="1">
+          <p class="approach-card-num" aria-hidden="true">01</p>
+          <h3 class="approach-card-title">We Start with Your Operation</h3>
+          <p class="approach-card-desc">
+            Before we recommend anything, we spend time understanding how your shop actually works: your current process, where time gets spent, and what's already in place. The problems we address are ones we've confirmed with you, not assumed from the outside.
+          </p>
+        </div>
+
+        <div class="approach-card" data-reveal data-delay="2">
+          <p class="approach-card-num" aria-hidden="true">02</p>
+          <h3 class="approach-card-title">We Recommend Workflows</h3>
+          <p class="approach-card-desc">
+            Once we understand your operation, we identify where automation can make the biggest difference and put together specific workflow recommendations tailored to your shop. You'll know exactly what we're proposing and why before anything gets built.
+          </p>
+        </div>
+
+        <div class="approach-card" data-reveal data-delay="3">
+          <p class="approach-card-num" aria-hidden="true">03</p>
+          <h3 class="approach-card-title">We Help You Implement</h3>
+          <p class="approach-card-desc">
+            We handle the build and work with your team through rollout. That means setup, testing, and making sure the people using it day to day are comfortable with it before we hand it off.
+          </p>
+        </div>
+
+      </div>
+
+      <div class="engagement-note" data-reveal>
+        <p class="engagement-text">Most engagements begin with a site visit or a short walkthrough call to understand your current operation. That conversation typically runs about an hour. From there, we put together specific workflow recommendations before any build begins.</p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section class="section contact" id="contact" aria-labelledby="contact-heading">
+    <div class="section-inner">
+      <div class="contact-layout">
+        <div data-reveal>
+          <p class="section-label" aria-hidden="true">Get in Touch</p>
+          <h2 class="section-title" id="contact-heading">Let's Talk About Your Operation</h2>
+          <p class="contact-intro">If you're running into any of the issues described on this page and want to talk through what automation might look like for your shop, reach out. No pressure, no pitch — just a straightforward conversation about where your time is going and whether we can help.</p>
+        </div>
+
+        <form class="contact-form" id="contact-form" action="https://formspree.io/f/xojzvnow" method="POST" novalidate data-reveal data-delay="2">
+          <input type="hidden" name="_subject" value="New inquiry from Lina Forge website">
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="name">Name</label>
+              <input class="form-input" type="text" id="name" name="name" placeholder="Your name" required autocomplete="name">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="email">Email</label>
+              <input class="form-input" type="email" id="email" name="email" placeholder="your@email.com" required autocomplete="email">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="message">Message</label>
+            <textarea class="form-textarea" id="message" name="message" placeholder="Tell us a bit about your shop and what you're running into." required></textarea>
+          </div>
+
+          <div id="form-status" class="form-status" role="alert" aria-live="polite"></div>
+
+          <button type="submit" class="form-submit" id="form-submit">Send Message</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer role="contentinfo">
+  <div class="footer-inner">
+    <div>
+      <span class="footer-logo">Lina Forge</span>
+      <p class="footer-tagline">Automation tools built for manufacturing operations.</p>
+    </div>
+    <div>
+      <p class="footer-copy">&copy; 2026 Lina Forge. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Scroll reveal
+  const revealEls = document.querySelectorAll('[data-reveal]');
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('is-visible');
+        revealObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  revealEls.forEach(el => revealObserver.observe(el));
+
+  // Contact form — Formspree submission
+  const form = document.getElementById('contact-form');
+  const submitBtn = document.getElementById('form-submit');
+  const statusEl = document.getElementById('form-status');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Sending...';
+    statusEl.className = 'form-status';
+    statusEl.textContent = '';
+
+    try {
+      const res = await fetch(form.action, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: { 'Accept': 'application/json' }
+      });
+
+      if (res.ok) {
+        statusEl.className = 'form-status success';
+        statusEl.textContent = 'Message sent. We\'ll be in touch shortly.';
+        form.reset();
+        submitBtn.textContent = 'Sent';
+      } else {
+        throw new Error('Server error');
+      }
+    } catch {
+      statusEl.className = 'form-status error';
+      statusEl.textContent = 'Something went wrong. Please try again or email us directly.';
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Send Message';
+    }
+  });
+</script>
+
+</body>
+</html>
