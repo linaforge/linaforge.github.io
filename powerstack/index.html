@@ -85,13 +85,15 @@
     margin: 0 auto;
     padding: 40px 24px 80px;
     display: grid;
-    grid-template-columns: 1fr 420px;
+    grid-template-columns: 1fr 400px;
     gap: 32px;
     align-items: start;
   }
 
   /* FORM COLUMN */
-  .form-col {}
+  .form-col {
+    min-width: 0;
+  }
 
   .page-title {
     font-size: 28px;
@@ -104,7 +106,7 @@
   .page-sub {
     font-size: 14px;
     color: var(--text-soft);
-    margin-bottom: 32px;
+    margin-bottom: 24px;
   }
 
   /* SECTIONS */
@@ -401,7 +403,8 @@
   /* QUOTE PREVIEW COLUMN */
   .preview-col {
     position: sticky;
-    top: 96px;
+    top: 40px;
+    align-self: start;
   }
 
   .preview-card {
