@@ -79,6 +79,33 @@
     font-weight: 500;
   }
 
+
+  /* STICKY GENERATE BAR */
+  .sticky-generate {
+    position: sticky;
+    top: 0;
+    z-index: 90;
+    background: var(--white);
+    border-bottom: 1px solid var(--rule);
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 8px rgba(44,62,56,0.07);
+    margin-bottom: 28px;
+  }
+
+  .sticky-generate-label {
+    font-size: 13px;
+    color: var(--text-soft);
+    font-weight: 500;
+  }
+
+  .sticky-generate-label strong {
+    color: var(--slate);
+    font-weight: 600;
+  }
+
   /* LAYOUT */
   .app-body {
     max-width: 1100px;
@@ -711,6 +738,11 @@
 
 <!-- We'll replace with a proper logo render -->
 
+<div class="sticky-generate">
+    <div class="sticky-generate-label">Fill in the sections below, then <strong>generate your quote</strong></div>
+    <button class="build-btn" onclick="buildQuote()" style="margin:0; width:auto; padding:11px 28px; font-size:14px;">☀ Generate Quote</button>
+  </div>
+
 <div class="app-body">
 
   <!-- FORM COLUMN -->
@@ -1084,8 +1116,6 @@
         </div>
       </div>
     </div>
-
-    <button class="build-btn" onclick="buildQuote()">☀ Generate Quote</button>
 
   </div>
 
