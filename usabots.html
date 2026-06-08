@@ -1,0 +1,1376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>USABots Sales Prep Agent</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --white: #ffffff;
+    --off-white: #f7f8fa;
+    --light-gray: #eef0f4;
+    --border: #e2e5eb;
+    --text: #1a1a2e;
+    --text-mid: #4a4f6a;
+    --text-muted: #8a8fa8;
+    --navy: #0f1629;
+    --accent: #ff6b2b;
+    --accent-hover: #e85a1a;
+    --accent-light: #fff3ee;
+    --green: #00c48c;
+    --green-light: #e8faf5;
+    --blue: #2563eb;
+    --blue-light: #eff6ff;
+    --radius: 14px;
+    --radius-sm: 8px;
+    --shadow: 0 2px 16px rgba(0,0,0,0.07);
+    --shadow-md: 0 4px 32px rgba(0,0,0,0.10);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--off-white);
+    color: var(--text);
+    font-family: 'Open Sans', sans-serif;
+    min-height: 100vh;
+  }
+
+  /* NAV */
+  nav {
+    background: var(--navy);
+    padding: 0 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+  }
+
+  .nav-logo-img {
+    width: 32px;
+    height: 32px;
+    background: var(--accent);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 800;
+    font-size: 13px;
+    color: white;
+    letter-spacing: -0.5px;
+  }
+
+  .nav-logo-text {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    color: white;
+    letter-spacing: 0.3px;
+  }
+
+  .nav-logo-text span {
+    color: var(--accent);
+  }
+
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .nav-usage {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.5);
+    letter-spacing: 0.5px;
+  }
+
+  .nav-usage span {
+    color: var(--accent);
+  }
+
+  .nav-badge {
+    background: rgba(255,107,43,0.15);
+    border: 1px solid rgba(255,107,43,0.3);
+    border-radius: 20px;
+    padding: 5px 12px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: 0.5px;
+  }
+
+  /* HERO */
+  .hero {
+    background: var(--navy);
+    padding: 56px 40px 64px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 40px;
+    background: var(--off-white);
+    clip-path: ellipse(55% 100% at 50% 100%);
+  }
+
+  .hero-eyebrow {
+    display: inline-block;
+    background: rgba(255,107,43,0.15);
+    border: 1px solid rgba(255,107,43,0.3);
+    border-radius: 20px;
+    padding: 5px 16px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .hero-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 42px;
+    font-weight: 900;
+    color: white;
+    line-height: 1.15;
+    margin-bottom: 16px;
+    letter-spacing: -0.5px;
+  }
+
+  .hero-title span {
+    color: var(--accent);
+  }
+
+  .hero-sub {
+    font-size: 16px;
+    color: rgba(255,255,255,0.6);
+    max-width: 520px;
+    margin: 0 auto 36px;
+    line-height: 1.7;
+  }
+
+  /* HOW IT WORKS */
+  .how-it-works {
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    max-width: 680px;
+    margin: 0 auto 40px;
+  }
+
+  .how-step {
+    flex: 1;
+    text-align: center;
+    padding: 0 16px;
+    position: relative;
+  }
+
+  .how-step:not(:last-child)::after {
+    content: '→';
+    position: absolute;
+    right: -8px;
+    top: 14px;
+    color: rgba(255,255,255,0.25);
+    font-size: 16px;
+  }
+
+  .how-step-num {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(255,107,43,0.2);
+    border: 1px solid rgba(255,107,43,0.4);
+    color: var(--accent);
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 800;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 8px;
+  }
+
+  .how-step-label {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.5);
+    line-height: 1.4;
+  }
+
+  /* OUTCOMES */
+  .outcomes-strip {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    flex-wrap: wrap;
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  .outcome-chip {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 20px;
+    padding: 7px 14px;
+    font-size: 12px;
+    color: rgba(255,255,255,0.7);
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 500;
+  }
+
+  .outcome-chip-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    flex-shrink: 0;
+  }
+
+  /* MAIN CONTENT */
+  .content {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 40px 40px 60px;
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: 28px;
+    align-items: start;
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    position: sticky;
+    top: 88px;
+  }
+
+  .sidebar-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+
+  .sidebar-card-header {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--off-white);
+  }
+
+  .sidebar-card-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-muted);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
+
+  .recent-list {
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .recent-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 10px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background 0.15s;
+    background: transparent;
+    border: 1px solid transparent;
+    width: 100%;
+    text-align: left;
+  }
+
+  .recent-item:hover {
+    background: var(--off-white);
+    border-color: var(--border);
+  }
+
+  .recent-item.active {
+    background: var(--accent-light);
+    border-color: rgba(255,107,43,0.2);
+  }
+
+  .recent-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    background: var(--navy);
+    color: white;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .recent-item.active .recent-avatar {
+    background: var(--accent);
+  }
+
+  .recent-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 2px;
+  }
+
+  .recent-time {
+    font-size: 10px;
+    color: var(--text-muted);
+  }
+
+  .empty-recent {
+    padding: 20px 12px;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 12px;
+    line-height: 1.7;
+  }
+
+  /* INPUT CARD */
+  .main-col {}
+
+  .input-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 28px;
+    margin-bottom: 24px;
+  }
+
+  .input-card-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+
+  .input-card-sub {
+    font-size: 13px;
+    color: var(--text-mid);
+    margin-bottom: 20px;
+    line-height: 1.6;
+  }
+
+  .input-row {
+    display: flex;
+    gap: 12px;
+  }
+
+  .prospect-input {
+    flex: 1;
+    border: 2px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 13px 16px;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s;
+    background: var(--white);
+  }
+
+  .prospect-input::placeholder { color: var(--text-muted); }
+  .prospect-input:focus { border-color: var(--accent); }
+
+  .generate-btn {
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 13px 28px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    letter-spacing: 0.3px;
+  }
+
+  .generate-btn:hover:not(:disabled) {
+    background: var(--accent-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(255,107,43,0.35);
+  }
+
+  .generate-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
+  .limit-warning {
+    margin-top: 12px;
+    padding: 10px 14px;
+    background: #fff3ee;
+    border: 1px solid rgba(255,107,43,0.3);
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    color: var(--accent);
+    font-weight: 600;
+    display: none;
+  }
+
+  /* LOADING */
+  .loading-card {
+    display: none;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 48px 28px;
+    text-align: center;
+    margin-bottom: 24px;
+  }
+
+  .loading-card.visible { display: block; }
+
+  .loading-spinner {
+    width: 44px;
+    height: 44px;
+    border: 3px solid var(--light-gray);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.75s linear infinite;
+    margin: 0 auto 20px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loading-title {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+
+  .loading-sub {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+  }
+
+  .loading-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .loading-step {
+    font-size: 12px;
+    color: var(--text-muted);
+    opacity: 0;
+    animation: fadeIn 0.5s forwards;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .loading-step::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    flex-shrink: 0;
+  }
+
+  .loading-step:nth-child(1) { animation-delay: 0.4s; }
+  .loading-step:nth-child(2) { animation-delay: 1.4s; }
+  .loading-step:nth-child(3) { animation-delay: 2.6s; }
+
+  @keyframes fadeIn { to { opacity: 1; } }
+
+  /* ERROR */
+  .error-card {
+    display: none;
+    background: #fff5f5;
+    border: 1px solid #fecaca;
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    font-size: 13px;
+    color: #dc2626;
+    margin-bottom: 24px;
+    font-weight: 500;
+  }
+  .error-card.visible { display: block; }
+
+  /* BRIEF */
+  .brief-output { display: none; }
+  .brief-output.visible { display: block; }
+
+  .brief-header-card {
+    background: var(--navy);
+    border-radius: var(--radius);
+    padding: 24px 28px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .brief-company-name {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 22px;
+    font-weight: 900;
+    color: white;
+    margin-bottom: 4px;
+  }
+
+  .brief-meta-text {
+    font-size: 12px;
+    color: rgba(255,255,255,0.5);
+  }
+
+  .brief-timestamp {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-size: 11px;
+    color: rgba(255,255,255,0.5);
+    font-family: 'Montserrat', sans-serif;
+    white-space: nowrap;
+  }
+
+  .cards-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    opacity: 0;
+    animation: slideUp 0.35s ease forwards;
+  }
+
+  .card.full-width { grid-column: 1 / -1; }
+
+  .card:nth-child(1) { animation-delay: 0.05s; }
+  .card:nth-child(2) { animation-delay: 0.10s; }
+  .card:nth-child(3) { animation-delay: 0.15s; }
+  .card:nth-child(4) { animation-delay: 0.20s; }
+  .card:nth-child(5) { animation-delay: 0.25s; }
+  .card:nth-child(6) { animation-delay: 0.30s; }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .card-top {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .card-icon-wrap {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  .card-label {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .card-body {
+    padding: 18px;
+  }
+
+  .card-body p {
+    font-size: 13px;
+    line-height: 1.75;
+    color: var(--text-mid);
+  }
+
+  .item-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .item-row {
+    display: flex;
+    gap: 12px;
+    padding: 12px 14px;
+    background: var(--off-white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    align-items: flex-start;
+  }
+
+  .item-marker {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--accent);
+    flex-shrink: 0;
+    margin-top: 1px;
+    min-width: 20px;
+  }
+
+  .item-body {}
+
+  .item-label {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 3px;
+    letter-spacing: 0.2px;
+  }
+
+  .item-detail {
+    font-size: 12px;
+    color: var(--text-mid);
+    line-height: 1.65;
+  }
+
+  .objection-row {
+    padding: 12px 14px;
+    background: var(--off-white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    margin-bottom: 10px;
+  }
+
+  .objection-row:last-child { margin-bottom: 0; }
+
+  .objection-q {
+    font-size: 12px;
+    font-style: italic;
+    color: var(--text-mid);
+    margin-bottom: 6px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .objection-a {
+    font-size: 12px;
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  .objection-a-label {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--green);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 3px;
+  }
+
+  .q-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .q-item {
+    display: flex;
+    gap: 10px;
+    padding: 11px 13px;
+    background: var(--blue-light);
+    border: 1px solid rgba(37,99,235,0.12);
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    color: var(--text-mid);
+    line-height: 1.6;
+    align-items: flex-start;
+  }
+
+  .q-num {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 11px;
+    color: var(--blue);
+    flex-shrink: 0;
+  }
+
+  .pitch-box {
+    background: linear-gradient(135deg, var(--accent-light), #fff8f0);
+    border: 1px solid rgba(255,107,43,0.2);
+    border-radius: var(--radius-sm);
+    padding: 18px;
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.75;
+    font-style: italic;
+    border-left: 3px solid var(--accent);
+  }
+
+  /* CTA BLOCK */
+  .cta-block {
+    grid-column: 1 / -1;
+    background: var(--navy);
+    border-radius: var(--radius);
+    overflow: hidden;
+    opacity: 0;
+    animation: slideUp 0.35s ease forwards;
+    animation-delay: 0.35s;
+  }
+
+  .cta-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 32px;
+    padding: 28px 32px;
+  }
+
+  .cta-left { flex: 1; }
+
+  .cta-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 18px;
+    font-weight: 800;
+    color: white;
+    margin-bottom: 8px;
+    letter-spacing: -0.2px;
+  }
+
+  .cta-sub {
+    font-size: 13px;
+    color: rgba(255,255,255,0.55);
+    line-height: 1.65;
+    max-width: 520px;
+  }
+
+  .cta-btn {
+    background: var(--accent);
+    color: white;
+    text-decoration: none;
+    border-radius: var(--radius-sm);
+    padding: 14px 28px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    white-space: nowrap;
+    transition: all 0.2s;
+    flex-shrink: 0;
+    letter-spacing: 0.3px;
+  }
+
+  .cta-btn:hover {
+    background: var(--accent-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(255,107,43,0.4);
+  }
+
+  @media (max-width: 640px) {
+    .cta-inner { flex-direction: column; align-items: flex-start; }
+  }
+
+  /* ACCESS GATE */
+  .gate-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: var(--navy);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .gate-overlay.hidden { display: none; }
+
+  .gate-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-md);
+    padding: 40px 36px;
+    width: 100%;
+    max-width: 380px;
+    text-align: center;
+  }
+
+  .gate-logo {
+    width: 48px;
+    height: 48px;
+    background: var(--accent);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 800;
+    font-size: 18px;
+    color: white;
+    margin: 0 auto 20px;
+    letter-spacing: -0.5px;
+  }
+
+  .gate-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+
+  .gate-sub {
+    font-size: 13px;
+    color: var(--text-mid);
+    margin-bottom: 24px;
+  }
+
+  .gate-input {
+    width: 100%;
+    border: 2px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 13px 16px;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s;
+    margin-bottom: 12px;
+    text-align: center;
+  }
+
+  .gate-input:focus { border-color: var(--accent); }
+
+  .gate-btn {
+    width: 100%;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 13px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .gate-btn:hover {
+    background: var(--accent-hover);
+    transform: translateY(-1px);
+  }
+
+  .gate-error {
+    color: #dc2626;
+    font-size: 12px;
+    margin-top: 12px;
+    font-weight: 600;
+    display: none;
+  }
+
+  .gate-error.visible { display: block; }
+
+  .gate-foot {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+  }
+
+  /* FOOTER */
+  footer {
+    background: var(--navy);
+    text-align: center;
+    padding: 20px;
+    font-size: 11px;
+    color: rgba(255,255,255,0.3);
+    font-family: 'Montserrat', sans-serif;
+    letter-spacing: 0.5px;
+  }
+
+  footer a { color: var(--accent); text-decoration: none; }
+
+  @media (max-width: 900px) {
+    .content { grid-template-columns: 1fr; }
+    .sidebar { position: static; display: none; }
+    .cards-grid { grid-template-columns: 1fr; }
+    .hero-title { font-size: 28px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ACCESS GATE -->
+<div class="gate-overlay" id="gate-overlay">
+  <div class="gate-card">
+    <div class="gate-logo">UB</div>
+    <div class="gate-title">USABots Sales Prep</div>
+    <div class="gate-sub">Enter your access key to continue.</div>
+    <input type="password" id="gate-input" class="gate-input" placeholder="Access key" autocomplete="off" />
+    <button class="gate-btn" id="gate-btn" onclick="unlockGate()">Continue</button>
+    <div class="gate-error" id="gate-error">Incorrect key. Please try again.</div>
+    <div class="gate-foot">Need access? Contact maxim.davis@linaforge.com</div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="#">
+    <div class="nav-logo-img">UB</div>
+    <div class="nav-logo-text">USA<span>Bots</span> &nbsp;·&nbsp; Sales Prep</div>
+  </a>
+  <div class="nav-right">
+    <div class="nav-usage">Runs left: <span id="usage-count">10</span></div>
+    <div class="nav-badge">DEMO TOOL</div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow">Built for USABots by Lina Forge</div>
+  <h1 class="hero-title">Research any prospect.<br/><span>Close deals faster.</span></h1>
+  <p class="hero-sub">A Lina Forge automation tool built specifically for USABots. Type in any prospect and get a researched, ready-to-use sales brief in seconds.</p>
+
+  <div class="how-it-works">
+    <div class="how-step">
+      <div class="how-step-num">1</div>
+      <div class="how-step-label">Enter a prospect company or URL</div>
+    </div>
+    <div class="how-step">
+      <div class="how-step-num">2</div>
+      <div class="how-step-label">AI researches them live on the web</div>
+    </div>
+    <div class="how-step">
+      <div class="how-step-num">3</div>
+      <div class="how-step-label">Full brief ready in under 30 seconds</div>
+    </div>
+  </div>
+
+  <div class="outcomes-strip">
+    <div class="outcome-chip"><div class="outcome-chip-dot"></div>No prep time wasted per call</div>
+    <div class="outcome-chip"><div class="outcome-chip-dot"></div>Every rep walks in prepared</div>
+    <div class="outcome-chip"><div class="outcome-chip-dot"></div>Consistent pitch across all verticals</div>
+    <div class="outcome-chip"><div class="outcome-chip-dot"></div>Objections handled before they land</div>
+  </div>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-card">
+      <div class="sidebar-card-header">
+        <div class="sidebar-card-title">Recently Looked Up</div>
+      </div>
+      <div class="recent-list" id="recent-list">
+        <div class="empty-recent" id="empty-recent">No prospects yet. Run your first search above.</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main-col">
+
+    <!-- INPUT -->
+    <div class="input-card">
+      <div class="input-card-title">Run a Prospect Brief</div>
+      <div class="input-card-sub">Enter any company your team is pursuing. The tool pulls live data and builds a brief specific to how USABots can solve their problems, so every rep is ready before the first word is spoken.</div>
+      <div class="input-row">
+        <input type="text" id="prospect-input" class="prospect-input" placeholder="e.g. Applebee's or marriott.com" />
+        <button class="generate-btn" id="generate-btn" onclick="generateBrief()">Generate Brief →</button>
+      </div>
+      <div class="limit-warning" id="limit-warning">Demo limit reached. Contact Lina Forge to unlock full access.</div>
+    </div>
+
+    <!-- LOADING -->
+    <div class="loading-card" id="loading-card">
+      <div class="loading-spinner"></div>
+      <div class="loading-title">Researching your prospect...</div>
+      <div class="loading-sub">Pulling live data and building your brief. This takes about 15 seconds.</div>
+      <div class="loading-steps">
+        <div class="loading-step">Searching company background and industry</div>
+        <div class="loading-step">Identifying operational pain points</div>
+        <div class="loading-step">Matching to USABots products and building brief</div>
+      </div>
+    </div>
+
+    <!-- ERROR -->
+    <div class="error-card" id="error-card"></div>
+
+    <!-- BRIEF OUTPUT -->
+    <div class="brief-output" id="brief-output">
+      <div class="brief-header-card">
+        <div>
+          <div class="brief-company-name" id="brief-company-name"></div>
+          <div class="brief-meta-text" id="brief-meta"></div>
+        </div>
+        <div class="brief-timestamp" id="brief-timestamp"></div>
+      </div>
+      <div class="cards-grid" id="cards-grid"></div>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  A demo built by <a href="https://linaforge.com" target="_blank">Lina Forge</a> &nbsp;·&nbsp; Customized for <a href="https://usabots.com" target="_blank">USABots, LLC</a> &nbsp;·&nbsp; <a href="mailto:maxim.davis@linaforge.com">maxim.davis@linaforge.com</a>
+</footer>
+
+<script>
+  // The API key is NOT stored in this file. It is AES-GCM encrypted below and
+  // only decrypted in the browser after the correct access key is entered.
+  const ENCRYPTED_KEY = {
+    salt: 'PSXHG5HUdOpC8V9n1N1UVg==',
+    iv: '0sQ9e60UM+PSCDhm',
+    ct: 'omoKfoDdW6CVYhA8A/sQmN8zMg5Q/mM8Zk4wZDrqYWXcT9w3zp6BbOw//tCFL1G+ZNdOTfuhsvnKwak/cIf+T5lYh0DeAtObzRE45CU/LJZy87PYCQ+Mib5zakefcTXsNgCY3MhaO6UGDjERz88e5b9tgHpvDjIxpPEqgw==',
+    iterations: 100000
+  };
+  let API_KEY = null; // populated at runtime after successful unlock
+
+  // Decrypt the API key using the access key the user enters
+  async function decryptApiKey(password) {
+    const dec = (b64) => Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+    const enc = new TextEncoder();
+    const baseKey = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveKey']);
+    const aesKey = await crypto.subtle.deriveKey(
+      { name: 'PBKDF2', salt: dec(ENCRYPTED_KEY.salt), iterations: ENCRYPTED_KEY.iterations, hash: 'SHA-256' },
+      baseKey,
+      { name: 'AES-GCM', length: 256 },
+      false,
+      ['decrypt']
+    );
+    const plain = await crypto.subtle.decrypt(
+      { name: 'AES-GCM', iv: dec(ENCRYPTED_KEY.iv) },
+      aesKey,
+      dec(ENCRYPTED_KEY.ct)
+    );
+    return new TextDecoder().decode(plain);
+  }
+
+  async function unlockGate() {
+    const input = document.getElementById('gate-input');
+    const errorEl = document.getElementById('gate-error');
+    const pw = input.value.trim();
+    if (!pw) return;
+    try {
+      const key = await decryptApiKey(pw);
+      if (!key.startsWith('sk-ant')) throw new Error('bad');
+      API_KEY = key;
+      localStorage.setItem('usabots_access', pw);
+      document.getElementById('gate-overlay').classList.add('hidden');
+    } catch (e) {
+      errorEl.classList.add('visible');
+      input.value = '';
+    }
+  }
+
+  // Auto-unlock if the access key was already entered on this browser
+  async function tryStoredAccess() {
+    const stored = localStorage.getItem('usabots_access');
+    if (!stored) return;
+    try {
+      const key = await decryptApiKey(stored);
+      if (key.startsWith('sk-ant')) {
+        API_KEY = key;
+        document.getElementById('gate-overlay').classList.add('hidden');
+      }
+    } catch (e) { /* show gate */ }
+  }
+  tryStoredAccess();
+
+  document.getElementById('gate-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') unlockGate();
+  });
+  const MAX_RUNS = 10;
+  const STORAGE_KEY_COUNT  = 'usabots_run_count';
+  const STORAGE_KEY_RECENT = 'usabots_recent';
+
+  const SYSTEM_PROMPT = `You are a specialized sales intelligence assistant for USABots, LLC, a US-based robotics reseller. Your output MUST be complete, valid JSON with NO truncation. Keep every string value under 160 characters to ensure the full JSON fits within the token limit.
+
+USABots sells ONLY these four products. Always use these exact brand names:
+- THE RUNNERS: food/item delivery robots for restaurants, hotels, hospitals
+- THE CLEAN FREAKS: autonomous floor cleaning robots for large spaces
+- THE HAULERS: cargo robots moving up to 1,300 lbs, reducing lifting injuries
+- THE MOVERS: mobility assistance robots for hospitals, airports, senior care
+
+USABots value props: one-off purchase (no subscription), no training needed, 24/7 on-site support within 24 hours, price match guarantee, real-time reporting.
+
+Use web search to find current info about the prospect. Then return ONLY this JSON. No markdown, no backticks, no preamble, nothing else:
+
+{"companyName":"string","meta":"industry · location · scale (max 100 chars)","snapshot":"2-3 sentences about what they do and their scale (max 160 chars)","bestFitProducts":[{"product":"USE EXACT BRAND NAME","reason":"1 sentence why it fits this company (max 140 chars)"}],"painPoints":[{"label":"short title (max 40 chars)","detail":"1 sentence specific to this company (max 140 chars)"}],"objections":[{"objection":"what they might say (max 100 chars)","handle":"how to respond (max 140 chars)"}],"openingQuestions":["question 1 (max 100 chars)","question 2 (max 100 chars)","question 3 (max 100 chars)"],"pitchAngle":"2 sentences on the best angle for this prospect (max 160 chars)"}
+
+Include 2-3 bestFitProducts, 3-4 painPoints, 2-3 objections, exactly 3 openingQuestions.`;
+
+  let runCount = parseInt(localStorage.getItem(STORAGE_KEY_COUNT) || '0');
+  let recentProspects = JSON.parse(localStorage.getItem(STORAGE_KEY_RECENT) || '[]');
+
+  updateCounter();
+  renderRecent();
+
+  function updateCounter() {
+    const left = Math.max(0, MAX_RUNS - runCount);
+    document.getElementById('usage-count').textContent = left;
+    if (left === 0) {
+      document.getElementById('generate-btn').disabled = true;
+      document.getElementById('limit-warning').style.display = 'block';
+    }
+  }
+
+  function renderRecent() {
+    const list = document.getElementById('recent-list');
+    if (recentProspects.length === 0) {
+      list.innerHTML = '<div class="empty-recent">No prospects yet. Run your first search above.</div>';
+      return;
+    }
+    list.innerHTML = recentProspects.map((p, i) => {
+      const initials = p.name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+      return `
+        <button class="recent-item ${i === 0 ? 'active' : ''}" onclick="loadCached(${i})">
+          <div class="recent-avatar">${initials}</div>
+          <div>
+            <div class="recent-name">${p.name}</div>
+            <div class="recent-time">${p.time}</div>
+          </div>
+        </button>`;
+    }).join('');
+  }
+
+  function loadCached(idx) {
+    document.querySelectorAll('.recent-item').forEach((el, i) => el.classList.toggle('active', i === idx));
+    renderBrief(recentProspects[idx].data);
+  }
+
+  function addToRecent(name, data) {
+    const now = new Date();
+    const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ' · ' + now.toLocaleDateString([], { month: 'short', day: 'numeric' });
+    recentProspects = recentProspects.filter(p => p.name.toLowerCase() !== name.toLowerCase());
+    recentProspects.unshift({ name, time, data });
+    if (recentProspects.length > 5) recentProspects = recentProspects.slice(0, 5);
+    localStorage.setItem(STORAGE_KEY_RECENT, JSON.stringify(recentProspects));
+    renderRecent();
+  }
+
+  async function generateBrief() {
+    const input = document.getElementById('prospect-input').value.trim();
+    if (!input) return;
+    if (runCount >= MAX_RUNS) return;
+    if (!API_KEY) {
+      document.getElementById('gate-overlay').classList.remove('hidden');
+      return;
+    }
+
+    document.getElementById('loading-card').classList.add('visible');
+    document.getElementById('brief-output').classList.remove('visible');
+    document.getElementById('error-card').classList.remove('visible');
+    document.getElementById('generate-btn').disabled = true;
+
+    runCount++;
+    localStorage.setItem(STORAGE_KEY_COUNT, runCount.toString());
+    updateCounter();
+
+    try {
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': API_KEY,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 2000,
+          system: SYSTEM_PROMPT,
+          tools: [{ type: 'web_search_20250305', name: 'web_search' }],
+          messages: [{ role: 'user', content: `Research this prospect and generate a USABots sales prep brief: "${input}"` }]
+        })
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error?.message || `API error ${res.status}`);
+      }
+
+      const data = await res.json();
+      const text = data.content.filter(b => b.type === 'text').map(b => b.text).join('');
+      const match = text.match(/\{[\s\S]*\}/);
+      if (!match) throw new Error('Could not parse response. Please try again.');
+
+      let jsonStr = match[0];
+      let brief;
+      try {
+        brief = JSON.parse(jsonStr);
+      } catch (e) {
+        // Attempt to recover truncated JSON by closing open structures
+        const fixed = jsonStr
+          .replace(/,\s*$/, '')
+          .replace(/:\s*"[^"]*$/, ': "..."')
+          + (jsonStr.split('{').length > jsonStr.split('}').length
+            ? '}'.repeat(jsonStr.split('{').length - jsonStr.split('}').length)
+            : '');
+        try {
+          brief = JSON.parse(fixed);
+        } catch (e2) {
+          throw new Error('Response was cut off. Try again. This sometimes happens on large companies.');
+        }
+      }
+      addToRecent(brief.companyName || input, brief);
+      renderBrief(brief);
+
+    } catch (err) {
+      const el = document.getElementById('error-card');
+      el.classList.add('visible');
+      el.textContent = 'Something went wrong: ' + err.message;
+    } finally {
+      document.getElementById('loading-card').classList.remove('visible');
+      if (runCount < MAX_RUNS) document.getElementById('generate-btn').disabled = false;
+    }
+  }
+
+  function renderBrief(b) {
+    document.getElementById('brief-output').classList.add('visible');
+    document.getElementById('brief-company-name').textContent = b.companyName || '';
+    document.getElementById('brief-meta').textContent = b.meta || '';
+    document.getElementById('brief-timestamp').textContent = 'Generated ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+    const grid = document.getElementById('cards-grid');
+    grid.innerHTML = '';
+
+    // Snapshot
+    grid.appendChild(card('🏢', 'Company Snapshot', 'bg:#f0fdf4', 'full-width',
+      `<p>${b.snapshot || ''}</p>`));
+
+    // Best Fit Products
+    const products = (b.bestFitProducts || []).map(p => `
+      <div class="item-row">
+        <div class="item-marker">→</div>
+        <div class="item-body">
+          <div class="item-label">${p.product}</div>
+          <div class="item-detail">${p.reason}</div>
+        </div>
+      </div>`).join('');
+    grid.appendChild(card('🤖', 'Best-Fit Products', 'bg:#f0fdf4', '',
+      `<div class="item-list">${products}</div>`));
+
+    // Pain Points
+    const pains = (b.painPoints || []).map((p, i) => `
+      <div class="item-row">
+        <div class="item-marker">0${i+1}</div>
+        <div class="item-body">
+          <div class="item-label">${p.label}</div>
+          <div class="item-detail">${p.detail}</div>
+        </div>
+      </div>`).join('');
+    grid.appendChild(card('⚡', 'Current Pain Points', 'bg:#fff7ed', '',
+      `<div class="item-list">${pains}</div>`));
+
+    // Objections
+    const objs = (b.objections || []).map(o => `
+      <div class="objection-row">
+        <div class="objection-q">"${o.objection}"</div>
+        <div class="objection-a-label">How to handle</div>
+        <div class="objection-a">${o.handle}</div>
+      </div>`).join('');
+    grid.appendChild(card('🛡️', 'Likely Objections', 'bg:#fef9ee', '',
+      objs));
+
+    // Opening Questions
+    const qs = (b.openingQuestions || []).map((q, i) => `
+      <div class="q-item">
+        <div class="q-num">Q${i+1}</div>
+        <div>${q}</div>
+      </div>`).join('');
+    grid.appendChild(card('💬', 'Opening Questions', 'bg:#eff6ff', '',
+      `<div class="q-list">${qs}</div>`));
+
+    // Pitch Angle
+    grid.appendChild(card('🎯', 'Suggested Pitch Angle', 'bg:#fff8f0', 'full-width',
+      `<div class="pitch-box">${b.pitchAngle || ''}</div>`));
+
+    // CTA
+    const ctaDiv = document.createElement('div');
+    ctaDiv.className = 'cta-block';
+    ctaDiv.innerHTML = `
+      <div class="cta-inner">
+        <div class="cta-left">
+          <div class="cta-title">Want this built for your whole team?</div>
+          <div class="cta-sub">This is a preview of what Lina Forge customizes for USABots, pre-loaded with your verticals, your products, and your sales process. A 20-minute call is all it takes to scope it out.</div>
+        </div>
+        <a href="mailto:maxim.davis@linaforge.com?subject=USABots Sales Prep Tool&body=Hi, I tried the USABots sales prep demo and would like to talk about building this for our team." class="cta-btn">Let's Talk →</a>
+      </div>`;
+    grid.appendChild(ctaDiv);
+  }
+
+  function card(icon, label, iconBg, extraClass, bodyHTML) {
+    const div = document.createElement('div');
+    div.className = 'card' + (extraClass ? ' ' + extraClass : '');
+    div.innerHTML = `
+      <div class="card-top">
+        <div class="card-icon-wrap" style="${iconBg}">${icon}</div>
+        <div class="card-label">${label}</div>
+      </div>
+      <div class="card-body">${bodyHTML}</div>`;
+    return div;
+  }
+
+  document.getElementById('prospect-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') generateBrief();
+  });
+</script>
+</body>
+</html>
