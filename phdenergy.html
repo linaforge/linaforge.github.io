@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Battery Solution Finder — PHD Energy</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy:     #0A1628;
+    --navy-mid: #0F2040;
+    --navy-card:#152338;
+    --navy-border: #243D5C;
+    --green:    #00C875;
+    --green-dim:#00C87518;
+    --green-border:#00C87545;
+    --white:    #FFFFFF;
+    --muted:    #A8C4D8;
+    --mono:     'JetBrains Mono', monospace;
+    --sans:     'Space Grotesk', sans-serif;
+  }
+
+  html, body {
+    background: var(--navy);
+    color: var(--white);
+    font-family: var(--sans);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Header ── */
+  header {
+    border-bottom: 1px solid var(--navy-border);
+    padding: 20px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--navy-mid);
+  }
+
+  .wordmark {
+    font-family: var(--mono);
+    font-weight: 600;
+    font-size: 15px;
+    letter-spacing: 0.08em;
+    color: var(--white);
+  }
+  .wordmark span { color: var(--green); }
+
+  .header-tag {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  /* ── Main layout ── */
+  main {
+    display: grid;
+    grid-template-columns: 420px 1fr;
+    min-height: calc(100vh - 62px);
+  }
+
+  /* ── Left panel: inputs ── */
+  .panel-inputs {
+    border-right: 1px solid var(--navy-border);
+    padding: 36px 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    background: var(--navy-mid);
+  }
+
+  .panel-title {
+    font-size: 11px;
+    font-family: var(--mono);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+
+  .panel-heading {
+    font-size: 22px;
+    font-weight: 600;
+    line-height: 1.25;
+    color: #FFFFFF;
+  }
+
+  .panel-heading span { color: var(--green); }
+
+  .panel-sub {
+    font-size: 13px;
+    color: #C5D8E8;
+    line-height: 1.6;
+    margin-top: 6px;
+  }
+
+  /* ── Form fields ── */
+  .field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+
+  label {
+    font-size: 11px;
+    font-family: var(--mono);
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  select, input[type="text"], input[type="number"], textarea {
+    background: var(--navy-card);
+    border: 1px solid var(--navy-border);
+    color: #FFFFFF;
+    font-family: var(--sans);
+    font-size: 14px;
+    padding: 10px 14px;
+    border-radius: 4px;
+    width: 100%;
+    outline: none;
+    transition: border-color 0.15s;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+
+  select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237A9BB5' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 36px;
+    cursor: pointer;
+  }
+
+  select option { background: var(--navy-card); }
+
+  select:focus, input:focus, textarea:focus {
+    border-color: var(--green);
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 80px;
+    line-height: 1.5;
+  }
+
+  .field-hint {
+    font-size: 11px;
+    color: var(--muted);
+    opacity: 0.7;
+  }
+
+  /* ── Checkbox row ── */
+  .check-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .check-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    padding: 8px 10px;
+    border: 1px solid var(--navy-border);
+    border-radius: 4px;
+    transition: border-color 0.15s, background 0.15s;
+    font-size: 13px;
+    color: #FFFFFF;
+    background: var(--navy-card);
+  }
+
+  .check-item:hover { border-color: var(--green-border); }
+
+  .check-item input[type="checkbox"] {
+    width: 14px;
+    height: 14px;
+    accent-color: var(--green);
+    cursor: pointer;
+    flex-shrink: 0;
+    padding: 0;
+    border: none;
+  }
+
+  .check-item.checked {
+    border-color: var(--green);
+    background: var(--green-dim);
+  }
+
+  /* ── Submit button ── */
+  .btn-analyze {
+    background: var(--green);
+    color: var(--navy);
+    border: none;
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 14px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.1s;
+    width: 100%;
+    margin-top: 4px;
+  }
+
+  .btn-analyze:hover { opacity: 0.88; }
+  .btn-analyze:active { transform: scale(0.99); }
+  .btn-analyze:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  /* ── Right panel: output ── */
+  .panel-output {
+    padding: 36px 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  /* ── Empty state ── */
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: 16px;
+    opacity: 0.4;
+    text-align: center;
+    padding: 60px 20px;
+  }
+
+  .empty-icon {
+    width: 48px;
+    height: 48px;
+    border: 1px solid var(--navy-border);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+  }
+
+  .empty-state p {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+  }
+
+  /* ── Loading state ── */
+  .loading-state {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: 20px;
+    text-align: center;
+    padding: 60px 20px;
+  }
+
+  .loader-ring {
+    width: 44px;
+    height: 44px;
+    border: 2px solid var(--navy-border);
+    border-top-color: var(--green);
+    border-radius: 50%;
+    animation: spin 0.9s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loading-state p {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+  }
+
+  /* ── Result card ── */
+  .result-card {
+    display: none;
+    flex-direction: column;
+    gap: 0;
+    border: 1px solid var(--navy-border);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .result-header {
+    background: var(--navy-card);
+    border-bottom: 1px solid var(--navy-border);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .result-header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .status-dot {
+    width: 7px;
+    height: 7px;
+    background: var(--green);
+    border-radius: 50%;
+  }
+
+  .result-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .result-timestamp {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    opacity: 0.6;
+  }
+
+  .result-body {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  /* ── Spec block ── */
+  .spec-block {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .spec-block-title {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--green);
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--green-border);
+  }
+
+  .spec-row {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 12px;
+    align-items: baseline;
+  }
+
+  .spec-key {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+  }
+
+  .spec-val {
+    font-size: 14px;
+    font-weight: 500;
+    color: #FFFFFF;
+    line-height: 1.5;
+  }
+
+  .spec-val.highlight {
+    color: var(--green);
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  /* ── Prose section ── */
+  .prose-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .prose-section-title {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--green);
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--green-border);
+  }
+
+  .prose-text {
+    font-size: 14px;
+    line-height: 1.7;
+    color: #FFFFFF;
+    opacity: 1;
+  }
+
+  .prose-text p { margin-bottom: 10px; }
+  .prose-text p:last-child { margin-bottom: 0; }
+
+  /* ── CTA block ── */
+  .cta-block {
+    background: var(--green-dim);
+    border: 1px solid var(--green-border);
+    border-radius: 4px;
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    margin-top: 4px;
+  }
+
+  .cta-text {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .cta-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #FFFFFF;
+  }
+
+  .cta-sub {
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .btn-cta {
+    background: var(--green);
+    color: var(--navy);
+    border: none;
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    padding: 11px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    white-space: nowrap;
+    text-decoration: none;
+    display: inline-block;
+    transition: opacity 0.15s;
+    flex-shrink: 0;
+  }
+
+  .btn-cta:hover { opacity: 0.85; }
+
+  /* ── Error state ── */
+  .error-state {
+    display: none;
+    padding: 20px;
+    border: 1px solid #E53E3E40;
+    background: #E53E3E10;
+    border-radius: 4px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: #FC8181;
+  }
+
+  /* ── Divider ── */
+  .result-divider {
+    border: none;
+    border-top: 1px solid var(--navy-border);
+    margin: 4px 0;
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 900px) {
+    main {
+      grid-template-columns: 1fr;
+    }
+    .panel-inputs {
+      border-right: none;
+      border-bottom: 1px solid var(--navy-border);
+    }
+    .panel-output {
+      padding: 28px 24px;
+    }
+    .spec-row {
+      grid-template-columns: 140px 1fr;
+    }
+  }
+
+  @media (max-width: 480px) {
+    header { padding: 16px 20px; }
+    .panel-inputs { padding: 28px 20px; }
+    .panel-output { padding: 24px 20px; }
+    .check-grid { grid-template-columns: 1fr; }
+    .cta-block { flex-direction: column; align-items: flex-start; }
+    .spec-row { grid-template-columns: 1fr; gap: 3px; }
+    .spec-key { font-size: 10px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .loader-ring { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wordmark">PHD ENERGY</div>
+  <div class="header-tag">Battery Solution Finder</div>
+  <div id="runCounter" style="font-family:var(--mono); font-size:11px; color:var(--muted); letter-spacing:0.08em;"></div>
+</header>
+
+<div id="passwordGate" style="display:none; position:fixed; inset:0; background:var(--navy); z-index:100; flex-direction:column; align-items:center; justify-content:center; gap:20px;">
+  <div style="font-family:var(--mono); font-size:13px; color:var(--green); letter-spacing:0.12em; text-transform:uppercase;">PHD ENERGY</div>
+  <div style="font-family:var(--sans); font-size:18px; font-weight:600; color:#FFFFFF;">Battery Solution Finder</div>
+  <div style="font-family:var(--mono); font-size:11px; color:var(--muted); letter-spacing:0.08em; text-transform:uppercase; margin-bottom:4px;">Enter access password</div>
+  <div style="display:flex; gap:10px; align-items:center;">
+    <div style="position:relative; width:220px;">
+      <input id="passwordInput" type="password" placeholder="Password" style="background:var(--navy-card); border:1px solid var(--navy-border); color:#FFFFFF; font-family:var(--sans); font-size:14px; padding:10px 40px 10px 16px; border-radius:4px; outline:none; width:100%;" />
+      <button onclick="togglePasswordVisibility()" id="toggleBtn" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; color:var(--muted); font-size:14px; padding:0; line-height:1;">👁</button>
+    </div>
+    <button onclick="submitPassword()" style="background:var(--green); color:var(--navy); border:none; font-family:var(--mono); font-size:12px; font-weight:600; letter-spacing:0.07em; text-transform:uppercase; padding:11px 20px; border-radius:4px; cursor:pointer;">Enter</button>
+  </div>
+  <div id="passwordError" style="font-family:var(--mono); font-size:11px; color:#FC8181; height:16px;"></div>
+</div>
+
+<div id="mainContent" style="display:none;">
+<main>
+  <!-- ── LEFT: Inputs ── -->
+  <aside class="panel-inputs">
+    <div>
+      <div class="panel-title">Configure your application</div>
+      <div class="panel-heading">Find your <span>battery solution</span></div>
+      <div class="panel-sub">Describe your application and requirements. Our system will match you with the right chemistry and PHD Energy product line.</div>
+    </div>
+
+    <div class="field-group">
+
+      <div class="field">
+        <label for="application">Application type</label>
+        <select id="application">
+          <option value="">Select application...</option>
+          <option value="AGV / AMR">AGV / AMR</option>
+          <option value="Industrial forklift">Industrial forklift</option>
+          <option value="Commercial drone">Commercial drone</option>
+          <option value="Agricultural robot">Agricultural robot</option>
+          <option value="Medical device">Medical device</option>
+          <option value="Traffic / infrastructure">Traffic / infrastructure</option>
+          <option value="IoT / security gateway">IoT / security gateway</option>
+          <option value="Electric light vehicle (ELV)">Electric light vehicle (ELV)</option>
+          <option value="Portable / handheld device">Portable / handheld device</option>
+          <option value="Energy storage system">Energy storage system</option>
+          <option value="Other">Other (describe below)</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="runtime">Required runtime</label>
+        <select id="runtime">
+          <option value="">Select runtime...</option>
+          <option value="under 2 hours">Under 2 hours</option>
+          <option value="2–8 hours">2–8 hours</option>
+          <option value="8–24 hours">8–24 hours</option>
+          <option value="multi-day / standby">Multi-day / standby</option>
+          <option value="continuous with recharge">Continuous with recharge cycles</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="voltage">Nominal voltage range</label>
+        <select id="voltage">
+          <option value="">Select voltage...</option>
+          <option value="3.2–3.7V (single cell)">3.2–3.7V (single cell)</option>
+          <option value="12V">12V</option>
+          <option value="24V">24V</option>
+          <option value="36V">36V</option>
+          <option value="48V">48V</option>
+          <option value="72V+">72V+</option>
+          <option value="Custom / flexible">Custom / flexible</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="cycles">Cycle life requirement</label>
+        <select id="cycles">
+          <option value="">Select cycle life...</option>
+          <option value="under 500 cycles (consumer / low-use)">Under 500 cycles</option>
+          <option value="500–2,000 cycles (moderate duty)">500–2,000 cycles</option>
+          <option value="2,000–5,000 cycles (industrial)">2,000–5,000 cycles</option>
+          <option value="5,000+ cycles (heavy duty / critical)">5,000+ cycles</option>
+          <option value="not rechargeable (primary)">Not rechargeable (primary cell)</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Key constraints <span class="field-hint">(select all that apply)</span></label>
+        <div class="check-grid" id="constraints">
+          <label class="check-item">
+            <input type="checkbox" value="weight-sensitive (lightweight critical)"> Weight-sensitive
+          </label>
+          <label class="check-item">
+            <input type="checkbox" value="extreme temperature operation (-20°C to 60°C+)"> Extreme temps
+          </label>
+          <label class="check-item">
+            <input type="checkbox" value="safety-critical (medical / aviation / UL certification required)"> Safety-critical
+          </label>
+          <label class="check-item">
+            <input type="checkbox" value="high charge/discharge rate (2C+)"> High C-rate
+          </label>
+          <label class="check-item">
+            <input type="checkbox" value="compact / custom form factor required"> Custom form factor
+          </label>
+          <label class="check-item">
+            <input type="checkbox" value="long shelf life / low self-discharge"> Long shelf life
+          </label>
+          <label class="check-item">
+            <input type="checkbox" value="outdoor / weatherproof enclosure">Outdoor / IP-rated
+          </label>
+          <label class="check-item">
+            <input type="checkbox" value="BMS integration required"> BMS required
+          </label>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="context">Additional context <span class="field-hint">(optional)</span></label>
+        <textarea id="context" placeholder="Capacity targets, certifications needed, OEM details, fleet size, or anything else relevant to your design..."></textarea>
+      </div>
+
+    </div>
+
+    <button class="btn-analyze" id="analyzeBtn" onclick="runAnalysis()">
+      Analyze requirements
+    </button>
+  </aside>
+
+  <!-- ── RIGHT: Output ── -->
+  <section class="panel-output">
+
+    <div class="empty-state" id="emptyState">
+      <div class="empty-icon">⚡</div>
+      <p>Configure your application<br>to generate a recommendation</p>
+    </div>
+
+    <div class="loading-state" id="loadingState">
+      <div class="loader-ring"></div>
+      <p>Analyzing requirements...</p>
+    </div>
+
+    <div class="error-state" id="errorState"></div>
+
+    <div class="result-card" id="resultCard">
+      <div class="result-header">
+        <div class="result-header-left">
+          <div class="status-dot"></div>
+          <div class="result-label">Recommendation ready</div>
+        </div>
+        <div class="result-timestamp" id="resultTimestamp"></div>
+      </div>
+      <div class="result-body" id="resultBody">
+        <!-- injected by JS -->
+      </div>
+    </div>
+
+  </section>
+<script>
+  // ── Checkbox checked styling ──
+  document.querySelectorAll('.check-item input[type="checkbox"]').forEach(cb => {
+    cb.addEventListener('change', () => {
+      cb.closest('.check-item').classList.toggle('checked', cb.checked);
+    });
+  });
+
+  // ── Timestamp ──
+  function nowStamp() {
+    return new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+  }
+
+  // ── Show/hide states ──
+  function setState(state) {
+    document.getElementById('emptyState').style.display   = state === 'empty'   ? 'flex'   : 'none';
+    document.getElementById('loadingState').style.display = state === 'loading' ? 'flex'   : 'none';
+    document.getElementById('errorState').style.display   = state === 'error'   ? 'block'  : 'none';
+    document.getElementById('resultCard').style.display   = state === 'result'  ? 'flex'   : 'none';
+  }
+
+  // ── Parse AI response into structured sections ──
+  function parseResponse(text) {
+    // Extract JSON block if wrapped in ```json ... ``` or just raw JSON
+    let jsonStr = text.trim();
+    const jsonMatch = jsonStr.match(/```(?:json)?\s*([\s\S]*?)```/);
+    if (jsonMatch) jsonStr = jsonMatch[1].trim();
+
+    try {
+      return JSON.parse(jsonStr);
+    } catch(e) {
+      // Fallback: return as plain prose
+      return { fallback: text };
+    }
+  }
+
+  // ── Render structured result ──
+  function renderResult(data, inputs) {
+    const body = document.getElementById('resultBody');
+    document.getElementById('resultTimestamp').textContent = nowStamp();
+
+    if (data.fallback) {
+      body.innerHTML = `
+        <div class="prose-section">
+          <div class="prose-section-title">Analysis</div>
+          <div class="prose-text">${data.fallback.replace(/\n/g, '<br>')}</div>
+        </div>
+        ${ctaHTML()}
+      `;
+      return;
+    }
+
+    let html = '';
+
+    // Primary recommendation block
+    if (data.chemistry || data.product_line) {
+      html += `
+        <div class="spec-block">
+          <div class="spec-block-title">Recommended solution</div>
+          ${data.chemistry ? `<div class="spec-row"><div class="spec-key">Chemistry</div><div class="spec-val highlight">${data.chemistry}</div></div>` : ''}
+          ${data.product_line ? `<div class="spec-row"><div class="spec-key">Product line</div><div class="spec-val highlight">${data.product_line}</div></div>` : ''}
+          ${data.nominal_voltage ? `<div class="spec-row"><div class="spec-key">Nominal voltage</div><div class="spec-val">${data.nominal_voltage}</div></div>` : ''}
+          ${data.cycle_life ? `<div class="spec-row"><div class="spec-key">Cycle life</div><div class="spec-val">${data.cycle_life}</div></div>` : ''}
+          ${data.energy_density ? `<div class="spec-row"><div class="spec-key">Energy density</div><div class="spec-val">${data.energy_density}</div></div>` : ''}
+          ${data.operating_temp ? `<div class="spec-row"><div class="spec-key">Operating temp</div><div class="spec-val">${data.operating_temp}</div></div>` : ''}
+          ${data.bms ? `<div class="spec-row"><div class="spec-key">BMS</div><div class="spec-val">${data.bms}</div></div>` : ''}
+          ${data.certifications ? `<div class="spec-row"><div class="spec-key">Certifications</div><div class="spec-val">${data.certifications}</div></div>` : ''}
+        </div>
+        <hr class="result-divider">
+      `;
+    }
+
+    // Rationale
+    if (data.rationale) {
+      html += `
+        <div class="prose-section">
+          <div class="prose-section-title">Engineering rationale</div>
+          <div class="prose-text">${data.rationale.replace(/\n\n/g, '</p><p>').replace(/^/, '<p>').replace(/$/, '</p>')}</div>
+        </div>
+        <hr class="result-divider">
+      `;
+    }
+
+    // Tradeoffs
+    if (data.tradeoffs) {
+      html += `
+        <div class="prose-section">
+          <div class="prose-section-title">Design tradeoffs</div>
+          <div class="prose-text">${data.tradeoffs.replace(/\n\n/g, '</p><p>').replace(/^/, '<p>').replace(/$/, '</p>')}</div>
+        </div>
+        <hr class="result-divider">
+      `;
+    }
+
+    // Next steps
+    if (data.next_steps) {
+      const stepsContent = Array.isArray(data.next_steps)
+        ? data.next_steps.map(s => '<div style="margin-bottom:5px">— ' + s + '</div>').join('')
+        : String(data.next_steps).replace(/\n/g, '<br>');
+      html += `
+        <div class="spec-block">
+          <div class="spec-block-title">Recommended next steps</div>
+          <div class="spec-val" style="font-size:13px; line-height:1.7">${stepsContent}</div>
+        </div>
+        <hr class="result-divider">
+      `;
+    }
+
+    html += ctaHTML();
+    body.innerHTML = html;
+  }
+
+  function ctaHTML() {
+    return `
+      <div class="cta-block">
+        <div class="cta-text">
+          <div class="cta-title">Ready to spec your battery?</div>
+          <div class="cta-sub">Dr. Michael Xie and the PHD Energy team can validate this recommendation and scope a custom solution.</div>
+        </div>
+        <a href="mailto:info@phdenergy.com?subject=Battery Solution Inquiry" class="btn-cta">Contact PHD Energy</a>
+      </div>
+    `;
+  }
+
+  // ── Encrypted API key ──
+  const ENCRYPTED_KEY = {
+    salt: "eRsYeI+IBlAX+DUVVqBCjg==",
+    iv:   "42snAsy5mD5c8ITN",
+    data: "FtOvBfBXeoqeNxb+KPYwEASYJeU97NiShmO9YffVfz2GEuIzZ1eLH+2v2WxPH2uCShKtYudPOLcVlcOvUZ7l+97JvBDtJmkLEnIUq0Qqsv1WZB/04V+Mo421hnUU4kemg27enaSxh9lpFJOykJufiwpaPvtVjjB+AnzF6g=="
+  };
+
+  async function getApiKey() {
+    const enc = new TextEncoder();
+    const dec = new TextDecoder();
+    const keyMaterial = await crypto.subtle.importKey(
+      'raw', enc.encode('phdenergy'), { name: 'PBKDF2' }, false, ['deriveKey']
+    );
+    const salt = Uint8Array.from(atob(ENCRYPTED_KEY.salt), c => c.charCodeAt(0));
+    const iv   = Uint8Array.from(atob(ENCRYPTED_KEY.iv),   c => c.charCodeAt(0));
+    const data = Uint8Array.from(atob(ENCRYPTED_KEY.data), c => c.charCodeAt(0));
+    const key = await crypto.subtle.deriveKey(
+      { name: 'PBKDF2', salt, iterations: 100000, hash: 'SHA-256' },
+      keyMaterial,
+      { name: 'AES-GCM', length: 256 },
+      false,
+      ['decrypt']
+    );
+    const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, data);
+    return dec.decode(decrypted);
+  }
+
+  // ── Password gate ──
+  let unlocked = false;
+  const RUN_LIMIT = 10;
+  const STORAGE_KEY = 'phdenergy_run_count';
+
+  function getRunCount() {
+    return parseInt(localStorage.getItem(STORAGE_KEY) || '0', 10);
+  }
+
+  function incrementRunCount() {
+    const count = getRunCount() + 1;
+    localStorage.setItem(STORAGE_KEY, count);
+    return count;
+  }
+
+  function updateRunCounter() {
+    const used = getRunCount();
+    const remaining = Math.max(0, RUN_LIMIT - used);
+    const el = document.getElementById('runCounter');
+    if (el) {
+      el.textContent = `${remaining} run${remaining !== 1 ? 's' : ''} remaining`;
+      el.style.color = remaining <= 2 ? '#F6AD55' : 'var(--muted)';
+    }
+  }
+
+  function showPasswordGate() {
+    document.getElementById('passwordGate').style.display = 'flex';
+    document.getElementById('mainContent').style.display = 'none';
+  }
+
+  function hidePasswordGate() {
+    document.getElementById('passwordGate').style.display = 'none';
+    document.getElementById('mainContent').style.display = 'grid';
+    unlocked = true;
+    updateRunCounter();
+  }
+
+  function togglePasswordVisibility() {
+    const input = document.getElementById('passwordInput');
+    const btn = document.getElementById('toggleBtn');
+    if (input.type === 'password') {
+      input.type = 'text';
+      btn.textContent = '🙈';
+    } else {
+      input.type = 'password';
+      btn.textContent = '👁';
+    }
+  }
+
+  async function submitPassword() {
+    const input = document.getElementById('passwordInput').value;
+    const err   = document.getElementById('passwordError');
+    if (input === 'phdenergy') {
+      hidePasswordGate();
+    } else {
+      err.textContent = 'Incorrect password.';
+      document.getElementById('passwordInput').value = '';
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    showPasswordGate();
+    document.getElementById('passwordInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter') submitPassword();
+    });
+  });
+
+  // ── Main analysis function ──
+  async function runAnalysis() {
+    const app      = document.getElementById('application').value;
+    const runtime  = document.getElementById('runtime').value;
+    const voltage  = document.getElementById('voltage').value;
+    const cycles   = document.getElementById('cycles').value;
+    const context  = document.getElementById('context').value.trim();
+
+    const constraints = Array.from(
+      document.querySelectorAll('#constraints input:checked')
+    ).map(cb => cb.value);
+
+    if (getRunCount() >= RUN_LIMIT) {
+      document.getElementById('errorState').textContent = 'Run limit reached. Contact PHD Energy to continue: info@phdenergy.com';
+      setState('error');
+      return;
+    }
+
+    if (!app) {
+      document.getElementById('errorState').textContent = 'Select an application type to continue.';
+      setState('error');
+      return;
+    }
+
+    document.getElementById('analyzeBtn').disabled = true;
+    setState('loading');
+
+    const systemPrompt = `You are a senior battery application engineer at PHD Energy, a premium custom lithium battery solutions company based in Georgetown, TX, founded by Dr. Michael Xie (Ph.D. in lithium-ion battery technology, former postdoctoral researcher under Prof. John Goodenough at UT Austin). PHD Energy serves Fortune 500 companies, AGV/AMR manufacturers, drone OEMs, medical device companies, and infrastructure providers across the US and EU, with five manufacturing plants in Asia.
+
+Your job is to analyze a customer's application requirements and recommend the most appropriate PHD Energy product line with technically precise reasoning. You must respond ONLY with a valid JSON object — no preamble, no markdown fences, no explanation outside the JSON. Use direct, engineering-grade language. No marketing language. No padding.
+
+== PHD ENERGY PRODUCT CATALOG ==
+
+PRIMARY BATTERIES (non-rechargeable):
+- Li-MnO2 Coin Cell: 3V, compact, long shelf life (10+ years), ideal for IoT sensors, medical implants, memory backup, security devices. CR2032, CR2025, CR2016 and custom sizes. 500M+ units/year capacity.
+- Li-MnO2 Pouch Cell: 3V, thin/flexible form factor, custom shapes available, IoT and wearables.
+- Li-MnO2 Cylindrical Cell: 3V, standard cylindrical form, high capacity options.
+- Li-SOCl2 3.6V Battery: Highest energy density of any primary chemistry (~760 Wh/L), extremely low self-discharge (<1%/year), -60°C to 85°C operating range. Ideal for remote metering (AMR/AMI), GPS trackers, industrial IoT, military, long-life infrastructure devices. Not suitable for high-drain applications.
+- Li-FeS2 1.5V Battery: AA and AAA sizes only, drop-in alkaline replacement, high energy density, long shelf life. Consumer and industrial devices.
+
+SECONDARY BATTERIES (rechargeable cells):
+- Pin-Type Rechargeable Li-ion: Cylindrical pin form, fast charge up to 3C, ultra-low self-discharge, explosion-proof valve, compact/lightweight. Ideal for wearables, IoT, smart glasses, wireless earphones, hearing aids, medical instruments, stylus pens.
+- Premium Performance Li-Po (Lithium Polymer): Wide temp range -30°C to 80°C, high energy density up to 770 Wh/L, 4C charge / 60C discharge capability, 1000+ cycle life, 40mAh–10,000mAh range, fully custom shapes. Best for drones, robotics, portable devices requiring high discharge rates or custom form factors.
+- Shaped Li-Po Batteries: Ultra-thin (as thin as 0.5mm), highly customized geometries, 3.0V (non-rechargeable) or 3.8V (rechargeable). Wearables, smart cards, curved/irregular form factor devices.
+- Cylindrical LiFePO4 Cells: LiFePO4 chemistry in cylindrical cell format, 3.2V nominal, 2,000–5,000 cycle life, superior thermal stability, wide temp range. Building blocks for custom packs.
+
+BATTERY PACKS (assembled systems with BMS):
+- Lead Acid Lithium Replacement (PHD Premium LiFePO4 Pack): Drop-in replacement for lead-acid batteries, LiFePO4 chemistry, extraordinarily long cycle life (2,000–5,000 cycles), superior safety, significantly lower weight (1/3 of lead-acid). For AGVs, forklifts, industrial equipment, backup power. Integrated BMS.
+- Transportation Battery: Advanced BMS with multi-level protection (over-charge, over-discharge, over-current, over-temperature). For AGV/AMR fleets, electric forklifts, delivery vehicles, industrial transport. RS485/CAN communication protocols available. Premium Samsung/LG/Panasonic cells.
+- Portable Power Station: High-capacity integrated AC/DC/USB output, high conversion efficiency. For field operations, portable infrastructure, emergency power.
+- Power Sports Battery (LiFePO4): Drop-in lead-acid replacement for motorcycles, ATVs, powersports. 1/3 weight of lead-acid, LED voltage checker, over-charge/discharge protection, low self-discharge (2%/month), good performance to 60–80°C.
+- Energy Storage System (ESS): High-power, high-capacity cell portfolio for grid-tied or off-grid energy storage. Custom configurations. For utility, commercial, and industrial storage applications.
+- Medical and Military Battery Packs: Strict compliance standards, certified to IEC 62133, UL, and military specs on request. Custom form factors, long shelf life options, rigorous QC.
+
+SODIUM-ION (emerging):
+- Cylindrical Sodium-Ion Cells: Moving from hype to commercialization. Better low-temperature performance than Li-ion, improved safety profile, reduced lithium supply chain dependency. Best for start-stop batteries, backup power, specialty vehicles, grid storage. Cost still higher than LiFePO4, energy density below mainstream LiFePO4 — not a direct replacement yet. PHD offers cells for early adopters and pilot programs.
+
+CUSTOM SOLUTIONS:
+PHD Energy's primary value proposition is custom battery pack design and manufacturing. For any application requiring non-standard voltage, form factor, cycle life, or certification, PHD engineers work directly with the customer from concept to production. 50+ years combined design experience on the engineering team.
+
+== END CATALOG ==
+
+Return this exact JSON structure:
+{
+  "chemistry": "Specific chemistry name, e.g. LiFePO4 (Lithium Iron Phosphate)",
+  "product_line": "Exact PHD Energy product line name from the catalog above",
+  "nominal_voltage": "e.g. 48V (13S LiFePO4 configuration)",
+  "cycle_life": "e.g. 2,000–5,000 cycles @ 80% DoD",
+  "energy_density": "e.g. 120–140 Wh/kg gravimetric — include only if appropriate for chemistry",
+  "operating_temp": "e.g. -20°C to 60°C operational; charge 0°C to 45°C",
+  "bms": "e.g. Integrated BMS with cell balancing, over-current, over-temp, and RS485 comms — or omit if primary/cell-only",
+  "certifications": "e.g. UN38.3, UL1642, CE standard; IEC 62133 on request — only list what is appropriate for this chemistry and application",
+  "rationale": "2–4 sentences. Why this specific PHD product and chemistry is the right fit. Reference actual performance characteristics from the catalog. Be precise.",
+  "tradeoffs": "1–3 sentences. What the customer gives up vs the next-best alternative, and when they'd choose differently.",
+  "next_steps": "2–3 bullet points on what PHD Energy needs from the customer to validate and scope this recommendation."
+}
+
+== CRITICAL ENGINEERING CONSTRAINTS — ALWAYS APPLY ==
+
+COLD TEMPERATURE CHARGING:
+LiFePO4 and Li-ion chemistries CANNOT charge below 0°C without a heated BMS or low-temperature-rated cells. Standard LiFePO4 charge range is 0°C to 45°C. If a customer specifies operation below 0°C, you MUST flag this in the rationale and tradeoffs — recommend a low-temperature BMS solution or heated battery enclosure, and note that standard catalog packs require modification for sub-zero charging. Failure to flag this is a critical engineering omission.
+
+VOLTAGE CONFIGURATION MATH:
+LiFePO4 nominal cell voltage = 3.2V. Use 15S for 48V (15 x 3.2V = 48V). Do NOT use 13S for LiFePO4 (that is Li-ion math at 3.7V). Li-Po/Li-ion nominal = 3.6–3.7V per cell.
+
+CERTIFICATIONS — DO NOT CONFLATE:
+- UN38.3: Transport certification, applies to ALL lithium batteries shipped
+- UL1642: Cell-level safety, not pack-level
+- IEC 62133: Rechargeable portable cells/packs only — do not cite for primary batteries
+- IEC 60601: Medical electrical equipment — cite for implantable or patient-contact medical devices
+- Only list certifications that are technically appropriate for the stated chemistry AND application
+
+CYCLE LIFE CEILING:
+Do not output cycle life numbers above what the catalog supports. LiFePO4 catalog maximum is 5,000 cycles. Do not output 8,000 or 10,000 cycles — those are not catalog-defensible.
+
+Only include fields where you have a technically defensible answer grounded in the catalog above. Do not invent spec numbers. Do not recommend products outside the catalog.`;
+
+    const userPrompt = `Application: ${app}
+Required runtime: ${runtime || 'Not specified'}
+Nominal voltage: ${voltage || 'Not specified'}
+Cycle life requirement: ${cycles || 'Not specified'}
+Key constraints: ${constraints.length ? constraints.join(', ') : 'None specified'}
+Additional context: ${context || 'None'}
+
+Provide a battery recommendation for this application.`;
+
+    try {
+      const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': await getApiKey(),
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-5',
+          max_tokens: 1200,
+          system: systemPrompt,
+          messages: [{ role: 'user', content: userPrompt }]
+        })
+      });
+
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err?.error?.message || `API error ${response.status}`);
+      }
+
+      const data = await response.json();
+      const rawText = data.content
+        .filter(b => b.type === 'text')
+        .map(b => b.text)
+        .join('');
+
+      const parsed = parseResponse(rawText);
+      renderResult(parsed, { app, runtime, voltage, cycles, constraints, context });
+      incrementRunCount();
+      updateRunCounter();
+      setState('result');
+
+    } catch (err) {
+      document.getElementById('errorState').textContent = `Error: ${err.message}`;
+      setState('error');
+    } finally {
+      document.getElementById('analyzeBtn').disabled = false;
+    }
+  }
+</script>
+</main></div>
+</body>
+</html>
