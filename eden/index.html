@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#003057" />
+<title>Eden Excel · Vessel Configuration Assistant</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --ink: #10222e;
+    --navy: #003057;        /* Eden brand navy */
+    --navy-deep: #002340;
+    --navy-soft: #0d456f;
+    --surface: #f3f6f8;
+    --panel: #ffffff;
+    --line: #d3dde3;
+    --line-soft: #e4ebee;
+    --steel: #5c7183;
+    --muted: #78909e;
+    --accent: #0a86ab;      /* Eden "water" blue */
+    --accent-deep: #076b8a;
+    --amber: #c07a16;
+    --amber-bg: #fbf1de;
+    --rec: #d64545;
+    --display: "Space Grotesk", sans-serif;
+    --body: "IBM Plex Sans", sans-serif;
+    --mono: "IBM Plex Mono", monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--body); color: var(--ink); background: var(--surface);
+    line-height: 1.5; -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+
+  /* ---- Top utility strip ---- */
+  .utility { background: var(--navy-deep); color: #b9cdda; font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; }
+  .utility .wrap { display: flex; justify-content: space-between; align-items: center; padding: 7px 24px; flex-wrap: wrap; gap: 6px; }
+  .utility a { color: #d6e6f0; text-decoration: none; }
+
+  /* ---- Header ---- */
+  header { background: #fff; color: var(--navy); border-bottom: 3px solid var(--accent); }
+  .head-inner { display: flex; align-items: center; justify-content: space-between; padding: 16px 0; gap: 16px; flex-wrap: wrap; }
+  .brand { display: flex; align-items: center; gap: 16px; }
+  .brand img { height: 30px; display: block; }
+  .brand .div { width: 1px; height: 24px; background: var(--line); }
+  .brand .tool { font-family: var(--mono); font-size: 11px; letter-spacing: 0.13em; text-transform: uppercase; color: var(--muted); }
+  .nav-links { display: flex; gap: 22px; font-size: 13.5px; }
+  .nav-links a { color: var(--navy); text-decoration: none; transition: color 0.15s; }
+  .nav-links a:hover { color: var(--accent); }
+  @media (max-width: 720px){ .nav-links { display:none; } }
+
+  /* ---- Breadcrumb ---- */
+  .crumb { background: #fff; border-bottom: 1px solid var(--line-soft); }
+  .crumb .wrap { padding: 11px 24px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.05em; color: var(--muted); }
+  .crumb a { color: var(--accent-deep); text-decoration: none; }
+  .crumb span { color: var(--ink); }
+
+  /* ---- Hero ---- */
+  .hero { padding: 42px 0 26px; }
+  .eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent-deep); margin-bottom: 14px; display: flex; align-items: center; gap: 10px; }
+  .eyebrow::before { content: ""; width: 26px; height: 2px; background: var(--accent); display: inline-block; }
+  h1 { font-family: var(--display); font-weight: 600; font-size: clamp(30px, 4.3vw, 45px); line-height: 1.05; letter-spacing: -0.015em; color: var(--navy); max-width: 16ch; }
+  .lede { margin-top: 15px; max-width: 64ch; font-size: 16px; color: var(--steel); }
+  .lede b { color: var(--ink); font-weight: 600; }
+
+  .scenarios { margin-top: 26px; }
+  .scen-label { font-family: var(--mono); font-size: 11px; letter-spacing: 0.13em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+  .chips { display: flex; gap: 10px; flex-wrap: wrap; }
+  .chip { font-family: var(--body); font-size: 13.5px; font-weight: 500; background: var(--panel); border: 1px solid var(--line); padding: 9px 15px; cursor: pointer; color: var(--navy); transition: all 0.15s ease; display: flex; align-items: center; gap: 9px; }
+  .chip:hover { border-color: var(--accent); background: #f2fafc; }
+  .chip .tag { font-family: var(--mono); font-size: 10px; color: var(--accent-deep); border: 1px solid var(--line-soft); padding: 1px 5px; letter-spacing: 0.05em; }
+
+  /* ---- Grid ---- */
+  .grid { display: grid; grid-template-columns: 420px 1fr; gap: 24px; padding: 30px 0 60px; align-items: start; }
+  @media (max-width: 880px){ .grid { grid-template-columns: 1fr; } }
+
+  .panel { background: var(--panel); border: 1px solid var(--line); box-shadow: 0 1px 0 rgba(16,34,46,0.04); }
+  .panel-head { padding: 14px 20px; border-bottom: 1px solid var(--line-soft); display: flex; align-items: center; justify-content: space-between; }
+  .panel-head h2 { font-family: var(--display); font-weight: 600; font-size: 15px; color: var(--navy); }
+  .panel-head .step { font-family: var(--mono); font-size: 11px; color: var(--muted); letter-spacing: 0.08em; }
+
+  /* ---- Form ---- */
+  form { padding: 4px 20px 20px; }
+  .field { margin-top: 15px; }
+  .field label { display: flex; align-items: center; justify-content: space-between; font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--steel); margin-bottom: 6px; }
+  .field textarea, .field input, .field select { width: 100%; font-family: var(--body); font-size: 14px; color: var(--ink); padding: 10px 12px; border: 1px solid var(--line); background: #fbfdfe; border-radius: 0; transition: border 0.15s; }
+  .field select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%235c7183' stroke-width='1.6' fill='none'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 34px; cursor: pointer; }
+  .field textarea { resize: vertical; min-height: 84px; line-height: 1.45; }
+  .field textarea:focus, .field input:focus, .field select:focus { outline: none; border-color: var(--accent); background: #fff; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .custom-reveal { margin-top: 8px; display: none; }
+  .custom-reveal.show { display: block; }
+
+  /* mic */
+  .mic-btn { display: inline-flex; align-items: center; gap: 6px; font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent-deep); background: none; border: 1px solid var(--line); padding: 3px 9px; cursor: pointer; transition: all 0.15s; }
+  .mic-btn:hover { border-color: var(--accent); background: #f2fafc; }
+  .mic-btn svg { width: 12px; height: 12px; }
+  .mic-btn.listening { color: #fff; background: var(--rec); border-color: var(--rec); animation: pulse 1.2s ease-in-out infinite; }
+  .mic-btn.disabled { opacity: 0.4; cursor: not-allowed; }
+  @keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(214,69,69,0.5);} 50% { box-shadow: 0 0 0 6px rgba(214,69,69,0);} }
+
+  .run { margin-top: 22px; width: 100%; font-family: var(--display); font-weight: 600; font-size: 15px; color: #fff; background: var(--navy); border: none; padding: 14px; cursor: pointer; transition: background 0.15s; display: flex; align-items: center; justify-content: center; gap: 10px; }
+  .run:hover { background: var(--navy-soft); }
+  .run:disabled { background: var(--steel); cursor: default; }
+
+  .apikey { margin-top: 18px; padding-top: 16px; border-top: 1px dashed var(--line); }
+  .apikey summary { font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; color: var(--muted); cursor: pointer; text-transform: uppercase; }
+  .apikey input { margin-top: 10px; font-family: var(--mono); font-size: 12px; }
+  .apikey p { font-size: 12px; color: var(--muted); margin-top: 8px; line-height: 1.5; }
+
+  /* ---- Output ---- */
+  .out-body { padding: 22px; min-height: 360px; }
+  .placeholder { height: 340px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: var(--muted); gap: 14px; }
+  .placeholder p { font-size: 14px; max-width: 34ch; }
+  .placeholder .hint { font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; }
+  .loading { height: 340px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; }
+  .scanner { width: 210px; height: 4px; background: var(--line-soft); overflow: hidden; position: relative; }
+  .scanner::after { content: ""; position: absolute; top: 0; left: -40%; height: 100%; width: 40%; background: var(--accent); animation: scan 1.1s ease-in-out infinite; }
+  @keyframes scan { 0% { left: -40%; } 100% { left: 100%; } }
+  .loading .msg { font-family: var(--mono); font-size: 12px; color: var(--steel); letter-spacing: 0.06em; }
+  .load-steps { width: 250px; display: flex; flex-direction: column; gap: 13px; margin-top: 4px; }
+  .load-step { display: flex; align-items: center; gap: 11px; font-family: var(--mono); font-size: 12px; color: var(--muted); letter-spacing: 0.02em; transition: color 0.3s ease; }
+  .load-step .ic { width: 16px; height: 16px; border: 1.5px solid var(--line); border-radius: 50%; flex: 0 0 auto; position: relative; box-sizing: border-box; }
+  .load-step.active { color: var(--navy); }
+  .load-step.active .ic { border-color: var(--accent); border-top-color: transparent; animation: spin 0.7s linear infinite; }
+  .load-step.done { color: var(--steel); }
+  .load-step.done .ic { border-color: var(--accent); background: var(--accent); animation: none; }
+  .load-step.done .ic::after { content: ""; position: absolute; left: 5px; top: 2px; width: 4px; height: 7px; border: solid #fff; border-width: 0 1.6px 1.6px 0; transform: rotate(45deg); }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .result { animation: rise 0.4s ease; }
+  @keyframes rise { from { opacity: 0; transform: translateY(8px);} to { opacity: 1; transform: none;} }
+  .verdict { border: 1px solid var(--navy); background: var(--navy); color: #fff; padding: 18px 20px; margin-bottom: 20px; }
+  .verdict .vlabel { font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
+  .verdict .vname { font-family: var(--display); font-weight: 600; font-size: 24px; line-height: 1.1; }
+  .verdict .vreason { margin-top: 8px; font-size: 13.5px; color: #cbdae6; line-height: 1.5; }
+
+  .specrow { display: grid; grid-template-columns: 140px 1fr; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--line-soft); align-items: start; }
+  .specrow:first-of-type { border-top: 1px solid var(--line-soft); }
+  .specrow .k { font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--steel); padding-top: 2px; }
+  .specrow .v .val { font-family: var(--display); font-weight: 600; font-size: 15px; color: var(--navy); }
+  .specrow .v .why { font-size: 13px; color: var(--steel); margin-top: 3px; line-height: 1.5; }
+
+  .block { margin-top: 24px; }
+  .block h3 { font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; gap: 9px; }
+  .block h3::before { content: ""; width: 14px; height: 2px; display: inline-block; }
+  .block.notes h3 { color: var(--accent-deep);} .block.notes h3::before { background: var(--accent);}
+  .block.review h3 { color: var(--amber);} .block.review h3::before { background: var(--amber);}
+  .block.questions h3 { color: var(--steel);} .block.questions h3::before { background: var(--steel);}
+  ul.items { list-style: none; }
+  ul.items li { position: relative; padding: 7px 0 7px 22px; font-size: 13.5px; color: var(--ink); line-height: 1.5; border-bottom: 1px solid #f0f4f6; }
+  ul.items li::before { content: ""; position: absolute; left: 0; top: 13px; width: 7px; height: 7px; border: 1.5px solid var(--accent); background: #fff; }
+  .block.review ul.items li { background: var(--amber-bg); padding-left: 22px; padding-right: 12px; border-bottom: 2px solid #fff; }
+  .block.review ul.items li::before { border-color: var(--amber); left: 8px; }
+
+  .summary { margin-top: 24px; padding: 18px 20px; background: #f1fafc; border-left: 3px solid var(--accent); font-size: 14px; line-height: 1.6; color: var(--ink); }
+  .summary .slabel { font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent-deep); margin-bottom: 8px; }
+  .disclaimer { margin-top: 22px; font-size: 11.5px; color: var(--muted); line-height: 1.5; font-family: var(--mono); padding-top: 14px; border-top: 1px dashed var(--line); }
+  .error { padding: 16px 18px; background: #fdf0ef; border: 1px solid #e6b8b3; color: #9c3a2f; font-size: 13.5px; line-height: 1.55; }
+  .error b { display: block; font-family: var(--display); margin-bottom: 5px; font-size: 14px; }
+
+  /* ---- Footer ---- */
+  footer { background: var(--navy); color: #b9cdda; margin-top: 20px; }
+  footer .wrap { padding: 26px 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+  footer .addr { font-size: 12.5px; line-height: 1.5; }
+  footer .addr b { color: #fff; font-family: var(--display); letter-spacing: 0.03em; }
+  footer .meta { font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; text-align: right; }
+  footer .meta a { color: #7fd0e6; text-decoration: none; }
+
+  /* ---- Lock overlay ---- */
+  .lock-overlay { position: fixed; inset: 0; background: rgba(0,35,64,0.55); backdrop-filter: blur(3px); display: none; align-items: center; justify-content: center; z-index: 50; padding: 24px; }
+  .lock-overlay.show { display: flex; }
+  .lock-card { background: #fff; border: 1px solid var(--line); max-width: 380px; width: 100%; padding: 30px 28px; box-shadow: 0 20px 60px rgba(0,35,64,0.3); }
+  .lock-card .lk-eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent-deep); margin-bottom: 12px; display:flex; align-items:center; gap:8px; }
+  .lock-card .lk-eyebrow svg { width: 14px; height: 14px; }
+  .lock-card h2 { font-family: var(--display); font-weight: 600; font-size: 22px; color: var(--navy); line-height: 1.15; }
+  .lock-card p { font-size: 13.5px; color: var(--steel); margin-top: 8px; line-height: 1.5; }
+  .lock-card input { width: 100%; margin-top: 18px; font-family: var(--body); font-size: 14px; padding: 11px 12px; border: 1px solid var(--line); background: #fbfdfe; }
+  .lock-card input:focus { outline: none; border-color: var(--accent); background: #fff; }
+  .lock-card .unlock-btn { width: 100%; margin-top: 12px; font-family: var(--display); font-weight: 600; font-size: 14px; color: #fff; background: var(--navy); border: none; padding: 12px; cursor: pointer; }
+  .lock-card .unlock-btn:hover { background: var(--navy-soft); }
+  .lock-card .lk-msg { margin-top: 12px; font-size: 12.5px; min-height: 16px; color: var(--rec); font-family: var(--mono); letter-spacing: 0.03em; }
+  .lock-card .lk-msg.ok { color: var(--accent-deep); }
+  .lock-card .lk-skip { display: block; width: 100%; margin-top: 8px; background: none; border: none; font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; color: var(--muted); text-transform: uppercase; cursor: pointer; }
+  .lock-card .lk-skip:hover { color: var(--steel); }
+
+  /* ---- Key status + setup ---- */
+  .keystatus { margin-top: 6px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.05em; display: flex; align-items: center; gap: 7px; }
+  .keystatus .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+  .keystatus.locked .dot { background: var(--amber); }
+  .keystatus.unlocked .dot { background: #2f9e63; }
+  .keystatus .txt { color: var(--steel); }
+  .setup { margin-top: 14px; padding: 14px; background: #f6f9fb; border: 1px solid var(--line-soft); }
+  .setup .stitle { font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--navy); margin-bottom: 4px; }
+  .setup .sdesc { font-size: 12px; color: var(--muted); line-height: 1.5; margin-bottom: 10px; }
+  .setup input { width: 100%; margin-bottom: 8px; font-family: var(--mono); font-size: 12px; padding: 9px 10px; border: 1px solid var(--line); background: #fff; }
+  .setup .enc-btn { font-family: var(--display); font-weight: 600; font-size: 12.5px; color: #fff; background: var(--accent-deep); border: none; padding: 9px 14px; cursor: pointer; }
+  .setup .enc-btn:hover { background: var(--accent); }
+  .setup textarea { width: 100%; margin-top: 10px; font-family: var(--mono); font-size: 11px; padding: 10px; border: 1px solid var(--line); background: #fff; min-height: 72px; resize: vertical; display: none; }
+  .setup textarea.show { display: block; }
+  .setup .copyhint { font-size: 11.5px; color: var(--accent-deep); margin-top: 6px; display: none; line-height: 1.5; }
+  .setup .copyhint.show { display: block; }
+
+  /* ---- Export button ---- */
+  .export-bar { display: flex; justify-content: flex-end; margin-bottom: 14px; }
+  .export-btn { display: inline-flex; align-items: center; gap: 7px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--navy); background: #fff; border: 1px solid var(--line); padding: 7px 13px; cursor: pointer; transition: all 0.15s; }
+  .export-btn:hover { border-color: var(--accent); background: #f2fafc; color: var(--accent-deep); }
+  .export-btn svg { width: 13px; height: 13px; }
+
+  /* ---- Print document (screen-hidden) ---- */
+  #printDoc { display: none; }
+  @media print {
+    @page { margin: 16mm; }
+    body > *:not(#printDoc) { display: none !important; }
+    #printDoc { display: block !important; color: #10222e; font-family: var(--body); }
+    #printDoc .pd-head { border-bottom: 2px solid var(--navy); padding-bottom: 14px; margin-bottom: 20px; }
+    #printDoc .pd-logo { height: 30px; margin-bottom: 12px; }
+    #printDoc .pd-title { font-family: var(--display); font-weight: 600; font-size: 20px; color: var(--navy); }
+    #printDoc .pd-meta { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.05em; color: var(--steel); margin-top: 5px; }
+    #printDoc .pd-sec { margin-top: 18px; break-inside: avoid; }
+    #printDoc .pd-label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent-deep); margin-bottom: 7px; border-bottom: 1px solid #dde5e9; padding-bottom: 4px; }
+    #printDoc .pd-verdict { background: var(--navy) !important; color: #fff !important; padding: 14px 16px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    #printDoc .pd-verdict .l { font-family: var(--mono); font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: #7fd0e6; }
+    #printDoc .pd-verdict .n { font-family: var(--display); font-weight: 600; font-size: 19px; margin-top: 4px; }
+    #printDoc .pd-verdict .r { font-size: 12px; color: #cbdae6; margin-top: 5px; line-height: 1.5; }
+    #printDoc .pd-kv { font-size: 13px; line-height: 1.55; margin: 3px 0; }
+    #printDoc .pd-kv b { color: var(--navy); }
+    #printDoc .pd-kv .k { font-family: var(--mono); font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--steel); }
+    #printDoc ul { margin: 0; padding-left: 18px; }
+    #printDoc li { font-size: 12.5px; line-height: 1.55; margin-bottom: 3px; }
+    #printDoc .pd-brief { font-size: 12.5px; line-height: 1.6; background: #f1fafc !important; border-left: 3px solid var(--accent); padding: 12px 14px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    #printDoc .pd-disc { margin-top: 20px; font-family: var(--mono); font-size: 9.5px; color: var(--muted); line-height: 1.5; border-top: 1px solid #dde5e9; padding-top: 10px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="lock-overlay" id="lockOverlay">
+  <div class="lock-card">
+    <div class="lk-eyebrow">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="11" width="16" height="10" rx="1.5"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+      Eden Excel Configurator
+    </div>
+    <h2>Unlock to continue</h2>
+    <p>Enter the access password to enable configuration generation.</p>
+    <input type="password" id="unlockPw" placeholder="Access password" autocomplete="off" />
+    <button class="unlock-btn" id="unlockBtn">Unlock</button>
+    <div class="lk-msg" id="lockMsg"></div>
+    <button class="lk-skip" id="lockSkip">Continue without a key (preview only)</button>
+  </div>
+</div>
+
+<div class="utility">
+  <div class="wrap">
+    <div>USA-MANUFACTURED FRP FILTRATION &middot; SINCE 1978</div>
+    <div><a href="#">800.842.5081</a> &nbsp; Austin, TX</div>
+  </div>
+</div>
+
+<header>
+  <div class="wrap head-inner">
+    <div class="brand">
+      <img src="data:image/png;base64,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" alt="Eden Equipment Company" />
+      <div class="div"></div>
+      <div class="tool">Configurator Suite</div>
+    </div>
+    <nav class="nav-links">
+      <a href="https://www.edenequipment.com/industrial-filtration/liquid-filtration-vessels/">Vessels</a>
+      <a href="https://www.edenequipment.com/industrial-filtration/liquid-filter-cartridges/">Cartridges</a>
+      <a href="https://www.edenequipment.com/industrial-filtration/rfq/">Request a Quote</a>
+    </nav>
+  </div>
+</header>
+
+<div class="crumb">
+  <div class="wrap">
+    <a href="https://www.edenequipment.com/industrial-filtration/">Industrial Filtration</a> /
+    <a href="https://www.edenequipment.com/industrial-filtration/configurators/liquid-filtration-vessels/">Configurators</a> /
+    <span>Vessel Configuration Assistant</span>
+  </div>
+</div>
+
+<div class="wrap">
+  <section class="hero">
+    <div class="eyebrow">Vessel Configuration Assistant</div>
+    <h1>From a raw application to a first-pass spec in seconds.</h1>
+    <p class="lede">Describe an incoming filtration requirement, by voice or by picking the details below. The assistant reasons across Eden Excel's <b>vessel types, wetted materials, and cartridge media</b> to draft a starting configuration, flag what needs an engineer, and surface the open questions before a quote goes out.</p>
+
+    <div class="scenarios">
+      <div class="scen-label">Load a sample application</div>
+      <div class="chips" id="chips">
+        <button class="chip" data-scenario="desal"><span class="tag">RO</span> Resort desalination prefilter</button>
+        <button class="chip" data-scenario="municipal"><span class="tag">MUNI</span> Municipal high-flow prefilter</button>
+        <button class="chip" data-scenario="caustic"><span class="tag">CHEM</span> Caustic process stream</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="grid">
+    <!-- INTAKE -->
+    <div class="panel">
+      <div class="panel-head"><h2>Application intake</h2><span class="step">01 / INPUT</span></div>
+      <form id="intakeForm">
+        <div class="field">
+          <label>Application type</label>
+          <select id="appType">
+            <option value="">Select an application</option>
+            <option>Prefiltration ahead of RO / desalination</option>
+            <option>Municipal / potable water treatment</option>
+            <option>Process or chemical filtration</option>
+            <option>Cooling water / HVAC loop</option>
+            <option>Bag filtration / high solids loading</option>
+            <option>Pharmaceutical / high purity</option>
+            <option>Food & beverage</option>
+            <option>Other / not sure</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>
+            Application description
+            <button type="button" class="mic-btn" id="micBtn" title="Describe it out loud">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v4"/></svg>
+              <span id="micLabel">Speak</span>
+            </button>
+          </label>
+          <textarea id="app" placeholder="Type here, or tap Speak and describe the situation in your own words."></textarea>
+        </div>
+
+        <div class="row2">
+          <div class="field">
+            <label>Flow rate</label>
+            <select id="flow" data-custom="flowCustom">
+              <option value="">Select flow</option>
+              <option>Under 50 gpm</option>
+              <option>50&ndash;150 gpm</option>
+              <option>150&ndash;300 gpm</option>
+              <option>300&ndash;600 gpm</option>
+              <option>600&ndash;1,000 gpm</option>
+              <option>Over 1,000 gpm</option>
+              <option value="__custom">Enter exact value&hellip;</option>
+            </select>
+            <input class="custom-reveal" id="flowCustom" placeholder="e.g. 200 gpm" />
+          </div>
+          <div class="field">
+            <label>Operating pressure</label>
+            <select id="pressure" data-custom="pressureCustom">
+              <option value="">Select pressure</option>
+              <option>Under 75 psi</option>
+              <option>75&ndash;125 psi</option>
+              <option>125&ndash;175 psi</option>
+              <option>175&ndash;250 psi</option>
+              <option>Over 250 psi</option>
+              <option value="__custom">Enter exact value&hellip;</option>
+            </select>
+            <input class="custom-reveal" id="pressureCustom" placeholder="e.g. 150 psi" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Fluid &amp; environment</label>
+          <select id="fluid">
+            <option value="">Select fluid type</option>
+            <option>Fresh / potable water</option>
+            <option>Brackish / saline (corrosive)</option>
+            <option>Seawater / desalination feed</option>
+            <option>Process water with suspended solids</option>
+            <option>Caustic / high-pH chemical (aggressive)</option>
+            <option>Acidic / low-pH chemical</option>
+            <option>Solvent / aggressive chemical</option>
+            <option>Oily or organic-laden water</option>
+          </select>
+        </div>
+
+        <div class="row2">
+          <div class="field">
+            <label>Temperature</label>
+            <select id="temp" data-custom="tempCustom">
+              <option value="">Select range</option>
+              <option>Ambient (under 40&deg;C)</option>
+              <option>Warm (40&ndash;60&deg;C)</option>
+              <option>Hot (60&ndash;90&deg;C)</option>
+              <option>High (over 90&deg;C)</option>
+              <option value="__custom">Enter exact value&hellip;</option>
+            </select>
+            <input class="custom-reveal" id="tempCustom" placeholder="e.g. 80&deg;C" />
+          </div>
+          <div class="field">
+            <label>Space / clearance</label>
+            <select id="space">
+              <option value="">No constraint noted</option>
+              <option>Standard vertical clearance</option>
+              <option>Low overhead clearance</option>
+              <option>Tight footprint</option>
+              <option>Zero-downtime / redundancy required</option>
+              <option>Multi-port loading (e.g. railcar)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Standard / code (optional)</label>
+          <select id="standard">
+            <option value="">None specified</option>
+            <option>ASME Section X</option>
+            <option>ASME Section VIII</option>
+            <option>NSF / potable certified</option>
+            <option>Seismic rating required</option>
+            <option>Other / to confirm</option>
+          </select>
+        </div>
+
+        <button type="submit" class="run" id="runBtn">Generate configuration &rarr;</button>
+
+        <div class="keystatus" id="keyStatus"><span class="dot"></span><span class="txt">Preview mode &middot; no key loaded</span></div>
+
+        <details class="apikey">
+          <summary>Key settings</summary>
+
+          <div class="setup">
+            <div class="stitle">One-time setup: encrypt your key</div>
+            <div class="sdesc">Paste your Anthropic key and a password. Encryption happens in your browser, your raw key never leaves this page. Copy the result into the ENCRYPTED_KEY block near the top of this file, then reload.</div>
+            <input id="setupKey" type="password" placeholder="sk-ant-..." autocomplete="off" />
+            <input id="setupPw" type="password" placeholder="Choose an access password" autocomplete="off" />
+            <button type="button" class="enc-btn" id="encBtn">Encrypt key</button>
+            <textarea id="encOut" readonly></textarea>
+            <div class="copyhint" id="copyHint">Copy this whole block and paste it over the ENCRYPTED_KEY constant in the file.</div>
+          </div>
+
+          <input id="apiKey" type="password" placeholder="Or paste a key for this session only" autocomplete="off" style="margin-top:12px;" />
+          <p>The session field is for quick testing. Inside the Claude.ai preview both can be left blank. For the hosted build, use the encrypted setup above.</p>
+        </details>
+      </form>
+    </div>
+
+    <!-- OUTPUT -->
+    <div class="panel">
+      <div class="panel-head"><h2>Recommended configuration</h2><span class="step">02 / OUTPUT</span></div>
+      <div class="out-body" id="output">
+        <div class="placeholder">
+          <svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="#5c7183" stroke-width="1.3"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M7 7h10M7 12h10M7 17h10"/></svg>
+          <p>Load a sample application or fill in the intake, then generate a first-pass vessel and cartridge configuration.</p>
+          <div class="hint">AWAITING INPUT</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<footer>
+  <div class="wrap">
+    <div class="addr">
+      <b>EDEN EQUIPMENT COMPANY</b><br />
+      6231 East Stassney Lane, Bldg 12-100, Austin, TX 78744
+    </div>
+    <div class="meta">
+      VESSEL CONFIGURATION ASSISTANT &middot; PROTOTYPE<br />
+      Built by <a href="https://linaforge.com">Lina Forge</a>
+    </div>
+  </div>
+</footer>
+
+<div id="printDoc"></div>
+
+<script>
+  const MODEL = "claude-sonnet-4-5";
+  let API_KEY = "";
+  let lastInputs = null, lastResult = null;
+
+  // ===== Encrypted key config =====
+  // Paste the block produced by the one-time setup (Key settings > Encrypt key) here.
+  // Leave empty to run in preview mode (Claude.ai) or use the session field.
+  const ENCRYPTED_KEY = {"salt":"nihv25FiPj4w4DrhpE4++A==","iv":"8Qa1/V/g9PqdLU9C","data":"SFTyEofT9hkLHWQsuhaFHo7PrOSOKPjM1uMvCGfz0lXi5dVylVkJK+MOuf6WAKS6odQEYDkp2xW8r3Fpkan4aveny8jWfNuquel1kj8kfOqgyEpnFf2LCXgvjMygFhA0U985hPzsJ1V6rp8ZKJ1j80Jg0ZGPb5tvlvp9dw=="};
+
+  // ---- Web Crypto helpers (AES-GCM, PBKDF2) ----
+  const _enc = new TextEncoder();
+  const _dec = new TextDecoder();
+  function _b64(buf) { return btoa(String.fromCharCode.apply(null, new Uint8Array(buf))); }
+  function _unb64(s) { return Uint8Array.from(atob(s), function (c) { return c.charCodeAt(0); }); }
+  async function _deriveKey(password, salt) {
+    const base = await crypto.subtle.importKey("raw", _enc.encode(password), "PBKDF2", false, ["deriveKey"]);
+    return crypto.subtle.deriveKey(
+      { name: "PBKDF2", salt: salt, iterations: 150000, hash: "SHA-256" },
+      base, { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]
+    );
+  }
+  async function encryptApiKey(apiKey, password) {
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const key = await _deriveKey(password, salt);
+    const ct = await crypto.subtle.encrypt({ name: "AES-GCM", iv: iv }, key, _enc.encode(apiKey));
+    return { salt: _b64(salt), iv: _b64(iv), data: _b64(ct) };
+  }
+  async function decryptApiKey(blob, password) {
+    const key = await _deriveKey(password, _unb64(blob.salt));
+    const pt = await crypto.subtle.decrypt({ name: "AES-GCM", iv: _unb64(blob.iv) }, key, _unb64(blob.data));
+    return _dec.decode(pt);
+  }
+  function hasEncryptedKey() { return !!(ENCRYPTED_KEY.data && ENCRYPTED_KEY.salt && ENCRYPTED_KEY.iv); }
+
+  const SCENARIOS = {
+    desal: {
+      appType: "Prefiltration ahead of RO / desalination",
+      app: "Prefiltration ahead of a reverse-osmosis skid at a coastal luxury resort. Incoming brackish well water carries sand, silt and some organic matter. The existing stainless prefilter housing corroded and failed after a few years in the saline environment and needs replacing.",
+      flow: "150\u2013300 gpm", pressure: "125\u2013175 psi", fluid: "Brackish / saline (corrosive)",
+      temp: "Ambient (under 40\u00b0C)", space: "Standard vertical clearance", standard: "ASME Section X"
+    },
+    municipal: {
+      appType: "Municipal / potable water treatment",
+      app: "High-capacity prefiltration for a municipal water treatment plant serving a national park. Needs to remove sand, organic matter and other solids ahead of a desalination system running in continuous service. Priority is high flow in the smallest practical footprint with long filter life.",
+      flow: "600\u20131,000 gpm", pressure: "125\u2013175 psi", fluid: "Process water with suspended solids",
+      temp: "Ambient (under 40\u00b0C)", space: "Tight footprint", standard: "ASME Section X"
+    },
+    caustic: {
+      appType: "Process or chemical filtration",
+      app: "Filtration on a chemical process stream at an industrial plant. The fluid is aggressive and highly caustic with elevated temperature, running near-continuous duty. Corrosion resistance and chemical compatibility are the top priorities, and the plant wants quick cartridge change-outs without downtime.",
+      flow: "50\u2013150 gpm", pressure: "75\u2013125 psi", fluid: "Caustic / high-pH chemical (aggressive)",
+      temp: "Hot (60\u201390\u00b0C)", space: "Zero-downtime / redundancy required", standard: ""
+    }
+  };
+
+  const SYSTEM_PROMPT = `You are a sales-engineering assistant for Eden Equipment Company (brand: Eden Excel), a 40-year Austin-based manufacturer of custom fiberglass-reinforced plastic (FRP) industrial liquid filtration vessels and cartridges. You help a sales rep turn a loose customer application into a defensible FIRST-PASS configuration. You are not issuing a final quote or price.
+
+Reason using ONLY Eden's real, publicly documented product line:
+
+VESSEL TYPES (pick the single best fit):
+- Type 1: Original Eden Excel design. Superior flow dynamics, low-positioned I/O for flexible plumbing orientation, minimal pressure drop. Good general-purpose default.
+- Type 2: Roomier design, greater cartridge capacity, lowest possible center of gravity, strong height-to-flow ratio. Best when cartridge count / capacity is the priority.
+- Type 3: Combines Type 2 flow dynamics with Type 1 plumbing flexibility. Commonly used as single or multi-BAG filter housings.
+- Horizontal 1 (H1): Lowest overall assembled height. Choose for LOW OVERHEAD CLEARANCE spaces.
+- Horizontal 2 (H2): Compact horizontal, I/O flanges inline or offset, easy insert/remove of high-flow or conventional cartridges. Good for constrained plumbing runs.
+- Duo Inline System: Two vessels inline for ZERO-DOWNTIME and quick changeovers. Bag or cartridge. Manual or automatic.
+- Quad Inline System: Four-vessel redundancy, zero-downtime, quick changeover. Ideal for MULTI-PORT LOADING operations such as railcars.
+
+WETTED MATERIALS (select by chemistry + temperature; do not over-spec):
+- PVC: general-purpose, cost-effective, water and mild service, lower temperature ceiling.
+- CPVC: handles higher temperatures than PVC, good for hot water and moderate chemical duty.
+- Polypropylene (PolyPro): broad chemical resistance across acids and bases, good for aggressive/caustic streams at moderate-to-elevated temperature.
+- PVDF: highest chemical resistance and highest temperature capability, for the most aggressive chemicals. Most expensive; only specify when the chemistry truly requires it.
+Note: Eden FRP vessels offer pH resistance roughly 2-13, are 3-5x stronger and up to 50% lighter than stainless steel, and resist corrosion far better than stainless in saline/brackish service.
+
+CARTRIDGE MEDIA:
+- String wound (depth): general sediment, layered filament.
+- Pleated: greatest surface area, lowest integrated pressure drop, longest life; water and chemical service. Strong default for sediment/particulate with long life goals.
+- Meltblown: thermal stability, minimal bypass, removes taste/color/odor.
+- Coconut shell: renewable carbon alternative, high surface area/porosity, organics.
+- Activated carbon: organics, colloidal substances, heavy metals, odors.
+- Lead removal: specialized activated carbon for lead and heavy metals.
+- High Flow: simplest, most efficient, cost-effective; more flow in less space, longer life, lower energy. Available 20" to 80". Choose when flow-per-footprint and energy are priorities.
+
+REASONING RULES:
+- Match material to the WORST-CASE chemistry and temperature stated. Corrosive/brackish -> FRP is already the pitch; wetted internals PVC or CPVC by temperature. Caustic/aggressive high pH or high temp -> PolyPro or PVDF.
+- Match vessel type to space/redundancy cues: low clearance -> H1/H2; zero-downtime -> Duo/Quad; bag filtration -> Type 3; high capacity -> Type 2; high flow in small footprint -> Type 2 or a High Flow cartridge approach.
+- Prefer High Flow cartridges when flow-per-footprint and energy efficiency are called out.
+- Flag for engineering review anything involving: pressure above typical ranges, extreme temperature, ambiguous or unstated chemistry, ASME Section X code stamping, seismic requirements, or custom I/O orientation. When in doubt, flag it rather than guessing.
+- List the concrete open questions a rep must resolve before a real quote (exact micron target, continuous vs intermittent duty, connection sizes/orientation, particulate loading, water analysis, changeout frequency, etc.).
+
+Return ONLY valid JSON, no markdown, no preamble, in exactly this shape:
+{
+  "vessel": {"type": "string (one Eden vessel type name)", "reason": "1-2 sentences"},
+  "material": {"choice": "string (wetted material)", "reason": "1-2 sentences"},
+  "cartridge": {"media": "string (media type)", "micron": "string (a sensible starting micron or range, note it's a starting point)", "reason": "1-2 sentences"},
+  "config_notes": ["short configuration note", "..."],
+  "engineering_review": ["item that must be checked by an engineer", "..."],
+  "open_questions": ["question to resolve before quoting", "..."],
+  "summary": "one plain-language paragraph a rep could paraphrase back to the customer"
+}`;
+
+  const form = document.getElementById("intakeForm");
+  const output = document.getElementById("output");
+  const runBtn = document.getElementById("runBtn");
+  const chips = document.getElementById("chips");
+
+  // ---- Custom-value reveals ----
+  document.querySelectorAll("select[data-custom]").forEach((sel) => {
+    sel.addEventListener("change", () => {
+      const inp = document.getElementById(sel.dataset.custom);
+      if (sel.value === "__custom") { inp.classList.add("show"); inp.focus(); }
+      else { inp.classList.remove("show"); inp.value = ""; }
+    });
+  });
+
+  function valOf(id) {
+    const sel = document.getElementById(id);
+    if (sel.value === "__custom") {
+      const c = document.getElementById(sel.dataset.custom);
+      return c && c.value.trim() ? c.value.trim() : "not stated";
+    }
+    return sel.value.trim() || "not stated";
+  }
+
+  // ---- Scenario loading ----
+  chips.addEventListener("click", (e) => {
+    const btn = e.target.closest(".chip"); if (!btn) return;
+    const s = SCENARIOS[btn.dataset.scenario]; if (!s) return;
+    setSelect("appType", s.appType);
+    document.getElementById("app").value = s.app;
+    setSelect("flow", s.flow); setSelect("pressure", s.pressure);
+    setSelect("fluid", s.fluid); setSelect("temp", s.temp);
+    setSelect("space", s.space); setSelect("standard", s.standard);
+    document.getElementById("app").scrollIntoView({ behavior: "smooth", block: "center" });
+  });
+  function setSelect(id, val) {
+    const sel = document.getElementById(id);
+    const norm = (t) => t.replace(/\s+/g, "").toLowerCase();
+    let idx = -1;
+    [...sel.options].forEach((o, i) => { if (norm(o.text) === norm(val)) idx = i; });
+    if (idx >= 0) sel.selectedIndex = idx; else if (val === "") sel.selectedIndex = 0;
+    if (sel.dataset && sel.dataset.custom) { const c = document.getElementById(sel.dataset.custom); if (c) { c.classList.remove("show"); c.value = ""; } }
+  }
+
+  // ---- Speech to text ----
+  const micBtn = document.getElementById("micBtn");
+  const micLabel = document.getElementById("micLabel");
+  const appBox = document.getElementById("app");
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  let recognizing = false, recognition = null, baseText = "";
+
+  if (!SR) {
+    micBtn.classList.add("disabled");
+    micBtn.title = "Voice input works in Chrome or Edge";
+  } else {
+    recognition = new SR();
+    recognition.continuous = true; recognition.interimResults = true; recognition.lang = "en-US";
+    recognition.onstart = () => { recognizing = true; micBtn.classList.add("listening"); micLabel.textContent = "Listening"; };
+    recognition.onerror = (e) => { micLabel.textContent = e.error === "not-allowed" ? "Mic blocked" : "Speak"; };
+    recognition.onend = () => { recognizing = false; micBtn.classList.remove("listening"); micLabel.textContent = "Speak"; };
+    recognition.onresult = (event) => {
+      let interim = "", final = "";
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const t = event.results[i][0].transcript;
+        if (event.results[i].isFinal) final += t; else interim += t;
+      }
+      if (final) baseText = (baseText ? baseText + " " : "") + final.trim();
+      appBox.value = (baseText + (interim ? " " + interim : "")).trim();
+    };
+    micBtn.addEventListener("click", () => {
+      if (recognizing) { recognition.stop(); return; }
+      baseText = appBox.value.trim();
+      try { recognition.start(); } catch (_) {}
+    });
+  }
+
+  // ---- Key status ----
+  function setKeyStatus(state) {
+    const el = document.getElementById("keyStatus");
+    el.className = "keystatus " + state;
+    const txt = el.querySelector(".txt");
+    if (state === "unlocked") txt.textContent = "Key unlocked \u00b7 ready";
+    else if (state === "locked") txt.textContent = "Locked \u00b7 password required";
+    else txt.textContent = "Preview mode \u00b7 no key loaded";
+  }
+
+  // ---- Unlock overlay ----
+  const lockOverlay = document.getElementById("lockOverlay");
+  const unlockPw = document.getElementById("unlockPw");
+  const unlockBtn = document.getElementById("unlockBtn");
+  const lockMsg = document.getElementById("lockMsg");
+  const lockSkip = document.getElementById("lockSkip");
+
+  function showLock() { lockOverlay.classList.add("show"); setTimeout(function () { unlockPw.focus(); }, 50); }
+  function hideLock() { lockOverlay.classList.remove("show"); }
+
+  async function attemptUnlock() {
+    const pw = unlockPw.value;
+    if (!pw) { lockMsg.textContent = "Enter the password."; return; }
+    lockMsg.className = "lk-msg"; lockMsg.textContent = "Unlocking\u2026";
+    try {
+      API_KEY = await decryptApiKey(ENCRYPTED_KEY, pw);
+      lockMsg.className = "lk-msg ok"; lockMsg.textContent = "Unlocked.";
+      setKeyStatus("unlocked");
+      setTimeout(hideLock, 350);
+    } catch (err) {
+      API_KEY = "";
+      lockMsg.className = "lk-msg"; lockMsg.textContent = "Incorrect password.";
+      unlockPw.select();
+    }
+  }
+  unlockBtn.addEventListener("click", attemptUnlock);
+  unlockPw.addEventListener("keydown", function (e) { if (e.key === "Enter") attemptUnlock(); });
+  lockSkip.addEventListener("click", function () { hideLock(); setKeyStatus("preview"); });
+
+  // Show the gate on load only if an encrypted key is embedded
+  if (hasEncryptedKey()) { setKeyStatus("locked"); showLock(); } else { setKeyStatus("preview"); }
+
+  // ---- One-time setup: encrypt a key ----
+  const encBtn = document.getElementById("encBtn");
+  const encOut = document.getElementById("encOut");
+  const copyHint = document.getElementById("copyHint");
+  encBtn.addEventListener("click", async function () {
+    const raw = document.getElementById("setupKey").value.trim();
+    const pw = document.getElementById("setupPw").value;
+    if (!raw || !pw) { encOut.classList.add("show"); encOut.value = "Enter both your key and a password first."; return; }
+    try {
+      const blob = await encryptApiKey(raw, pw);
+      const text = "const ENCRYPTED_KEY = " + JSON.stringify(blob) + ";";
+      encOut.classList.add("show"); encOut.value = text;
+      copyHint.classList.add("show");
+      encOut.focus(); encOut.select();
+    } catch (err) {
+      encOut.classList.add("show"); encOut.value = "Encryption failed: " + (err.message || err);
+    }
+  });
+
+  // ---- Submit ----
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (recognizing && recognition) recognition.stop();
+    // Key priority: unlocked/decrypted key (already in API_KEY) wins; else session field.
+    if (!API_KEY) {
+      const key = document.getElementById("apiKey").value.trim();
+      if (key) { API_KEY = key; setKeyStatus("unlocked"); }
+    }
+
+    const app = appBox.value.trim();
+    const appType = document.getElementById("appType").value.trim();
+    if (!app && !appType) { document.getElementById("appType").focus(); return; }
+
+    const userMsg = [
+      "APPLICATION TYPE: " + (appType || "not stated"),
+      "DESCRIPTION: " + (app || "not stated"),
+      "FLOW RATE: " + valOf("flow"),
+      "OPERATING PRESSURE: " + valOf("pressure"),
+      "FLUID & ENVIRONMENT: " + (document.getElementById("fluid").value.trim() || "not stated"),
+      "TEMPERATURE: " + valOf("temp"),
+      "SPACE / CLEARANCE: " + (document.getElementById("space").value.trim() || "not stated"),
+      "STANDARD: " + (document.getElementById("standard").value.trim() || "not stated")
+    ].join("\n");
+
+    lastInputs = {
+      appType: appType || "Not stated",
+      description: app || "Not stated",
+      flow: valOf("flow"), pressure: valOf("pressure"),
+      fluid: document.getElementById("fluid").value.trim() || "Not stated",
+      temp: valOf("temp"),
+      space: document.getElementById("space").value.trim() || "Not stated",
+      standard: document.getElementById("standard").value.trim() || "Not stated"
+    };
+
+    setLoading();
+    try {
+      const headers = { "Content-Type": "application/json", "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" };
+      if (API_KEY) headers["x-api-key"] = API_KEY;
+      const res = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST", headers,
+        body: JSON.stringify({ model: MODEL, max_tokens: 1400, system: SYSTEM_PROMPT, messages: [{ role: "user", content: userMsg }] })
+      });
+      if (!res.ok) { const d = await res.text(); throw new Error("API returned " + res.status + ". " + d.slice(0, 200)); }
+      const data = await res.json();
+      const text = (data.content || []).filter(b => b.type === "text").map(b => b.text).join("\n").replace(/```json|```/g, "").trim();
+      renderResult(JSON.parse(text));
+    } catch (err) { renderError(err.message || String(err)); }
+  });
+
+  const LOAD_STEPS = ["Reading the application", "Matching wetted material", "Sizing the vessel", "Selecting cartridge media", "Flagging engineering review", "Compiling the brief"];
+  let loadTimer = null;
+  function setLoading() {
+    runBtn.disabled = true; runBtn.textContent = "Reasoning through the spec\u2026";
+    let h = '<div class="loading"><div class="scanner"></div><div class="load-steps">';
+    for (let i = 0; i < LOAD_STEPS.length; i++) h += '<div class="load-step"><span class="ic"></span>' + LOAD_STEPS[i] + '</div>';
+    h += '</div></div>';
+    output.innerHTML = h;
+    const steps = output.querySelectorAll(".load-step");
+    let idx = 0;
+    function advance() {
+      for (let i = 0; i < steps.length; i++) {
+        steps[i].classList.remove("active");
+        if (i < idx) steps[i].classList.add("done");
+      }
+      if (idx < steps.length) steps[idx].classList.add("active");
+      if (idx < steps.length - 1) idx++;
+    }
+    advance();
+    loadTimer = setInterval(advance, 850);
+  }
+  function stopLoading() { if (loadTimer) { clearInterval(loadTimer); loadTimer = null; } }
+  function resetBtn() { runBtn.disabled = false; runBtn.innerHTML = "Generate configuration &rarr;"; }
+  function esc(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+  function listItems(a) { return (!Array.isArray(a) || !a.length) ? "<li>None flagged.</li>" : a.map(x => "<li>" + esc(x) + "</li>").join(""); }
+
+  function renderResult(r) {
+    stopLoading();
+    resetBtn();
+    lastResult = r;
+    const v = r.vessel || {}, m = r.material || {}, c = r.cartridge || {};
+    output.innerHTML =
+      '<div class="result">' +
+        '<div class="export-bar"><button type="button" class="export-btn" id="exportBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M8 11l4 4 4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>Export PDF</button></div>' +
+        '<div class="verdict"><div class="vlabel">Recommended vessel</div><div class="vname">' + esc(v.type || "\u2014") + '</div><div class="vreason">' + esc(v.reason || "") + '</div></div>' +
+        '<div class="specrow"><div class="k">Wetted material</div><div class="v"><div class="val">' + esc(m.choice || "\u2014") + '</div><div class="why">' + esc(m.reason || "") + '</div></div></div>' +
+        '<div class="specrow"><div class="k">Cartridge media</div><div class="v"><div class="val">' + esc(c.media || "\u2014") + '</div><div class="why">' + esc(c.reason || "") + '</div></div></div>' +
+        '<div class="specrow"><div class="k">Starting micron</div><div class="v"><div class="val">' + esc(c.micron || "\u2014") + '</div></div></div>' +
+        '<div class="block notes"><h3>Configuration notes</h3><ul class="items">' + listItems(r.config_notes) + '</ul></div>' +
+        '<div class="block review"><h3>Flag for engineering review</h3><ul class="items">' + listItems(r.engineering_review) + '</ul></div>' +
+        '<div class="block questions"><h3>Open questions before quoting</h3><ul class="items">' + listItems(r.open_questions) + '</ul></div>' +
+        '<div class="summary"><div class="slabel">Plain-language brief</div>' + esc(r.summary || "") + '</div>' +
+        '<div class="disclaimer">FIRST-PASS ONLY. Reasoned from Eden\'s public product line, not internal catalog, pricing, or compatibility charts. A production build would draw on real spec sheets and past quotes for sharper output. No price is implied.</div>' +
+      '</div>';
+    const eb = document.getElementById("exportBtn");
+    if (eb) eb.addEventListener("click", exportPDF);
+    output.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  // ---- PDF export (print to PDF) ----
+  function escp(s) { return esc(s); }
+  function bulletList(arr) {
+    if (!Array.isArray(arr) || !arr.length) return "<ul><li>None flagged.</li></ul>";
+    return "<ul>" + arr.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul>";
+  }
+  function buildPrintDoc() {
+    if (!lastResult) return;
+    const r = lastResult, v = r.vessel || {}, m = r.material || {}, c = r.cartridge || {};
+    const i = lastInputs || {};
+    const logo = (document.querySelector(".brand img") || {}).src || "";
+    const dateStr = new Date().toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" });
+    const pd = document.getElementById("printDoc");
+    pd.innerHTML =
+      '<div class="pd-head">' +
+        (logo ? '<img class="pd-logo" src="' + logo + '" alt="Eden Equipment" />' : '') +
+        '<div class="pd-title">Vessel Configuration &mdash; First-Pass Spec</div>' +
+        '<div class="pd-meta">Generated ' + dateStr + ' &nbsp;&middot;&nbsp; Prepared with the Eden Excel Configurator &nbsp;&middot;&nbsp; Lina Forge</div>' +
+      '</div>' +
+      '<div class="pd-sec"><div class="pd-label">Application</div>' +
+        '<div class="pd-kv"><span class="k">Type</span> &nbsp; ' + esc(i.appType || "Not stated") + '</div>' +
+        '<div class="pd-kv"><span class="k">Description</span> &nbsp; ' + esc(i.description || "Not stated") + '</div>' +
+        '<div class="pd-kv"><span class="k">Flow</span> ' + esc(i.flow || "-") + ' &nbsp;&nbsp; <span class="k">Pressure</span> ' + esc(i.pressure || "-") + ' &nbsp;&nbsp; <span class="k">Temp</span> ' + esc(i.temp || "-") + '</div>' +
+        '<div class="pd-kv"><span class="k">Fluid</span> ' + esc(i.fluid || "-") + ' &nbsp;&nbsp; <span class="k">Space</span> ' + esc(i.space || "-") + ' &nbsp;&nbsp; <span class="k">Standard</span> ' + esc(i.standard || "-") + '</div>' +
+      '</div>' +
+      '<div class="pd-sec"><div class="pd-verdict"><div class="l">Recommended vessel</div><div class="n">' + esc(v.type || "\u2014") + '</div><div class="r">' + esc(v.reason || "") + '</div></div></div>' +
+      '<div class="pd-sec">' +
+        '<div class="pd-kv"><b>Wetted material:</b> ' + esc(m.choice || "\u2014") + ' &mdash; ' + esc(m.reason || "") + '</div>' +
+        '<div class="pd-kv"><b>Cartridge media:</b> ' + esc(c.media || "\u2014") + ' (' + esc(c.micron || "\u2014") + ') &mdash; ' + esc(c.reason || "") + '</div>' +
+      '</div>' +
+      '<div class="pd-sec"><div class="pd-label">Configuration notes</div>' + bulletList(r.config_notes) + '</div>' +
+      '<div class="pd-sec"><div class="pd-label">Flag for engineering review</div>' + bulletList(r.engineering_review) + '</div>' +
+      '<div class="pd-sec"><div class="pd-label">Open questions before quoting</div>' + bulletList(r.open_questions) + '</div>' +
+      '<div class="pd-sec"><div class="pd-label">Plain-language brief</div><div class="pd-brief">' + esc(r.summary || "") + '</div></div>' +
+      '<div class="pd-disc">FIRST-PASS ONLY. Reasoned from Eden\'s public product line, not internal catalog, pricing, or compatibility charts. A production build would draw on real spec sheets and past quotes for sharper output. No price is implied.</div>';
+  }
+  function exportPDF() {
+    if (!lastResult) return;
+    buildPrintDoc();
+    window.print();
+  }
+  function renderError(msg) {
+    stopLoading();
+    resetBtn();
+    var isAuth = /401|authentication|x-api-key/i.test(msg);
+    if (isAuth) {
+      var det = document.querySelector(".apikey");
+      if (det) det.open = true;
+      var kf = document.getElementById("apiKey");
+      if (kf) kf.focus();
+      output.innerHTML = '<div class="error"><b>Add your API key to run this</b>Running from a saved or hosted file needs your Anthropic API key. Open <b style="display:inline">API key settings</b> below the button, paste your key, and generate again. (Inside the Claude.ai preview no key is needed.)</div>';
+      return;
+    }
+    output.innerHTML = '<div class="error"><b>Could not generate the configuration</b>' + esc(msg) + '<br><br>If running from the hosted page, confirm your API key is set under "API key settings" and that it allows direct browser access.</div>';
+  }
+</script>
+</body>
+</html>
