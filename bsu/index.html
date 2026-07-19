@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BSU Electronics - RFP Research Assistant</title>
+<style>
+  :root {
+    --red: #C8202D;
+    --red-dark: #9c1621;
+    --red-light: #fbe9ea;
+    --ink: #1a1a1a;
+    --slate: #55606b;
+    --border: #e2e5e8;
+    --bg: #f5f6f7;
+    --amber: #a8660b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+  }
+  .wrap { max-width: 900px; margin: 0 auto; padding: 0 20px 60px; }
+  header {
+    background: #ffffff;
+    border-bottom: 4px solid var(--red);
+    margin: 0 0 28px;
+    padding: 22px 20px;
+  }
+  .header-inner {
+    max-width: 940px; margin: 0 auto;
+    display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 14px;
+  }
+  .logo-block img { height: 46px; display: block; }
+
+  .titleblock { margin-bottom: 24px; }
+  .eyebrow {
+    font-size: 12.5px; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--red); font-weight: 700; margin-bottom: 6px;
+  }
+  h1 { font-size: 26px; margin: 0 0 8px; }
+  .sub { color: var(--slate); font-size: 14.5px; max-width: 640px; line-height: 1.55; }
+
+  .card {
+    background: white; border: 1px solid var(--border); border-radius: 12px;
+    padding: 24px; margin-bottom: 20px;
+  }
+  .card h2 {
+    font-size: 13.5px; text-transform: uppercase; letter-spacing: 0.05em;
+    margin: 0 0 16px; padding-bottom: 12px; border-bottom: 2px solid var(--ink);
+  }
+  label { display: block; font-size: 13px; font-weight: 600; color: var(--slate); margin-bottom: 6px; }
+  textarea, input[type=text], input[type=password] {
+    width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px;
+    font-size: 14px; font-family: inherit; color: var(--ink);
+  }
+  textarea { min-height: 180px; resize: vertical; }
+  textarea:focus, input:focus { outline: none; border-color: var(--red); }
+  .char-count { text-align: right; font-size: 11.5px; color: #9aa2ab; margin-top: 4px; }
+
+  button {
+    background: var(--ink); color: white; border: none; padding: 13px 20px;
+    border-radius: 8px; font-size: 14.5px; font-weight: 600; cursor: pointer; margin-top: 14px;
+  }
+  button:hover { background: var(--red); }
+  button:disabled { background: #c6cbd1; cursor: not-allowed; }
+  button.secondary { background: white; color: var(--ink); border: 1px solid var(--border); }
+  button.secondary:hover { background: #f5f6f7; color: var(--ink); }
+
+  .sample-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+  .sample-btn {
+    background: white; color: var(--ink); border: 1px solid var(--border);
+    padding: 8px 14px; border-radius: 20px; font-size: 12.5px; font-weight: 600;
+    cursor: pointer; margin-top: 0;
+  }
+  .sample-btn:hover { border-color: var(--red); color: var(--red-dark); background: var(--red-light); }
+
+  .status { font-size: 13px; color: var(--slate); margin-top: 10px; }
+  .error {
+    background: #fdf3e3; border: 1px solid #f0d9a8; color: var(--amber);
+    font-size: 13px; padding: 10px 12px; border-radius: 8px; margin-top: 14px;
+  }
+  .preview-badge {
+    display: inline-block; background: #eef1f4; color: var(--slate);
+    font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+    padding: 4px 10px; border-radius: 20px; margin-bottom: 14px;
+  }
+
+  .summary {
+    background: #f5f6f7; border-left: 3px solid var(--ink); border-radius: 6px;
+    padding: 12px 14px; font-size: 13.5px; color: var(--ink); line-height: 1.5; margin-bottom: 18px;
+  }
+  .section-label {
+    font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+    color: var(--slate); margin: 0 0 10px;
+  }
+  .price-box {
+    background: #eef7ef; border: 1px solid #bfe3c5; border-left: 4px solid #1b7a4d;
+    border-radius: 8px; padding: 14px 16px; margin-bottom: 20px;
+  }
+  .price-box .price-value { font-size: 20px; font-weight: 800; color: #1b7a4d; margin-bottom: 4px; }
+  .price-box .price-note { font-size: 12.5px; color: var(--slate); line-height: 1.5; }
+  .price-none {
+    font-size: 13px; color: var(--slate); font-style: italic; margin-bottom: 20px;
+  }
+  .flag-box {
+    background: var(--red-light); border: 1px solid #f2c9cc; border-left: 4px solid var(--red);
+    border-radius: 8px; padding: 10px 14px; margin-bottom: 10px; font-size: 13.5px; color: var(--ink); line-height: 1.5;
+  }
+  .flag-box b { color: var(--red-dark); }
+  .question-box {
+    background: #eef4fb; border: 1px solid #c9dcf2; border-left: 4px solid #2f6fb3;
+    border-radius: 8px; padding: 10px 14px; margin-bottom: 10px; font-size: 13.5px; color: var(--ink); line-height: 1.5;
+  }
+  .flags-empty, .questions-empty { font-size: 13px; color: var(--slate); font-style: italic; margin-bottom: 10px; }
+  .sources-toggle {
+    font-size: 12.5px; font-weight: 600; color: var(--slate); cursor: pointer;
+    margin: 18px 0 12px; display: inline-block;
+  }
+  .sources-toggle:hover { color: var(--red); }
+  #sourcesArea { display: none; }
+  .match {
+    border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-bottom: 12px;
+  }
+  .match-title { font-size: 14px; font-weight: 700; color: var(--ink); margin-bottom: 6px; }
+  .match-excerpt {
+    font-size: 13px; color: var(--slate); font-style: italic; border-left: 2px solid var(--border);
+    padding-left: 10px; margin-bottom: 8px; line-height: 1.5;
+  }
+  .match-why { font-size: 13px; color: var(--ink); line-height: 1.5; }
+  .match-why b { color: var(--red-dark); }
+
+  .footnote { font-size: 12px; color: #9aa2ab; line-height: 1.6; }
+
+  /* Gate */
+  #gate {
+    position: fixed; inset: 0; background: var(--bg);
+    display: flex; align-items: center; justify-content: center; z-index: 50;
+    overflow-y: auto; padding: 30px 16px;
+  }
+  .gate-card {
+    background: white; border: 1px solid var(--border); border-radius: 12px;
+    padding: 32px; width: 100%; max-width: 380px; text-align: center;
+  }
+  .gate-card img { height: 38px; margin-bottom: 16px; }
+  .gate-card .desc { font-size: 13.5px; color: var(--slate); margin-bottom: 6px; }
+  .gate-card input { margin: 14px 0 10px; }
+  .gate-error { color: var(--red); font-size: 12.5px; min-height: 16px; margin-bottom: 6px; }
+  .gate-divider {
+    display: flex; align-items: center; gap: 10px; margin: 18px 0 6px;
+    font-size: 11.5px; color: #9aa2ab; text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .gate-divider::before, .gate-divider::after { content: ""; flex: 1; height: 1px; background: var(--border); }
+
+  details.setup {
+    text-align: left; margin-top: 22px; border-top: 1px solid var(--border); padding-top: 16px;
+  }
+  details.setup summary {
+    font-size: 12.5px; font-weight: 600; color: var(--slate); cursor: pointer;
+  }
+  details.setup .setup-body { margin-top: 14px; }
+  details.setup .setup-desc { font-size: 12px; color: #9aa2ab; line-height: 1.5; margin-bottom: 10px; }
+  .encrypted-output {
+    width: 100%; min-height: 70px; font-family: monospace; font-size: 11.5px;
+    padding: 10px; border: 1px solid var(--border); border-radius: 8px; margin-top: 10px;
+    word-break: break-all;
+  }
+
+  #app { display: none; }
+</style>
+</head>
+<body>
+
+<div id="gate">
+  <div class="gate-card">
+    <img src="https://bsuinc.com/wp-content/themes/bsu/assets/public/uploads/BSU_electronics_new.png" alt="BSU Electronics">
+    <div style="font-weight:700; font-size:15px; margin-bottom:4px;">RFP Research Assistant</div>
+    <div class="desc">Unlock to continue. Enter the access password to enable live analysis.</div>
+
+    <input type="password" id="gatePassword" placeholder="Access password">
+    <div class="gate-error" id="gateError"></div>
+    <button style="width:100%;" onclick="unlock()">Unlock</button>
+
+    <div class="gate-divider">or</div>
+    <button class="secondary" style="width:100%; margin-top:8px;" onclick="continuePreview()">Continue without a key (preview only)</button>
+
+    <details class="setup">
+      <summary>One-time setup: encrypt your key</summary>
+      <div class="setup-body">
+        <div class="setup-desc">Paste your Anthropic key and a password. Encryption happens in your browser, your raw key never leaves this page. Copy the result into the ENCRYPTED_KEY constant near the top of the &lt;script&gt; block in this file, then reload.</div>
+        <label for="setupApiKey">Anthropic API key</label>
+        <input type="password" id="setupApiKey" placeholder="sk-ant-...">
+        <label for="setupPassword" style="margin-top:10px;">Password to protect it with</label>
+        <input type="password" id="setupPassword" placeholder="Choose a password">
+        <button class="secondary" style="width:100%;" onclick="runSetupEncrypt()">Encrypt key</button>
+        <div id="setupError" class="gate-error"></div>
+        <textarea class="encrypted-output" id="encryptedOutput" readonly placeholder="Encrypted key will appear here. Copy this whole block and paste it over the ENCRYPTED_KEY constant in the file."></textarea>
+      </div>
+    </details>
+  </div>
+</div>
+
+<div id="app">
+
+<header>
+  <div class="header-inner">
+    <div class="logo-block">
+      <img src="https://bsuinc.com/wp-content/themes/bsu/assets/public/uploads/BSU_electronics_new.png" alt="BSU Electronics">
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="titleblock">
+    <div class="eyebrow">Prototype &middot; built by Lina Forge</div>
+    <h1>RFP Research Assistant</h1>
+    <div class="sub">Paste in an incoming RFP and this agent reads it, then surfaces the internal reference material relevant to quoting it, prior similar quotes, compliance requirements, sourcing constraints, so your team isn't starting from a blank page. It does not generate a price, that stays with your quoter.</div>
+  </div>
+
+  <div class="card">
+    <h2>Incoming RFP</h2>
+    <div id="modeBadge"></div>
+    <label>Load a sample RFP</label>
+    <div class="sample-row">
+      <button type="button" class="sample-btn" onclick="loadSample('aero')">Aerospace Avionics (ITAR)</button>
+      <button type="button" class="sample-btn" onclick="loadSample('medical')">Medical Device, First Article</button>
+      <button type="button" class="sample-btn" onclick="loadSample('iot')">Quick-Turn IoT Prototype</button>
+    </div>
+    <label for="rfpInput">Paste the RFP text below</label>
+    <textarea id="rfpInput" maxlength="6000" placeholder="Paste RFP details here: board specs, quantities, program requirements, customer context, anything included in the request..."></textarea>
+    <div class="char-count"><span id="charCount">0</span> / 6000</div>
+    <button id="analyzeBtn" onclick="analyzeRFP()">Find Relevant Internal Docs</button>
+    <div class="status" id="statusMsg"></div>
+    <div id="errorMsg"></div>
+  </div>
+
+  <div class="card" id="resultsCard" style="display:none;">
+    <h2>Research Results</h2>
+    <div id="resultsArea"></div>
+  </div>
+
+  <div class="footnote">
+    The document library this agent searches (capability matrix, a sample prior quote, compliance checklist, supplier list, NRE policy) is an illustrative set built for this demo, not BSU's actual internal records. Connect it to BSU's real document store and the same mechanism works on real data.
+  </div>
+
+</div>
+</div>
+
+<script>
+  // ============================================================
+  // Paste your encrypted key blob here after using the "One-time
+  // setup" panel on the unlock screen, then reload the page.
+  // ============================================================
+  const ENCRYPTED_KEY = "pOjNCG47x7MXh3dvPRSAj8qJMbvHfQW5frSCr/zKzoSsg6ejKU1pzULvmNvv+vDzn3kQzw1BWFILH6GzsDs61wii0ruUAb6e3S0vdYurTi36/8KlinECWmxH+W3vH1UdvXUu4sShrsUxsznFVajkIn1Ysz7wMwS6+bxiIhbfet108D9CJYnSt224/9kWLNi5Lxy8SFn0WzQ=";
+
+  const MODEL = "claude-sonnet-4-5-20250929"; // verify this matches a model your API key can access
+
+  let liveApiKey = null;
+  let previewMode = false;
+
+  // ---------- Web Crypto helpers ----------
+  async function deriveKey(password, salt) {
+    const enc = new TextEncoder();
+    const keyMaterial = await crypto.subtle.importKey(
+      "raw", enc.encode(password), { name: "PBKDF2" }, false, ["deriveKey"]
+    );
+    return crypto.subtle.deriveKey(
+      { name: "PBKDF2", salt, iterations: 100000, hash: "SHA-256" },
+      keyMaterial,
+      { name: "AES-GCM", length: 256 },
+      false,
+      ["encrypt", "decrypt"]
+    );
+  }
+
+  async function encryptApiKey(apiKey, password) {
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const key = await deriveKey(password, salt);
+    const enc = new TextEncoder();
+    const ciphertext = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, enc.encode(apiKey));
+    const combined = new Uint8Array(salt.length + iv.length + ciphertext.byteLength);
+    combined.set(salt, 0);
+    combined.set(iv, salt.length);
+    combined.set(new Uint8Array(ciphertext), salt.length + iv.length);
+    let binary = "";
+    combined.forEach(b => binary += String.fromCharCode(b));
+    return btoa(binary);
+  }
+
+  async function decryptApiKey(blobBase64, password) {
+    const binary = atob(blobBase64);
+    const combined = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) combined[i] = binary.charCodeAt(i);
+    const salt = combined.slice(0, 16);
+    const iv = combined.slice(16, 28);
+    const ciphertext = combined.slice(28);
+    const key = await deriveKey(password, salt);
+    const dec = await crypto.subtle.decrypt({ name: "AES-GCM", iv }, key, ciphertext);
+    return new TextDecoder().decode(dec);
+  }
+
+  // ---------- Setup panel ----------
+  async function runSetupEncrypt() {
+    const apiKey = document.getElementById('setupApiKey').value.trim();
+    const password = document.getElementById('setupPassword').value;
+    const setupError = document.getElementById('setupError');
+    const output = document.getElementById('encryptedOutput');
+    setupError.textContent = '';
+    output.value = '';
+
+    if (!apiKey || !password) {
+      setupError.textContent = 'Enter both an API key and a password.';
+      return;
+    }
+    try {
+      const blob = await encryptApiKey(apiKey, password);
+      output.value = blob;
+    } catch (e) {
+      setupError.textContent = 'Encryption failed in this browser: ' + e.message;
+    }
+  }
+
+  // ---------- Gate ----------
+  async function unlock() {
+    const password = document.getElementById('gatePassword').value;
+    const gateError = document.getElementById('gateError');
+    gateError.textContent = '';
+
+    if (!password) {
+      gateError.textContent = 'Enter a password to continue.';
+      return;
+    }
+    if (!ENCRYPTED_KEY) {
+      gateError.textContent = 'No key has been set up in this file yet. Use the setup panel below, or continue in preview mode.';
+      return;
+    }
+    try {
+      liveApiKey = await decryptApiKey(ENCRYPTED_KEY, password);
+      previewMode = false;
+      enterApp();
+    } catch (e) {
+      gateError.textContent = 'Incorrect password, or the encrypted key in this file is corrupted.';
+    }
+  }
+
+  function continuePreview() {
+    liveApiKey = null;
+    previewMode = true;
+    enterApp();
+  }
+
+  function enterApp() {
+    document.getElementById('gate').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    const badge = document.getElementById('modeBadge');
+    badge.innerHTML = previewMode
+      ? '<span class="preview-badge">Preview mode &middot; no live key loaded</span>'
+      : '<span class="preview-badge" style="background:#e8f5ec; color:#1b7a4d;">Live &middot; key unlocked for this session</span>';
+  }
+
+  document.getElementById('gatePassword').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') unlock();
+  });
+
+  document.getElementById('rfpInput').addEventListener('input', (e) => {
+    document.getElementById('charCount').textContent = e.target.value.length;
+  });
+
+  const sampleRFPs = {
+    aero: "We're requesting a quote for a 6-layer rigid PCB, 5in x 4in, mixed SMT/THT assembly, quantity 250 units. This board is part of an avionics communication subsystem for a Tier 1 aerospace program and includes RF connector components. Domestic-only sourcing is required due to ITAR restrictions. Standard 3-day turnaround is acceptable. This would be our first order on this board revision.",
+    medical: "Requesting a first-article quote for a 4-layer rigid-flex board, 2.5in x 1.8in, high-density SMT assembly, quantity 50 units for a Class II medical device prototype run. RoHS compliance required. We need 5D X-ray inspection on all units given component density. No rush needed, standard turnaround is fine, but this is a new board file so we understand tooling may apply.",
+    iot: "Need a rush quote, 2-layer rigid board, 2in x 2in, SMT only, quantity 25 units. We're supplying our own components (consigned), just need assembly and test. This is time-sensitive, can you do sub-24-hour turnaround if we have parts in hand by Thursday?"
+  };
+
+  function loadSample(key) {
+    const input = document.getElementById('rfpInput');
+    input.value = sampleRFPs[key];
+    document.getElementById('charCount').textContent = input.value.length;
+  }
+
+  // ---------- Analysis ----------
+  async function analyzeRFP() {
+    const rfp = document.getElementById('rfpInput').value.trim();
+    const btn = document.getElementById('analyzeBtn');
+    const statusMsg = document.getElementById('statusMsg');
+    const errorMsg = document.getElementById('errorMsg');
+    const resultsCard = document.getElementById('resultsCard');
+
+    errorMsg.innerHTML = '';
+    resultsCard.style.display = 'none';
+
+    if (!rfp) {
+      errorMsg.innerHTML = '<div class="error">Paste in some RFP text first.</div>';
+      return;
+    }
+
+    btn.disabled = true;
+
+    if (previewMode || !liveApiKey) {
+      statusMsg.textContent = 'Preview mode: showing an example result, not a live analysis of this specific RFP.';
+      setTimeout(() => {
+        renderResults(previewExample());
+        statusMsg.textContent = '';
+        btn.disabled = false;
+      }, 500);
+      return;
+    }
+
+    statusMsg.textContent = 'Reading RFP and searching internal reference documents...';
+
+    try {
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          'x-api-key': liveApiKey,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        body: JSON.stringify({
+          model: MODEL,
+          max_tokens: 1200,
+          system: buildSystemPrompt(),
+          messages: [
+            {
+              role: 'user',
+              content: 'Here is the incoming RFP:\n\n' + rfp +
+                '\n\nRespond with JSON only, no other text, in this exact shape: {"summary": string, "priceReference": {"value": string, "note": string} | null, "redFlags": string[], "clarifyingQuestions": string[], "matches": [{"docTitle": string, "excerpt": string, "whyRelevant": string}]}'
+            }
+          ]
+        })
+      });
+
+      if (!res.ok) {
+        const errText = await res.text();
+        errorMsg.innerHTML = `<div class="error">Model provider returned an error (${res.status}). ${escapeHtml(errText.slice(0, 200))}</div>`;
+        statusMsg.textContent = '';
+        btn.disabled = false;
+        return;
+      }
+
+      const data = await res.json();
+      const textBlock = data.content && data.content[0] && data.content[0].text ? data.content[0].text : '{}';
+      let parsed;
+      try {
+        parsed = JSON.parse(extractJson(textBlock));
+      } catch (e) {
+        parsed = { summary: textBlock, matches: [] };
+      }
+
+      renderResults(parsed);
+      statusMsg.textContent = '';
+    } catch (err) {
+      errorMsg.innerHTML = '<div class="error">Could not reach the model provider from this browser. Check your connection and try again.</div>';
+      statusMsg.textContent = '';
+    }
+
+    btn.disabled = false;
+  }
+
+  function previewExample() {
+    return {
+      summary: "This is a canned example shown in preview mode. Unlock with the access password to run a live analysis on the RFP you actually paste in.",
+      priceReference: {
+        value: "$84.50/unit, $25,350 total (example)",
+        note: "Example only. When live, this pulls from a comparable past project in the library and is always labeled as historical, never a quote for the current RFP."
+      },
+      redFlags: [
+        "Example flag: RFP references ITAR-controlled technical data, confirm domestic-only sourcing before proceeding.",
+        "Example flag: first-time board build, tooling/NRE fee likely applies."
+      ],
+      clarifyingQuestions: [
+        "Example question: is domestic-only sourcing required for all components, or just RF parts?",
+        "Example question: what's the customer's target lead time, and is rush turnaround on the table?"
+      ],
+      matches: [
+        {
+          docTitle: "BSU Capability Matrix",
+          excerpt: "Sourcing: Turnkey, Consigned, Cut Tape, Loose Reels, Domestic sourcing (ITAR-compliant).",
+          whyRelevant: "Example only, real matches will reference the specific RFP you submit once unlocked."
+        }
+      ]
+    };
+  }
+
+  function extractJson(text) {
+    const start = text.indexOf('{');
+    const end = text.lastIndexOf('}');
+    if (start === -1 || end === -1) return '{}';
+    return text.slice(start, end + 1);
+  }
+
+  function buildSystemPrompt() {
+    return `You are BSU Electronics' internal quoting research assistant. BSU is a PCB assembly and electronics contract manufacturer in Austin, TX, serving aerospace, medical, semiconductor, transportation, and energy customers. You are being demonstrated to BSU's controller, who evaluates this on time saved and risk caught, not technical detail for its own sake.
+
+Your job: read an incoming RFP and produce four things for the human quoter. You do NOT generate a price or a quote for this RFP yourself, that stays with the human quoter.
+
+1. A one to two sentence summary of what the RFP is asking for.
+2. A comparable price reference, ONLY if one of the library documents below actually contains a dollar figure relevant to this RFP (e.g. the sample prior quote). This must be clearly a historical reference from a past project, never presented as a price for the current RFP. If nothing in the library has relevant pricing, return null, do not estimate or invent a number.
+3. Red flags: compliance triggers (ITAR/CUI/BAA relevant language in the RFP), technical risk items (long-lead components, unusual tolerances, first-time board builds, rush timelines that strain capacity), or anything a quoter should catch before pricing this. Base these on the RFP text itself plus the library, not speculation beyond what's reasonable.
+4. Clarifying questions: 2 to 4 sharp, specific questions the quoter should ask the customer before finalizing a quote, based on gaps or ambiguities in this specific RFP.
+
+You also identify which of the following internal reference documents are relevant, and explain why. Only include documents that are genuinely relevant, don't force a match.
+
+INTERNAL DOCUMENT LIBRARY (illustrative examples built for this demo, not BSU's real internal documents):
+
+--- DOCUMENT: BSU Capability Matrix ---
+PCB types: Rigid, Flex, Rigid-Flex, Multi-layer, RoHS Compliant, Control Impedance, High Frequency.
+Sourcing: Turnkey, Consigned, Cut Tape, Loose Reels, Obsolete component sourcing, Domestic sourcing (ITAR-compliant).
+Assembly: SMT, Through-Hole, Press-Fit, V-Score, Mouse-Bites, Mechanical routing.
+Testing: Flying Probe, 5D X-Ray, AOI, SPI In-Line, Functional, Visual, Ionic Contamination, Temperature Cycling, High Potential, Boundary Scan, 3D AOI.
+Turnaround: 3 business days standard for new quotes, 1 business day rush for existing customers with parts on hand, under 24 hours when parts are in hand.
+
+--- DOCUMENT: ITAR / CUI / BAA Compliance Checklist ---
+For any RFP involving defense articles, technical data, or aerospace/defense end customers: confirm ITAR registration status of the requesting party, restrict document access to US persons only, route sourcing through the domestic/ITAR-compliant supplier list, and flag any CUI markings on incoming drawings for controlled handling. Buy American Act (BAA) sourcing requirements apply when the end customer is a federal government program; verify country of origin for all specified components before quoting.
+
+--- DOCUMENT: Sample Prior Quote - Avionics Communication Board (illustrative) ---
+6-layer rigid board, 5in x 4in, mixed SMT/THT assembly, qty 300, turnkey sourcing, ITAR domestic-only sourcing required for RF components. Quoted at $84.50/unit, $25,350 total, with a 3-week lead time due to long-lead RF connector procurement. Customer was a Tier 1 aerospace communications supplier. This is the only document in the library with pricing data, use it only when the RFP is genuinely comparable (multi-layer rigid, aerospace/defense, RF content).
+
+--- DOCUMENT: Approved Domestic Supplier List (excerpt, illustrative) ---
+RF connectors and specialty components for ITAR-restricted programs must be sourced from pre-approved domestic suppliers only. Standard commercial components may be sourced globally unless the RFP specifies domestic-only. Check with sourcing before quoting long-lead RF or military-spec parts.
+
+--- DOCUMENT: Standard NRE & Tooling Policy ---
+First-time board builds incur a one-time tooling and engineering setup fee. Repeat orders on an existing approved board file do not incur this fee. Expedited turnaround (rush or sub-24-hour) carries an additional program fee due to line prioritization.
+
+Respond with strict JSON only, no prose outside the JSON, in this shape:
+{"summary": string, "priceReference": {"value": "$X/unit, $Y total (or similar)", "note": "one sentence: what project this came from and why it's comparable, stated clearly as historical, not a quote for this RFP"} or null, "redFlags": ["short specific flag", ...], "clarifyingQuestions": ["short specific question", ...], "matches": [{"docTitle": "exact title from the library", "excerpt": "short relevant excerpt or paraphrase from that doc", "whyRelevant": "one sentence on why this matters for THIS specific RFP"}]}`;
+  }
+
+  function renderResults(data) {
+    const resultsCard = document.getElementById('resultsCard');
+    const resultsArea = document.getElementById('resultsArea');
+    let html = `<div class="summary">${escapeHtml(data.summary || 'No summary returned.')}</div>`;
+
+    // Price reference
+    html += `<div class="section-label">Comparable price reference</div>`;
+    if (data.priceReference && data.priceReference.value) {
+      html += `
+        <div class="price-box">
+          <div class="price-value">${escapeHtml(data.priceReference.value)}</div>
+          <div class="price-note">${escapeHtml(data.priceReference.note || '')}</div>
+        </div>`;
+    } else {
+      html += `<div class="price-none">No comparable pricing found in the reference library for this RFP. Not a signal that pricing is unavailable, just that this demo's document set doesn't cover it.</div>`;
+    }
+
+    // Red flags
+    html += `<div class="section-label">Red flags to consider</div>`;
+    if (data.redFlags && data.redFlags.length) {
+      data.redFlags.forEach(f => {
+        html += `<div class="flag-box"><b>Flag:</b> ${escapeHtml(f)}</div>`;
+      });
+    } else {
+      html += `<div class="flags-empty">Nothing flagged for this RFP based on the reference library.</div>`;
+    }
+
+    // Clarifying questions
+    html += `<div class="section-label">Questions to ask before quoting</div>`;
+    if (data.clarifyingQuestions && data.clarifyingQuestions.length) {
+      data.clarifyingQuestions.forEach(q => {
+        html += `<div class="question-box">${escapeHtml(q)}</div>`;
+      });
+    } else {
+      html += `<div class="questions-empty">No open questions identified, this RFP looks complete enough to proceed.</div>`;
+    }
+
+    // Supporting documents (secondary, collapsible)
+    html += `<div class="sources-toggle" onclick="toggleSources()">Show supporting documents &#9662;</div>`;
+    html += `<div id="sourcesArea">`;
+    if (data.matches && data.matches.length) {
+      data.matches.forEach(m => {
+        html += `
+          <div class="match">
+            <div class="match-title">${escapeHtml(m.docTitle || 'Untitled reference')}</div>
+            <div class="match-excerpt">"${escapeHtml(m.excerpt || '')}"</div>
+            <div class="match-why"><b>Why it matters:</b> ${escapeHtml(m.whyRelevant || '')}</div>
+          </div>
+        `;
+      });
+    } else {
+      html += `<div class="status">No relevant internal documents found for this RFP.</div>`;
+    }
+    html += `</div>`;
+
+    resultsArea.innerHTML = html;
+    resultsCard.style.display = 'block';
+  }
+
+  function toggleSources() {
+    const el = document.getElementById('sourcesArea');
+    const toggle = document.querySelector('.sources-toggle');
+    const isOpen = el.style.display === 'block';
+    el.style.display = isOpen ? 'none' : 'block';
+    toggle.innerHTML = isOpen ? 'Show supporting documents &#9662;' : 'Hide supporting documents &#9652;';
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+</script>
+</body>
+</html>
