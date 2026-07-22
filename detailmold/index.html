@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Detail Mold & Manufacturing: Quote Readiness Assistant</title>
+<style>
+  :root{
+    /* NOTE: matched to Detail Mold's site direction (clean white background,
+       red accent) since detailmold.com is a white/light corporate site, not
+       a dark one. Exact hex values are a best-effort match, see the note in
+       the chat, swap these three if you get the real brand values. */
+    --ink:#ffffff;
+    --panel:#f5f3ef;
+    --panel-2:#ffffff;
+    --line:#dcd8d0;
+    --paper:#f4f3f0;
+    --paper-2:#ffffff;
+    --red:#c1272d;
+    --red-dark:#961e22;
+    --text:#22252a;
+    --text-dim:#6b6e73;
+    --ink-on-paper:#1c1e21;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+    background:var(--ink);
+    color:var(--text);
+    line-height:1.5;
+  }
+  a{color:var(--red);}
+
+  /* ---------- Access gate ---------- */
+  #gate{
+    position:fixed; inset:0; z-index:50;
+    background:radial-gradient(circle at top, #ffffff, #ebe8e2 70%);
+    display:flex; align-items:center; justify-content:center;
+    padding:24px;
+  }
+  #gate .card{
+    background:var(--panel-2); border:1px solid var(--line); border-radius:10px;
+    padding:36px 32px; max-width:420px; width:100%; text-align:center;
+    box-shadow:0 20px 50px rgba(20,20,20,.12);
+  }
+  #gate .logo-plate{ display:inline-block; background:#1a1a1b; border-radius:10px; padding:16px 22px; margin-bottom:18px; }
+  #gate .logo-plate svg, #gate .logo-plate img{ display:block; height:44px; width:auto; }
+  #gate h1{ font-size:18px; margin:0 0 6px; letter-spacing:.03em; text-transform:uppercase; color:var(--text-dim); font-weight:600;}
+  #gate p{ font-size:14px; color:var(--text-dim); margin:0 0 20px; }
+  #gate input[type=password]{
+    width:100%; padding:12px 14px; border-radius:6px; border:1px solid var(--line);
+    background:var(--panel-2); color:var(--text); font-size:15px; margin-bottom:12px;
+  }
+  #gate button.primary{
+    width:100%; padding:12px 14px; border-radius:6px; border:none;
+    background:var(--red); color:#fff; font-size:15px; font-weight:600; cursor:pointer;
+    margin-bottom:10px;
+  }
+  #gate button.primary:hover{ background:var(--red-dark); }
+  #gate .divider{ color:var(--text-dim); font-size:12px; margin:14px 0; text-transform:uppercase; letter-spacing:.08em;}
+  #gate button.ghost{
+    width:100%; padding:11px 14px; border-radius:6px; border:1px solid var(--line);
+    background:transparent; color:var(--text); font-size:14px; cursor:pointer;
+  }
+  #gate button.ghost:hover{ border-color:var(--red); color:var(--red); }
+  #gate .err{ color:#ff8a8a; font-size:13px; margin-top:10px; display:none; }
+  #gate details{ margin-top:22px; text-align:left; font-size:12px; color:var(--text-dim); }
+  #gate summary{ cursor:pointer; color:var(--text-dim); }
+  #gate .setup-box{ margin-top:10px; padding:12px; background:var(--panel-2); border:1px solid var(--line); border-radius:6px; }
+  #gate .setup-box input{ width:100%; margin-bottom:8px; padding:8px; border-radius:4px; border:1px solid var(--line); background:var(--ink); color:var(--text); font-size:12px;}
+  #gate .setup-box button{ width:100%; padding:8px; border-radius:4px; border:1px solid var(--line); background:transparent; color:var(--text); font-size:12px; cursor:pointer; }
+  #gate textarea.out{ width:100%; margin-top:8px; height:70px; font-size:10px; background:var(--ink); color:#8fd694; border:1px solid var(--line); border-radius:4px; padding:8px; }
+
+  /* ---------- Main app ---------- */
+  #app{ max-width:980px; margin:0 auto; padding:36px 20px 80px; }
+  header.top{ display:flex; align-items:center; gap:18px; margin-bottom:6px; flex-wrap:wrap; }
+  header.top .logo-plate{ display:inline-flex; align-items:center; background:#1a1a1b; border-radius:8px; padding:10px 16px; }
+  header.top .logo-plate svg, header.top .logo-plate img{ display:block; height:38px; width:auto; }
+  header.top .tagline{ font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--text-dim); }
+  .badge-row{ margin:16px 0 30px; display:flex; gap:10px; flex-wrap:wrap; }
+  .badge{ font-size:11px; letter-spacing:.04em; text-transform:uppercase; border:1px solid var(--line); color:var(--text-dim); padding:5px 10px; border-radius:999px; }
+
+  h2.section-title{ font-size:26px; margin:0 0 8px; font-weight:700; }
+  p.lede{ color:var(--text-dim); font-size:15px; max-width:680px; margin:0 0 28px; }
+  p.lede b{ color:var(--text); }
+
+  .panel{ background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:24px; margin-bottom:22px; }
+  .panel h3{ margin:0 0 14px; font-size:14px; text-transform:uppercase; letter-spacing:.06em; color:var(--text-dim); }
+  .panel.more-power{ border-style:dashed; border-color:#c9c4ba; background:transparent; }
+  .panel.more-power h3{ color:var(--red); }
+
+  .sample-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:10px; margin-bottom:18px; }
+  .sample-btn{
+    text-align:left; background:var(--panel-2); border:1px solid var(--line); border-radius:8px;
+    padding:12px 14px; color:var(--text); cursor:pointer; font-size:13px; line-height:1.4;
+  }
+  .sample-btn:hover{ border-color:var(--red); }
+  .sample-btn .tag{ display:block; font-size:10px; text-transform:uppercase; letter-spacing:.06em; color:var(--red); margin-bottom:4px; font-weight:700;}
+
+  .upload-row{ display:flex; align-items:center; gap:12px; margin-bottom:10px; flex-wrap:wrap; }
+  .upload-btn{
+    position:relative; display:inline-block; padding:10px 16px; border-radius:8px;
+    border:1px dashed var(--line); background:var(--panel-2); color:var(--text);
+    font-size:13px; cursor:pointer;
+  }
+  .upload-btn:hover{ border-color:var(--red); color:var(--red); }
+  .upload-btn input[type=file]{ position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%; }
+  .file-status{ font-size:12px; color:var(--text-dim); }
+  .file-status.err{ color:var(--red); }
+
+  textarea#rfqInput{
+    width:100%; min-height:150px; background:var(--panel-2); border:1px solid var(--line);
+    border-radius:8px; padding:14px; color:var(--text); font-size:14px; resize:vertical;
+  }
+  .charcount{ text-align:right; font-size:11px; color:var(--text-dim); margin-top:4px; }
+
+  button.analyze{
+    margin-top:14px; padding:13px 22px; border-radius:8px; border:none; background:var(--red);
+    color:#fff; font-weight:700; font-size:14px; cursor:pointer; letter-spacing:.02em;
+  }
+  button.analyze:hover{ background:var(--red-dark); }
+  button.analyze:disabled{ opacity:.5; cursor:default; }
+  .clearlink{ background:none; border:none; color:var(--text-dim); font-size:12px; margin-left:14px; cursor:pointer; text-decoration:underline; }
+
+  #status{ font-size:13px; color:var(--text-dim); margin-top:12px; display:none; }
+  #status.show{ display:block; }
+  .dot-anim::after{ content:''; display:inline-block; width:6px; }
+
+  /* Output brief styled like a paper document */
+  #brief{ display:none; }
+  #brief.show{ display:block; }
+  .brief-paper{
+    background:var(--paper); color:var(--ink-on-paper); border-radius:10px; padding:30px 32px;
+    border:1px solid #d8d5cf;
+  }
+  .brief-paper h4{ margin:0 0 2px; font-size:20px; }
+  .brief-paper .sub{ font-size:12px; color:#6b6d70; margin-bottom:20px; text-transform:uppercase; letter-spacing:.05em; }
+  .brief-section{ margin-bottom:20px; }
+  .brief-section:last-child{ margin-bottom:0; }
+  .brief-section .label{ font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--red); font-weight:700; margin-bottom:6px; }
+  .brief-section ul{ margin:0; padding-left:18px; }
+  .brief-section li{ margin-bottom:5px; font-size:14px; }
+  .flag-row{ display:flex; gap:8px; flex-wrap:wrap; margin-top:4px;}
+  .flag{ font-size:11px; padding:4px 9px; border-radius:5px; font-weight:700; text-transform:uppercase; letter-spacing:.03em; }
+  .flag.ok{ background:#e3f2e6; color:#1e7d34; }
+  .flag.watch{ background:#fdecec; color:#a3242f; }
+  .flag.info{ background:#eaeef5; color:#3a4f7a; }
+  .brief-note{ font-size:12px; color:#6b6d70; border-top:1px dashed #cfccc4; margin-top:20px; padding-top:14px; }
+  .draft-reply{
+    background:#ffffff; border:1px solid #d8d5cf; border-radius:6px; padding:14px;
+    font-family:inherit; font-size:13px; white-space:pre-wrap; margin:0 0 10px; color:var(--ink-on-paper);
+  }
+  .copy-btn{
+    padding:8px 14px; border-radius:6px; border:1px solid #cfccc4; background:#ffffff;
+    color:var(--ink-on-paper); font-size:12px; cursor:pointer; font-weight:600;
+  }
+  .copy-btn:hover{ border-color:var(--red); color:var(--red); }
+  .copy-status{ font-size:12px; color:#6b6d70; margin-left:10px; }
+
+  footer.site{ text-align:center; margin-top:44px; font-size:12px; color:var(--text-dim); }
+  footer.site a{ color:var(--text-dim); text-decoration:underline; }
+  footer.site .dmm-contact{ margin-top:6px; color:#6f757d; }
+</style>
+<!-- Document parsing for the upload feature: pdf.js for PDFs, mammoth.js for .docx.
+     These only load over the open internet, they are blocked inside a sandboxed
+     preview (like a Cowork artifact test view), so upload will only work once
+     this file is actually hosted. -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+</head>
+<body>
+
+<!-- ============ ACCESS GATE ============ -->
+<div id="gate">
+  <div class="card">
+    <div class="logo-plate dm-logo-slot" role="img" aria-label="Detail Mold & Manufacturing"></div>
+    <h1>Quote Readiness Assistant</h1>
+    <p>Enter the access password to enable live, Claude-powered analysis on real RFQs. Or preview it now with sample jobs, no password needed.</p>
+    <input type="password" id="gatePw" placeholder="Access password">
+    <button class="primary" onclick="tryUnlock()">Unlock live mode</button>
+    <div class="divider">or</div>
+    <button class="ghost" onclick="enterPreview()">Continue without a key (preview only)</button>
+    <div class="err" id="gateErr">Incorrect password, or live mode isn't configured for this build yet. Try preview mode below.</div>
+
+    <details>
+      <summary>One-time setup: encrypt your key (Lina Forge use only)</summary>
+      <div class="setup-box">
+        <input type="password" id="setupKey" placeholder="Anthropic API key">
+        <input type="password" id="setupPw" placeholder="Password to protect it with">
+        <button onclick="encryptKeySetup()">Encrypt key</button>
+        <textarea class="out" id="setupOut" readonly placeholder="Encrypted blob will appear here. Paste it into the ENCRYPTED_KEY constant near the top of the script block, then reload."></textarea>
+      </div>
+    </details>
+  </div>
+</div>
+
+<!-- ============ MAIN APP ============ -->
+<div id="app">
+  <header class="top">
+    <div class="logo-plate dm-logo-slot" role="img" aria-label="Detail Mold & Manufacturing"></div>
+    <div class="tagline">Injecting quality in every mold since 1990 &nbsp;·&nbsp; Georgetown, TX</div>
+  </header>
+
+  <div class="badge-row">
+    <span class="badge">Prototype · built by Lina Forge</span>
+    <span class="badge" id="modeBadge">Mode: Preview</span>
+  </div>
+
+  <h2 class="section-title">Quote Readiness Assistant</h2>
+  <p class="lede">Paste in an incoming RFQ or customer inquiry, or upload the document, and this agent reads it against <b>Detail Mold's actual capabilities, certifications, and mold types</b>, flags what's missing before it lands on an estimator's desk, and tells you exactly what to ask the customer before you quote it.</p>
+
+  <div class="panel">
+    <h3>Load a sample RFQ</h3>
+    <div class="sample-grid">
+      <button class="sample-btn" onclick="loadSample('medical')"><span class="tag">Medical Device</span>First-article housing for a diagnostic instrument, ISO 13485 program, class 8 cleanroom molding requested.</button>
+      <button class="sample-btn" onclick="loadSample('aero')"><span class="tag">Aerospace / Defense</span>Machined bracket, close-tolerance, program flagged as ITAR-controlled by the customer.</button>
+      <button class="sample-btn" onclick="loadSample('auto')"><span class="tag">Automotive</span>Multi-cavity connector housing, production volume, over-molded seal.</button>
+      <button class="sample-btn" onclick="loadSample('fiber')"><span class="tag">Fiber Optic</span>Micro mold for a ferrule component, extremely tight tolerance, low cavitation.</button>
+    </div>
+
+    <h3 style="margin-top:6px;">Paste the incoming RFQ / customer email, or upload the document</h3>
+    <div class="upload-row">
+      <label class="upload-btn" for="fileInput">
+        Upload PDF, Word doc, or text file
+        <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.txt" onchange="handleFileUpload(event)">
+      </label>
+      <span id="fileStatus" class="file-status"></span>
+    </div>
+    <textarea id="rfqInput" maxlength="6000" placeholder="Paste the RFQ text, customer email, or spec summary here, or upload a document above..."></textarea>
+    <div class="charcount"><span id="charCount">0</span> / 6000</div>
+
+    <button class="analyze" id="analyzeBtn" onclick="analyzeRFQ()">Analyze RFQ</button>
+    <button class="clearlink" onclick="clearAll()">Clear</button>
+
+    <div id="status">Reading the RFQ against Detail Mold's capability matrix and certification requirements<span class="dot-anim"></span></div>
+  </div>
+
+  <div id="brief">
+    <div class="brief-paper" id="briefContent"></div>
+  </div>
+
+  <div class="panel more-power">
+    <h3>Want it to go further?</h3>
+    <p style="font-size:14px; color:var(--text-dim); margin:0 0 12px;">This runs on Detail Mold's public capability data. With your own internal records, it can do more:</p>
+    <ul style="margin:0 0 12px; padding-left:18px; font-size:14px; color:var(--text);">
+      <li>Comparable past jobs and rough price ranges, pulled from your quote history</li>
+      <li>Material and tooling steel cost lookups, pulled from your actual supplier pricing</li>
+      <li>Capacity flags based on what's already booked on the floor</li>
+    </ul>
+    <p style="font-size:13px; color:var(--text-dim); margin:0;">Send over a spreadsheet of last year's quotes and current material pricing, and this gets wired in for the live version.</p>
+  </div>
+
+  <footer class="site">
+    A demo built by <a href="https://linaforge.com" target="_blank">Lina Forge</a> · Customized for <a href="https://www.detailmold.com" target="_blank">Detail Mold & Manufacturing, LLC.</a>
+    <div class="dmm-contact">14773 Ranch Road 2338, Georgetown, TX 78633 · 512.255.0525 · Questions about this tool: maxim.davis@linaforge.com</div>
+  </footer>
+</div>
+
+<script>
+/* =========================================================================
+   LINA FORGE DEMO, DETAIL MOLD & MANUFACTURING
+   Quote Readiness Assistant (prototype)
+
+   ARCHITECTURE (matches the BSU / Eden / PHD Energy builds):
+   - This file ships with ENCRYPTED_KEY empty, so it runs entirely in
+     preview mode: realistic, capability-grounded output with zero API cost
+     and nothing to configure before sending to the prospect.
+   - To go live: use the "One-time setup" panel on the gate screen to
+     encrypt your real Anthropic API key with a password, paste the result
+     into ENCRYPTED_KEY below, pick a real ACCESS PASSWORD, and reload.
+     Once unlocked, analysis calls Claude directly from the browser
+     (anthropic-dangerous-direct-browser-access) instead of the local
+     heuristic.
+   ========================================================================= */
+
+const ENCRYPTED_KEY = ""; // paste encrypted blob here when going live
+let unlockedApiKey = null;
+let mode = "locked";
+
+/* ---------- Logo ----------
+   PRIMARY: Detail Mold's own logo file, served live from their website.
+   This is their exact, genuine asset, so once this page is hosted the
+   real logo displays with no guessing.
+   FALLBACK: if that image can't load (e.g. inside a sandboxed preview
+   where outbound requests are blocked, or if they ever move the file),
+   an inline SVG recreation is injected so the header never looks broken.
+   To make the page fully self-contained instead of hotlinking, replace
+   REAL_LOGO_URL with a data: URI of the logo file. */
+const REAL_LOGO_URL = "https://www.detailmold.com/application/themes/detail_mold/img/new_logo.png";
+const LOGO_SVG = `
+<svg viewBox="0 0 460 120" xmlns="http://www.w3.org/2000/svg">
+  <g>
+    <ellipse cx="45" cy="13" rx="21" ry="7" fill="#7a171d"/>
+    <path d="M24 13 L66 13 L66 41 L24 51 Z" fill="#82191f"/>
+    <path d="M66 13 L97 21 L97 49 L66 41 Z" fill="#dc434c"/>
+    <path d="M24 51 L66 41 L66 69 L24 79 Z" fill="#8a1c22"/>
+    <path d="M66 41 L97 49 L97 77 L66 69 Z" fill="#df4750"/>
+    <path d="M24 79 L66 69 L66 97 L47 102 L47 87 L24 93 Z" fill="#82191f"/>
+    <path d="M66 69 L97 77 L97 105 L66 97 Z" fill="#dc434c"/>
+  </g>
+  <text x="130" y="66" font-family="Arial, Helvetica, sans-serif" font-weight="800" font-size="52" fill="#ffffff" letter-spacing="1">DETAIL</text>
+  <text x="130" y="98" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="24" letter-spacing="1.5"><tspan fill="#8a8a8d">MOLD </tspan><tspan fill="#b7b7ba">&amp;</tspan><tspan fill="#8a8a8d"> Mfg.</tspan></text>
+</svg>`;
+document.querySelectorAll('.dm-logo-slot').forEach(el => {
+  const img = document.createElement('img');
+  img.src = REAL_LOGO_URL;
+  img.alt = "Detail Mold & Manufacturing";
+  img.onerror = () => { el.innerHTML = LOGO_SVG; };
+  el.appendChild(img);
+});
+
+function setMode(m){
+  mode = m;
+  document.getElementById('modeBadge').textContent =
+    m === 'live' ? 'Mode: Live (Claude-powered)' : 'Mode: Preview';
+}
+
+function enterPreview(){
+  document.getElementById('gate').style.display = 'none';
+  setMode('preview');
+}
+
+async function tryUnlock(){
+  const pw = document.getElementById('gatePw').value;
+  const errEl = document.getElementById('gateErr');
+  if(!ENCRYPTED_KEY || !pw){
+    errEl.style.display = 'block';
+    return;
+  }
+  try{
+    const key = await decryptKey(ENCRYPTED_KEY, pw);
+    unlockedApiKey = key;
+    document.getElementById('gate').style.display = 'none';
+    setMode('live');
+  }catch(e){
+    errEl.style.display = 'block';
+  }
+}
+
+/* ---------- WebCrypto helpers (AES-GCM + PBKDF2), same pattern used
+   across the Lina Forge demo set ---------- */
+async function deriveKey(password, salt){
+  const enc = new TextEncoder();
+  const keyMaterial = await crypto.subtle.importKey(
+    'raw', enc.encode(password), 'PBKDF2', false, ['deriveKey']
+  );
+  return crypto.subtle.deriveKey(
+    { name:'PBKDF2', salt, iterations:150000, hash:'SHA-256' },
+    keyMaterial, { name:'AES-GCM', length:256 }, false, ['encrypt','decrypt']
+  );
+}
+async function encryptKeySetup(){
+  const apiKey = document.getElementById('setupKey').value;
+  const pw = document.getElementById('setupPw').value;
+  const out = document.getElementById('setupOut');
+  if(!apiKey || !pw){ out.value = 'Enter both fields first.'; return; }
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const key = await deriveKey(pw, salt);
+  const enc = new TextEncoder();
+  const cipher = await crypto.subtle.encrypt({name:'AES-GCM', iv}, key, enc.encode(apiKey));
+  const payload = {
+    s: btoa(String.fromCharCode(...salt)),
+    iv: btoa(String.fromCharCode(...iv)),
+    d: btoa(String.fromCharCode(...new Uint8Array(cipher)))
+  };
+  out.value = btoa(JSON.stringify(payload));
+}
+async function decryptKey(blob, pw){
+  const payload = JSON.parse(atob(blob));
+  const salt = Uint8Array.from(atob(payload.s), c => c.charCodeAt(0));
+  const iv = Uint8Array.from(atob(payload.iv), c => c.charCodeAt(0));
+  const data = Uint8Array.from(atob(payload.d), c => c.charCodeAt(0));
+  const key = await deriveKey(pw, salt);
+  const plain = await crypto.subtle.decrypt({name:'AES-GCM', iv}, key, data);
+  return new TextDecoder().decode(plain);
+}
+
+/* ---------- Sample RFQs ---------- */
+const SAMPLES = {
+  medical: "We need a first-article mold for a housing component used in a diagnostic instrument. This is a Class II medical device program, so we need to run under an ISO 13485 quality system and would prefer cleanroom molding if available. Material is likely a medical-grade polycarbonate. Two cosmetic surfaces, tight flatness callout, annual volume around 40,000 units once qualified. Need first article inspection data and cycle time documentation before we release to production.",
+  aero: "Looking for a quote on a machined bracket for an avionics subassembly. Customer has flagged this program as ITAR-controlled. Tolerances are tight on two mounting faces, aluminum 7075, low volume, engineering drawing available on request. Need confirmation of registration status before we can share the full print package.",
+  auto: "RFQ for a multi-cavity connector housing, automotive interior application. Looking at a 4-cavity family mold with an over-molded rubber seal on one feature. Production volume is significant, likely 500K+ annually once launched. Need a quote on tooling plus a per-piece estimate, and want to understand test run and validation process before PPAP.",
+  fiber: "We need a micro mold for a ferrule-style optical component. Extremely tight tolerance on the bore, low cavitation (1-2 cavities), engineering-grade resin. This is a fiber optic / telecom application. Need to understand your experience with this class of tooling and expected lead time for a prototype tool before committing to production."
+};
+function loadSample(key){
+  document.getElementById('rfqInput').value = SAMPLES[key];
+  updateCharCount();
+  document.getElementById('brief').classList.remove('show');
+}
+
+/* ---------- Char counter ---------- */
+const rfqInput = document.getElementById('rfqInput');
+rfqInput.addEventListener('input', updateCharCount);
+function updateCharCount(){
+  document.getElementById('charCount').textContent = rfqInput.value.length;
+}
+function clearAll(){
+  rfqInput.value = '';
+  updateCharCount();
+  document.getElementById('brief').classList.remove('show');
+  document.getElementById('fileStatus').textContent = '';
+  document.getElementById('fileInput').value = '';
+}
+
+/* ---------- Document upload: PDF / DOCX / TXT ---------- */
+if (window.pdfjsLib) {
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+}
+
+function setFileStatus(msg, isErr){
+  const el = document.getElementById('fileStatus');
+  el.textContent = msg;
+  el.classList.toggle('err', !!isErr);
+}
+
+function fillFromDocument(text){
+  const trimmed = text.trim();
+  if(!trimmed){
+    setFileStatus('No readable text found in that file, try pasting it instead.', true);
+    return;
+  }
+  const truncated = trimmed.length > 6000;
+  rfqInput.value = trimmed.slice(0, 6000);
+  updateCharCount();
+  document.getElementById('brief').classList.remove('show');
+  setFileStatus(truncated ? 'Loaded (truncated to 6,000 characters).' : 'Loaded into the field below.', false);
+}
+
+async function handleFileUpload(event){
+  const file = event.target.files[0];
+  if(!file) return;
+  const name = file.name.toLowerCase();
+  setFileStatus('Reading ' + file.name + '...', false);
+
+  try{
+    if(name.endsWith('.txt')){
+      const text = await file.text();
+      fillFromDocument(text);
+
+    } else if(name.endsWith('.pdf')){
+      if(!window.pdfjsLib) throw new Error('PDF reader did not load');
+      const buf = await file.arrayBuffer();
+      const doc = await pdfjsLib.getDocument({ data: buf }).promise;
+      let text = '';
+      for(let i = 1; i <= doc.numPages; i++){
+        const page = await doc.getPage(i);
+        const content = await page.getTextContent();
+        text += content.items.map(it => it.str).join(' ') + '\n';
+      }
+      fillFromDocument(text);
+
+    } else if(name.endsWith('.docx')){
+      if(!window.mammoth) throw new Error('Word reader did not load');
+      const buf = await file.arrayBuffer();
+      const result = await mammoth.extractRawText({ arrayBuffer: buf });
+      fillFromDocument(result.value);
+
+    } else if(name.endsWith('.doc')){
+      setFileStatus('Legacy .doc files can\'t be read in-browser. Save it as .docx or PDF, or paste the text directly.', true);
+
+    } else {
+      setFileStatus('Unsupported file type. Use PDF, DOC, DOCX, or TXT.', true);
+    }
+  } catch(e){
+    setFileStatus('Could not read that file (' + (e.message || 'parsing error') + '). Try pasting the text instead.', true);
+  }
+}
+
+/* ---------- Detail Mold's real, public capability set ----------
+   Pulled from detailmold.com (About / Capabilities / Quality) so the
+   output stays grounded in what the shop can actually point to. */
+const CAPABILITIES = {
+  moldTypes: ["Class 101 production molds","Class 103 quick-turn prototype molds","Single & multi-cavity molds","Over-molds","Shuttle molds","Screw / unscrewing molds","Collapsible core / expandable cavity molds","Micro molds"],
+  processes: ["CNC high-speed milling","CNC lathe turning","Wire EDM","Sinker EDM / small-hole EDM drilling","Graphite milling","Laser welding & laser engraving","Precision grinding","Mold sampling / test run with cycle time & molding parameters","First article inspection (CMM, optical comparators, vision systems, certified gauge pins)"],
+  certs: ["ISO 9001:2015","ISO 13485:2016 (medical devices)","ITAR registered","Class 8 cleanroom molding"],
+  industries: ["Medical device","Aerospace & defense","Automotive","Fiber optic / telecom (a specialty since 1990)","General industrial"]
+};
+
+/* ---------- Analysis: heuristic engine (preview) ---------- */
+function classify(text){
+  const t = text.toLowerCase();
+  const has = (words) => words.some(w => t.includes(w));
+
+  const flags = { medical:false, aero:false, auto:false, fiber:false, cleanroom:false, micro:false, multiCavity:false, overMold:false, highVolume:false, rush:false, lowCavitation:false };
+  flags.medical = has(["medical","diagnostic","13485","class ii","cleanroom","pharma"]);
+  flags.aero = has(["itar","aerospace","avionics","defense","aircraft","space"]);
+  flags.auto = has(["automotive","ppap","interior","vehicle","connector housing"]);
+  flags.fiber = has(["fiber optic","ferrule","telecom","optical"]);
+  flags.cleanroom = has(["cleanroom","clean room","class 8"]);
+  flags.micro = has(["micro mold","micro-mold","ferrule","tight tolerance","close tolerance","bore"]);
+  flags.multiCavity = has(["multi-cavity","multi cavity","family mold","4-cavity","cavities"]);
+  flags.overMold = has(["over-mold","overmold","over molded","rubber seal","insert mold"]);
+  flags.highVolume = has(["000 units","500k","high volume","production volume","annually"]);
+  flags.rush = has(["asap","urgent","rush","expedite","right away","as soon as possible"]);
+  flags.lowCavitation = has(["1-2 cavit","single cavity","1 cavity","low cavitation","one cavity"]);
+
+  return flags;
+}
+
+function buildBrief(text, flags){
+  const industry = flags.medical ? "Medical Device"
+    : flags.aero ? "Aerospace / Defense"
+    : flags.auto ? "Automotive"
+    : flags.fiber ? "Fiber Optic / Telecom"
+    : "General Industrial";
+
+  const capMatch = [];
+  if(flags.micro || flags.fiber) capMatch.push("Micro molds, close-tolerance work that's been a Detail Mold specialty since the fiber optic industry roots in 1990.");
+  if(flags.multiCavity) capMatch.push("Single & multi-cavity mold construction.");
+  if(flags.overMold) capMatch.push("Over-mold tooling for the secondary seal/insert feature.");
+  if(!flags.micro && !flags.multiCavity && !flags.overMold) capMatch.push("Class 101 production mold or Class 103 quick-turn prototype mold, depending on program stage.");
+  capMatch.push("Wire EDM / sinker EDM for detail and core work; CNC milling & lathe turning for base plates and components.");
+  capMatch.push("Mold sampling & test run to deliver cycle time and molding parameters before it hits the customer's floor.");
+
+  const certFlags = [];
+  if(flags.medical) certFlags.push({label:"ISO 13485:2016 required", type:"watch"});
+  if(flags.cleanroom || flags.medical) certFlags.push({label:"Class 8 cleanroom molding requested", type:"watch"});
+  if(flags.aero) certFlags.push({label:"ITAR, confirm registration before sharing full print package", type:"watch"});
+  certFlags.push({label:"ISO 9001:2015 program (standard)", type:"ok"});
+  if(flags.auto) certFlags.push({label:"PPAP / validation documentation likely required", type:"info"});
+
+  const questions = [];
+  if(!/\bmaterial\b|resin|polycarbonate|nylon|abs|pp\b|aluminum|steel/i.test(text)) questions.push("Material or resin grade wasn't specified, confirm before quoting tooling steel and process.");
+  if(!/tolerance|\+\/-|±/i.test(text)) questions.push("No explicit tolerance callout found, request the print or key dimensions.");
+  if(!/volume|units|annually|\bqty\b|quantity/i.test(text)) questions.push("Annual volume isn't stated, this changes the mold class and cavitation recommendation.");
+  if(flags.medical && !/13485/i.test(text)) questions.push("Confirm whether this program formally requires ISO 13485 traceability or just cleanroom molding.");
+  if(flags.aero && !/registration|itar number|cage code/i.test(text)) questions.push("Get ITAR registration/CAGE code confirmation in writing before the print package goes out.");
+  if(questions.length === 0) questions.push("Spec looks reasonably complete, route straight to estimating.");
+
+  const routing = flags.medical ? "Route to estimating with the medical/cleanroom flag, confirm 13485 scope before quoting."
+    : flags.aero ? "Hold the print package until ITAR registration is confirmed, then route to estimating."
+    : flags.auto ? "Route to estimating with the multi-cavity/over-mold flag, loop in tooling for family mold layout."
+    : flags.fiber ? "Route to estimating with the micro-mold flag, this is squarely in Detail Mold's historical wheelhouse."
+    : "Route to estimating for standard scoping.";
+
+  /* ---------- Fit score ---------- */
+  const inWheelhouse = flags.medical || flags.aero || flags.auto || flags.fiber || flags.micro;
+  const fitScore = inWheelhouse
+    ? { label: "Strong match", type: "ok", reason: "Squarely in Detail Mold's core capabilities and served industries." }
+    : { label: "Possible fit, needs review", type: "info", reason: "No clear industry or process signal detected, worth a quick human read before committing time." };
+
+  /* ---------- Risk flags (contradictions worth catching before quoting) ---------- */
+  const riskFlags = [];
+  if(flags.rush && !/week|day|lead time/i.test(text)) riskFlags.push("Rush language detected with no lead time given. Confirm the actual deadline before committing to anything.");
+  if(flags.highVolume && flags.lowCavitation) riskFlags.push("High volume paired with a low cavitation count. Cycle time math may not support that volume, worth a cavitation conversation with the customer.");
+  if(flags.aero && flags.highVolume) riskFlags.push("Aerospace/defense programs are typically lower volume. Double-check the stated quantity before scoping tooling.");
+  if(flags.medical && flags.auto) riskFlags.push("Multiple industry signals detected (medical and automotive). Confirm which compliance program actually governs this job.");
+
+  /* ---------- Draft reply to the customer ---------- */
+  const realQuestions = questions.filter(q => q !== "Spec looks reasonably complete, route straight to estimating.");
+  const draftReply = realQuestions.length
+    ? `Hi,\n\nThanks for sending this over. Before we can put together an accurate quote, could you confirm a few things:\n\n${realQuestions.map(q => "- " + q.split(",")[0]).join("\n")}\n\nOnce we have that, we will get a quote back to you as quickly as we can.\n\nBest,\nTrey Chapman\nDetail Mold & Manufacturing`
+    : `Hi,\n\nThanks for sending this over. This looks like a complete spec, we will get it in front of our estimating team and follow up with a quote shortly.\n\nBest,\nTrey Chapman\nDetail Mold & Manufacturing`;
+
+  return { industry, capMatch, certFlags, questions, routing, fitScore, riskFlags, draftReply };
+}
+
+function renderBrief(b){
+  const certHtml = b.certFlags.map(f => `<span class="flag ${f.type}">${f.label}</span>`).join('');
+  const capHtml = b.capMatch.map(c => `<li>${c}</li>`).join('');
+  const qHtml = b.questions.map(q => `<li>${q}</li>`).join('');
+  const riskHtml = b.riskFlags.length ? `
+    <div class="brief-section">
+      <div class="label">Risk Flags</div>
+      <ul>${b.riskFlags.map(r => `<li>${r}</li>`).join('')}</ul>
+    </div>` : '';
+  const replyEscaped = b.draftReply.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+
+  document.getElementById('briefContent').innerHTML = `
+    <h4>Quote Readiness Brief</h4>
+    <div class="sub">${b.industry} · generated ${new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</div>
+
+    <div class="brief-section">
+      <div class="label">Fit Score</div>
+      <div class="flag-row"><span class="flag ${b.fitScore.type}">${b.fitScore.label}</span></div>
+      <div style="font-size:13px; color:#6b6d70; margin-top:6px;">${b.fitScore.reason}</div>
+    </div>
+
+    <div class="brief-section">
+      <div class="label">Certification & Compliance Flags</div>
+      <div class="flag-row">${certHtml}</div>
+    </div>
+
+    <div class="brief-section">
+      <div class="label">Capability Match</div>
+      <ul>${capHtml}</ul>
+    </div>
+
+    <div class="brief-section">
+      <div class="label">Open Questions Before Quoting</div>
+      <ul>${qHtml}</ul>
+    </div>
+    ${riskHtml}
+    <div class="brief-section">
+      <div class="label">Suggested Routing</div>
+      <ul><li>${b.routing}</li></ul>
+    </div>
+
+    <div class="brief-section">
+      <div class="label">Draft Reply to Customer</div>
+      <pre id="draftReplyText" class="draft-reply">${replyEscaped}</pre>
+      <button class="copy-btn" onclick="copyDraftReply()">Copy to clipboard</button>
+      <span id="copyStatus" class="copy-status"></span>
+    </div>
+
+    <div class="brief-note">${mode === 'preview' ? 'Running in preview mode on local capability data.' : 'Live analysis via Claude.'}</div>
+  `;
+  document.getElementById('brief').classList.add('show');
+}
+
+function copyDraftReply(){
+  const text = document.getElementById('draftReplyText').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const el = document.getElementById('copyStatus');
+    el.textContent = 'Copied.';
+    setTimeout(() => { el.textContent = ''; }, 2000);
+  }).catch(() => {
+    document.getElementById('copyStatus').textContent = 'Could not copy, select and copy manually.';
+  });
+}
+
+/* ---------- Live mode: real Claude call ---------- */
+async function analyzeLive(text){
+  const system = `You are a quote-intake assistant for Detail Mold & Manufacturing, LLC, a precision injection mold builder in Georgetown, TX (CNC milling/lathe, wire & sinker EDM, laser welding, mold design, mold repair, ISO 9001:2015 and ISO 13485:2016 certified, ITAR registered, Class 8 cleanroom molding). Their mold types include Class 101 production molds, Class 103 quick-turn prototypes, single & multi-cavity, over-molds, shuttle molds, screw/unscrewing molds, collapsible core molds, and micro molds. They serve medical device, aerospace/defense, automotive, and fiber optic/telecom customers. Given an incoming RFQ or customer email, produce a short Quote Readiness Brief with: a fit score (Strong match, Possible fit, or Off-profile, with a one-line reason), industry classification, certification/compliance flags, which of Detail Mold's capabilities apply, open questions to send back to the customer before quoting, risk flags for any contradictions in the request (e.g. rush timeline with no lead time given, high volume paired with a low cavitation count, unusually high volume for an aerospace program), suggested routing, and a short draft reply email to the customer requesting the missing information. Do not generate a price.`;
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': unlockedApiKey,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-5',
+      max_tokens: 800,
+      system,
+      messages: [{ role:'user', content: text }]
+    })
+  });
+  if(!res.ok) throw new Error('API error');
+  const data = await res.json();
+  return data.content[0].text;
+}
+
+/* ---------- Main entry point ---------- */
+async function analyzeRFQ(){
+  const text = rfqInput.value.trim();
+  if(!text){ return; }
+  const statusEl = document.getElementById('status');
+  const btn = document.getElementById('analyzeBtn');
+  btn.disabled = true;
+  statusEl.classList.add('show');
+  document.getElementById('brief').classList.remove('show');
+
+  try{
+    if(mode === 'live' && unlockedApiKey){
+      const raw = await analyzeLive(text);
+      document.getElementById('briefContent').innerHTML =
+        `<h4>Quote Readiness Brief</h4><div class="sub">Live · generated ${new Date().toLocaleDateString()}</div>
+         <div class="brief-section" style="white-space:pre-wrap;">${raw}</div>
+         <div class="brief-note">Live analysis via Claude.</div>`;
+      document.getElementById('brief').classList.add('show');
+    } else {
+      await new Promise(r => setTimeout(r, 900)); // small pause so it reads as "working"
+      const flags = classify(text);
+      const brief = buildBrief(text, flags);
+      renderBrief(brief);
+    }
+  } catch(e){
+    const flags = classify(text);
+    const brief = buildBrief(text, flags);
+    renderBrief(brief);
+  } finally {
+    statusEl.classList.remove('show');
+    btn.disabled = false;
+  }
+}
+</script>
+</body>
+</html>
