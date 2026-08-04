@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Apollo Call List</title>
+<style>
+:root { color-scheme: light; }
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  padding: 20px;
+  background: #ffffff;
+  color: #1a1a1a;
+  font: 14px/1.5 -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+h1 { font-size: 18px; margin: 0 0 2px; font-weight: 600; }
+.sub { color: #6b7280; font-size: 12.5px; margin: 0 0 16px; }
+
+/* ---- setup panel ---- */
+#setup {
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+  background: #f8fafc;
+}
+#setup h2 {
+  font-size: 12px; text-transform: uppercase; letter-spacing: .05em;
+  color: #64748b; margin: 0 0 10px; font-weight: 600;
+}
+.mode { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+.mode label {
+  display: flex; align-items: center; gap: 7px;
+  border: 1px solid #d1d5db; background: #fff; border-radius: 7px;
+  padding: 8px 12px; cursor: pointer; font-size: 13px;
+}
+.mode label.sel { border-color: #2563eb; background: #eff6ff; color: #1d4ed8; }
+.mode label span.hint { color: #94a3b8; font-size: 11.5px; }
+.mode label.sel span.hint { color: #60a5fa; }
+
+.steps { font-size: 13px; color: #475569; margin: 0; padding-left: 18px; }
+.steps li { margin-bottom: 5px; }
+.steps a { color: #1d4ed8; }
+.acct { margin-top: 10px; font-size: 13px; color: #475569; display: none; }
+.acct.on { display: block; }
+.acct select { font: inherit; font-size: 13px; padding: 3px 6px; border: 1px solid #d1d5db; border-radius: 5px; }
+#filewarn {
+  display: none;
+  border: 1px solid #fcd34d; background: #fffbeb; color: #78350f;
+  border-radius: 8px; padding: 10px 12px; font-size: 13px; line-height: 1.5;
+}
+#filewarn.on { display: block; }
+#filewarn code { background: #fef3c7; padding: 1px 4px; border-radius: 3px; }
+.tester { margin-top: 12px; padding-top: 12px; border-top: 1px solid #e2e8f0; font-size: 13px; color: #475569; }
+.tester input {
+  font: inherit; font-size: 13px; padding: 5px 8px; width: 150px;
+  border: 1px solid #d1d5db; border-radius: 5px; margin: 0 6px;
+}
+
+#drop {
+  border: 2px dashed #cbd5e1;
+  border-radius: 10px;
+  padding: 34px 20px;
+  text-align: center;
+  color: #64748b;
+  cursor: pointer;
+  transition: background .15s, border-color .15s;
+  background: #f8fafc;
+}
+#drop:hover, #drop.over { border-color: #2563eb; background: #eff6ff; color: #1d4ed8; }
+#drop strong { color: #1e293b; display: block; font-size: 15px; margin-bottom: 4px; }
+#drop.over strong { color: #1d4ed8; }
+
+.bar {
+  display: none; align-items: center; gap: 10px; flex-wrap: wrap;
+  margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid #e5e7eb;
+}
+.bar.on { display: flex; }
+#count { font-size: 13px; color: #475569; margin-right: auto; }
+#count b { color: #0f172a; }
+button {
+  font: inherit; font-size: 13px; padding: 6px 12px;
+  border: 1px solid #d1d5db; background: #fff; color: #374151;
+  border-radius: 6px; cursor: pointer;
+}
+button:hover { background: #f3f4f6; }
+
+table { border-collapse: collapse; width: 100%; }
+thead th {
+  text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: .05em;
+  color: #6b7280; font-weight: 600; padding: 0 10px 8px;
+  border-bottom: 1px solid #e5e7eb; white-space: nowrap;
+}
+tbody td { padding: 9px 10px; border-bottom: 1px solid #f1f5f9; vertical-align: top; }
+tbody tr:hover { background: #f8fafc; }
+.nm { font-weight: 600; color: #0f172a; white-space: nowrap; }
+.ttl { color: #64748b; font-size: 12.5px; }
+.co { color: #334155; }
+
+.ph { display: flex; flex-direction: column; gap: 4px; align-items: flex-start; }
+a.call {
+  display: inline-flex; align-items: baseline; gap: 7px; text-decoration: none;
+  color: #1d4ed8; font-variant-numeric: tabular-nums;
+  padding: 2px 8px 2px 6px; border-radius: 5px;
+  border: 1px solid #dbeafe; background: #eff6ff; white-space: nowrap;
+}
+a.call:hover { background: #dbeafe; border-color: #93c5fd; }
+a.call .lbl {
+  font-size: 10.5px; text-transform: uppercase; letter-spacing: .04em;
+  color: #7c8db5; font-weight: 600;
+}
+a.call .ext { font-size: 11.5px; color: #64748b; }
+.none { color: #9ca3af; font-size: 12.5px; }
+#err { color: #b91c1c; font-size: 13px; margin-top: 12px; display: none; }
+#tblwrap { display: none; }
+#tblwrap.on { display: block; }
+</style>
+</head>
+<body>
+
+<h1>Apollo Call List</h1>
+<p class="sub">Drop an Apollo CSV export and every number becomes a click-to-call link.</p>
+
+<div id="setup">
+  <h2>Dialing method</h2>
+  <div class="mode">
+    <label id="m-tel" class="sel">
+      <input type="radio" name="mode" value="tel" checked>
+      <span><b>One-click dialing</b> <span class="hint">tel: link &middot; needs setup below</span></span>
+    </label>
+    <label id="m-web">
+      <input type="radio" name="mode" value="web">
+      <span><b>Google Voice web</b> <span class="hint">opens dialer, you press Call</span></span>
+    </label>
+  </div>
+
+  <div id="filewarn">
+    <b>One-click dialing won't work here.</b>
+    This page is open from a local file (<code>file://</code>), and Chrome won't pass <code>tel:</code> links
+    to Google Voice from a local file &mdash; it hands them to Windows instead, which is what the
+    &ldquo;Pick an app&rdquo; popup was. Your Voice registration is fine; it just can't be reached this way.
+    <br><br>
+    Use <b>Google Voice web</b> below instead. One extra click per call, but it works right now.
+  </div>
+
+  <div id="tel-steps">
+    <ol class="steps">
+      <li><b>Open this page in Chrome</b> over <code>https://</code> or <code>http://localhost</code>. Chrome ignores tel: handlers on local files.</li>
+      <li><a href="https://voice.google.com/calls?forceBanner=tel-registration" target="_blank" rel="noopener">Register Google Voice for one-click dialing</a>, then click <b>Allow</b> when Chrome prompts.</li>
+      <li>Verify: Chrome &rsaquo; Settings &rsaquo; Privacy and security &rsaquo; Site Settings &rsaquo; Additional permissions &rsaquo; Protocol handlers. You should see <code>voice.google.com</code> under &ldquo;Tel&rdquo;.</li>
+    </ol>
+  </div>
+
+  <div class="acct" id="acct-wrap">
+    Google account slot:
+    <select id="acct">
+      <option value="">auto (no /u/ prefix)</option>
+      <option value="0">u/0 &mdash; first account</option>
+      <option value="1">u/1 &mdash; second account</option>
+      <option value="2">u/2 &mdash; third account</option>
+      <option value="3">u/3 &mdash; fourth account</option>
+    </select>
+    <div style="margin-top:6px;color:#64748b;font-size:12.5px;">
+      Check an open Google Voice tab &mdash; if its URL contains <code>/u/1/</code>, pick u/1. Wrong slot sends you to the Voice marketing page.
+    </div>
+  </div>
+
+  <div class="tester">
+    Test it first:
+    <input type="text" id="testnum" placeholder="512 555 0142">
+    <a id="testlink" class="call" style="display:none">test call</a>
+    <span id="testhint" style="color:#94a3b8;font-size:12px;"></span>
+  </div>
+</div>
+
+<div id="drop">
+  <strong>Drop your Apollo CSV here</strong>
+  or click to choose a file
+</div>
+<input type="file" id="file" accept=".csv,text/csv" style="display:none">
+<div id="err"></div>
+
+<div class="bar" id="bar">
+  <span id="count"></span>
+  <button id="clear">Clear list</button>
+</div>
+
+<div id="tblwrap">
+  <table>
+    <thead><tr><th>Name</th><th>Title</th><th>Company</th><th>Numbers</th></tr></thead>
+    <tbody id="rows"></tbody>
+  </table>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var KEY = "apollo_call_list_v1";
+  var MODE_KEY = "apollo_call_mode_v1";
+  var ACCT_KEY = "apollo_call_acct_v1";
+
+  var $ = function (id) { return document.getElementById(id); };
+  var drop = $("drop"), fileInput = $("file"), rowsEl = $("rows");
+  var bar = $("bar"), tblwrap = $("tblwrap"), countEl = $("count"), errEl = $("err");
+  var acctWrap = $("acct-wrap"), acctSel = $("acct"), telSteps = $("tel-steps");
+  var testNum = $("testnum"), testLink = $("testlink"), testHint = $("testhint");
+
+  var leads = [];
+  // tel: handlers are ignored on file:// pages, so default to the web dialer there.
+  var IS_FILE = location.protocol === "file:";
+  var mode = IS_FILE ? "web" : "tel";
+  var acct = "2";
+
+  /* ---------- CSV parser (RFC 4180: quotes, embedded commas/newlines) ---------- */
+  function parseCSV(text) {
+    if (text.charCodeAt(0) === 0xfeff) text = text.slice(1);
+    var rows = [], row = [], field = "", i = 0, inQ = false, c;
+    while (i < text.length) {
+      c = text[i];
+      if (inQ) {
+        if (c === '"') {
+          if (text[i + 1] === '"') { field += '"'; i += 2; continue; }
+          inQ = false; i++; continue;
+        }
+        field += c; i++; continue;
+      }
+      if (c === '"') { inQ = true; i++; continue; }
+      if (c === ",") { row.push(field); field = ""; i++; continue; }
+      if (c === "\r") { i++; continue; }
+      if (c === "\n") { row.push(field); rows.push(row); row = []; field = ""; i++; continue; }
+      field += c; i++;
+    }
+    if (field.length || row.length) { row.push(field); rows.push(row); }
+    return rows.filter(function (r) { return r.some(function (v) { return v.trim() !== ""; }); });
+  }
+
+  /* ---------- header matching ---------- */
+  function norm(s) { return String(s || "").toLowerCase().replace(/[^a-z0-9]/g, ""); }
+  function findCol(headers, candidates) {
+    var h = headers.map(norm);
+    for (var c = 0; c < candidates.length; c++) {
+      var idx = h.indexOf(norm(candidates[c]));
+      if (idx !== -1) return idx;
+    }
+    return -1;
+  }
+
+  var PHONE_SPECS = [
+    { label: "direct", names: ["Work Direct Phone", "Direct Phone", "Direct Dial", "Work Phone", "Primary Phone"] },
+    { label: "mobile", names: ["Mobile Phone", "Mobile", "Cell Phone", "Cell"] },
+    { label: "company", names: ["Corporate Phone", "Company Phone", "Corporate HQ Phone", "Office Phone", "Phone"] },
+    { label: "other", names: ["Other Phone", "Secondary Phone"] },
+    { label: "home", names: ["Home Phone"] }
+  ];
+
+  /* ---------- phone normalization ---------- */
+  function normalizePhone(raw) {
+    if (!raw) return null;
+    var s = String(raw).trim();
+    if (!s || /^(n\/?a|none|null|-)$/i.test(s)) return null;
+
+    var ext = null;
+    var em = s.match(/(?:\bext\.?|\bx|#|extension)\s*[:.]?\s*(\d{1,6})\s*$/i);
+    if (em) { ext = em[1]; s = s.slice(0, em.index); }
+
+    var plus = s.trim().charAt(0) === "+";
+    var d = s.replace(/\D/g, "");
+    if (!d) return null;
+
+    var e164;
+    if (plus) e164 = "+" + d;
+    else if (d.length === 10) e164 = "+1" + d;
+    else if (d.length === 11 && d[0] === "1") e164 = "+" + d;
+    else if (d.length > 11) e164 = "+" + d;
+    else return null;
+
+    return { e164: e164, display: prettify(e164), ext: ext };
+  }
+
+  function prettify(e164) {
+    var m = e164.match(/^\+1(\d{3})(\d{3})(\d{4})$/);
+    return m ? "(" + m[1] + ") " + m[2] + "-" + m[3] : e164;
+  }
+
+  /* ---------- link builders ---------- */
+  function dialHref(e164) {
+    if (mode === "tel") return "tel:" + e164;
+    var prefix = acct === "" ? "" : "/u/" + acct;
+    return "https://voice.google.com" + prefix + "/calls?a=nc," + encodeURIComponent(e164);
+  }
+
+  /* ---------- build rows ---------- */
+  function buildLeads(rows) {
+    if (!rows.length) throw new Error("That file looks empty.");
+    var headers = rows[0];
+
+    var iFirst = findCol(headers, ["First Name", "Firstname"]);
+    var iLast = findCol(headers, ["Last Name", "Lastname"]);
+    var iFull = findCol(headers, ["Name", "Full Name", "Contact Name"]);
+    var iTitle = findCol(headers, ["Title", "Job Title", "Position"]);
+    var iCo = findCol(headers, ["Company", "Company Name for Emails", "Account Name", "Organization Name", "Employer"]);
+
+    var phoneCols = [];
+    PHONE_SPECS.forEach(function (spec) {
+      var idx = findCol(headers, spec.names);
+      if (idx !== -1) phoneCols.push({ idx: idx, label: spec.label });
+    });
+    if (!phoneCols.length) {
+      throw new Error("No phone columns found. Expected something like “Work Direct Phone”, “Mobile Phone” or “Corporate Phone”. Found: " + headers.filter(Boolean).join(", "));
+    }
+
+    var out = [];
+    for (var r = 1; r < rows.length; r++) {
+      var row = rows[r];
+      var get = function (i) { return i >= 0 && i < row.length ? String(row[i] || "").trim() : ""; };
+
+      var name = "";
+      if (iFirst >= 0 || iLast >= 0) name = (get(iFirst) + " " + get(iLast)).trim();
+      if (!name) name = get(iFull);
+
+      var phones = [], seen = {};
+      phoneCols.forEach(function (pc) {
+        var p = normalizePhone(get(pc.idx));
+        if (!p) return;
+        var k = p.e164 + "|" + (p.ext || "");
+        if (seen[k]) return;
+        seen[k] = 1;
+        p.label = pc.label;
+        phones.push(p);
+      });
+
+      if (!name && !phones.length) continue;
+      out.push({ name: name || "—", title: get(iTitle), company: get(iCo), phones: phones });
+    }
+    if (!out.length) throw new Error("Parsed the file but found no contacts in it.");
+    return out;
+  }
+
+  /* ---------- render ---------- */
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+
+  function linkHTML(p) {
+    var tgt = mode === "web" ? ' target="_blank" rel="noopener noreferrer"' : "";
+    return '<a class="call" href="' + esc(dialHref(p.e164)) + '"' + tgt + ">" +
+           '<span class="lbl">' + esc(p.label) + "</span>" +
+           "<span>" + esc(p.display) + "</span>" +
+           (p.ext ? '<span class="ext">x' + esc(p.ext) + "</span>" : "") +
+           "</a>";
+  }
+
+  function render() {
+    rowsEl.innerHTML = "";
+    if (!leads.length) {
+      bar.classList.remove("on"); tblwrap.classList.remove("on"); drop.style.display = "";
+      return;
+    }
+    var withPhone = 0, numTotal = 0;
+    leads.forEach(function (l) {
+      if (l.phones.length) { withPhone++; numTotal += l.phones.length; }
+      var tr = document.createElement("tr");
+      var ph = l.phones.length
+        ? l.phones.map(linkHTML).join("")
+        : '<span class="none">no number</span>';
+      tr.innerHTML =
+        '<td class="nm">' + esc(l.name) + "</td>" +
+        '<td class="ttl">' + esc(l.title) + "</td>" +
+        '<td class="co">' + esc(l.company) + "</td>" +
+        '<td><div class="ph">' + ph + "</div></td>";
+      rowsEl.appendChild(tr);
+    });
+    countEl.innerHTML = "<b>" + leads.length + "</b> contacts &middot; <b>" + withPhone +
+      "</b> with a number &middot; <b>" + numTotal + "</b> numbers to dial";
+    bar.classList.add("on"); tblwrap.classList.add("on"); drop.style.display = "none";
+  }
+
+  /* ---------- mode switching ---------- */
+  function applyMode() {
+    $("m-tel").classList.toggle("sel", mode === "tel");
+    $("m-web").classList.toggle("sel", mode === "web");
+    var blocked = mode === "tel" && IS_FILE;
+    $("filewarn").classList.toggle("on", blocked);
+    telSteps.style.display = (mode === "tel" && !blocked) ? "" : "none";
+    acctWrap.classList.toggle("on", mode === "web");
+    try { localStorage.setItem(MODE_KEY, mode); localStorage.setItem(ACCT_KEY, acct); } catch (e) {}
+    render();
+    updateTest();
+  }
+
+  function updateTest() {
+    var p = normalizePhone(testNum.value);
+    if (!p) {
+      testLink.style.display = "none";
+      testHint.textContent = testNum.value.trim() ? "not a dialable number" : "";
+      return;
+    }
+    testHint.textContent = "";
+    testLink.style.display = "";
+    testLink.href = dialHref(p.e164);
+    testLink.textContent = "call " + p.display;
+    if (mode === "web") { testLink.target = "_blank"; testLink.rel = "noopener noreferrer"; }
+    else { testLink.removeAttribute("target"); testLink.removeAttribute("rel"); }
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll('input[name="mode"]'), function (r) {
+    r.addEventListener("change", function () { mode = r.value; applyMode(); });
+  });
+  acctSel.addEventListener("change", function () { acct = acctSel.value; applyMode(); });
+  testNum.addEventListener("input", updateTest);
+
+  /* ---------- file handling ---------- */
+  function showError(msg) { errEl.textContent = msg; errEl.style.display = "block"; }
+
+  function load(text) {
+    errEl.style.display = "none";
+    try { leads = buildLeads(parseCSV(text)); }
+    catch (e) { showError(e.message || "Could not read that file."); return; }
+    try { localStorage.setItem(KEY, JSON.stringify(leads)); } catch (e) {}
+    render();
+  }
+
+  function readFile(f) {
+    if (!f) return;
+    var fr = new FileReader();
+    fr.onload = function () { load(String(fr.result)); };
+    fr.onerror = function () { showError("Could not read that file."); };
+    fr.readAsText(f);
+  }
+
+  drop.addEventListener("click", function () { fileInput.click(); });
+  fileInput.addEventListener("change", function () { readFile(fileInput.files[0]); fileInput.value = ""; });
+  ["dragenter", "dragover"].forEach(function (ev) {
+    drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.add("over"); });
+  });
+  ["dragleave", "drop"].forEach(function (ev) {
+    drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.remove("over"); });
+  });
+  drop.addEventListener("drop", function (e) {
+    if (e.dataTransfer && e.dataTransfer.files.length) readFile(e.dataTransfer.files[0]);
+  });
+  document.addEventListener("dragover", function (e) { e.preventDefault(); });
+  document.addEventListener("drop", function (e) { e.preventDefault(); });
+
+  $("clear").addEventListener("click", function () {
+    try { localStorage.removeItem(KEY); } catch (e) {}
+    leads = [];
+    errEl.style.display = "none";
+    render();
+  });
+
+  /* ---------- restore ---------- */
+  try {
+    var sm = localStorage.getItem(MODE_KEY); if (sm === "tel" || sm === "web") mode = sm;
+    var sa = localStorage.getItem(ACCT_KEY); if (sa !== null) acct = sa;
+    acctSel.value = acct;
+    document.querySelector('input[name="mode"][value="' + mode + '"]').checked = true;
+    var saved = localStorage.getItem(KEY);
+    if (saved) { var l = JSON.parse(saved); if (l && l.length) leads = l; }
+  } catch (e) {}
+  applyMode();
+})();
+</script>
+</body>
+</html>
