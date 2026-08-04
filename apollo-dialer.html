@@ -110,6 +110,16 @@ a.call .lbl {
   color: #7c8db5; font-weight: 600;
 }
 a.call .ext { font-size: 11.5px; color: #64748b; }
+.plain {
+  display: inline-flex; align-items: baseline; gap: 7px;
+  font-variant-numeric: tabular-nums; color: #0f172a;
+  padding: 2px 8px 2px 6px;
+}
+.plain .lbl {
+  font-size: 10.5px; text-transform: uppercase; letter-spacing: .04em;
+  color: #94a3b8; font-weight: 600;
+}
+.plain .ext { font-size: 11.5px; color: #64748b; }
 .none { color: #9ca3af; font-size: 12.5px; }
 #err { color: #b91c1c; font-size: 13px; margin-top: 12px; display: none; }
 #tblwrap { display: none; }
@@ -124,14 +134,31 @@ a.call .ext { font-size: 11.5px; color: #64748b; }
 <div id="setup">
   <h2>Dialing method</h2>
   <div class="mode">
-    <label id="m-tel" class="sel">
-      <input type="radio" name="mode" value="tel" checked>
-      <span><b>One-click dialing</b> <span class="hint">tel: link &middot; needs setup below</span></span>
+    <label id="m-ext" class="sel">
+      <input type="radio" name="mode" value="ext" checked>
+      <span><b>Voice extension</b> <span class="hint">true one-click &middot; install below</span></span>
     </label>
     <label id="m-web">
       <input type="radio" name="mode" value="web">
       <span><b>Google Voice web</b> <span class="hint">opens dialer, you press Call</span></span>
     </label>
+    <label id="m-tel">
+      <input type="radio" name="mode" value="tel">
+      <span><b>tel: links</b> <span class="hint">protocol handler</span></span>
+    </label>
+  </div>
+
+  <div id="ext-steps">
+    <ol class="steps">
+      <li>Install the
+        <a href="https://chromewebstore.google.com/detail/google-voice-by-google/kcnhkahnjcbndmmehfkdnkjomaanaooo" target="_blank" rel="noopener">Google Voice extension</a>
+        (built by Google). Click <b>Add to Chrome</b>.</li>
+      <li>Reload this page. The extension scans for phone numbers and adds a green Voice icon next to each one.</li>
+      <li>Click the icon to call. This uses the extension, not the <code>tel:</code> handler, so it sidesteps the problem entirely.</li>
+    </ol>
+    <div style="margin-top:6px;color:#64748b;font-size:12.5px;">
+      Numbers are rendered as plain text in this mode so the extension can detect them cleanly.
+    </div>
   </div>
 
   <div id="filewarn">
@@ -209,7 +236,7 @@ a.call .ext { font-size: 11.5px; color: #64748b; }
   var leads = [];
   // tel: handlers are ignored on file:// pages, so default to the web dialer there.
   var IS_FILE = location.protocol === "file:";
-  var mode = IS_FILE ? "web" : "tel";
+  var mode = "ext";
   var acct = "2";
 
   /* ---------- CSV parser (RFC 4180: quotes, embedded commas/newlines) ---------- */
@@ -345,6 +372,14 @@ a.call .ext { font-size: 11.5px; color: #64748b; }
   }
 
   function linkHTML(p) {
+    // Extension mode: emit plain text so the Google Voice extension can linkify it itself.
+    if (mode === "ext") {
+      return '<span class="plain">' +
+             '<span class="lbl">' + esc(p.label) + "</span>" +
+             "<span>" + esc(p.display) + "</span>" +
+             (p.ext ? '<span class="ext">x' + esc(p.ext) + "</span>" : "") +
+             "</span>";
+    }
     var tgt = mode === "web" ? ' target="_blank" rel="noopener noreferrer"' : "";
     return '<a class="call" href="' + esc(dialHref(p.e164)) + '"' + tgt + ">" +
            '<span class="lbl">' + esc(p.label) + "</span>" +
@@ -380,11 +415,13 @@ a.call .ext { font-size: 11.5px; color: #64748b; }
 
   /* ---------- mode switching ---------- */
   function applyMode() {
+    $("m-ext").classList.toggle("sel", mode === "ext");
     $("m-tel").classList.toggle("sel", mode === "tel");
     $("m-web").classList.toggle("sel", mode === "web");
     var blocked = mode === "tel" && IS_FILE;
     $("filewarn").classList.toggle("on", blocked);
     telSteps.style.display = (mode === "tel" && !blocked) ? "" : "none";
+    $("ext-steps").style.display = mode === "ext" ? "" : "none";
     acctWrap.classList.toggle("on", mode === "web");
     try { localStorage.setItem(MODE_KEY, mode); localStorage.setItem(ACCT_KEY, acct); } catch (e) {}
     render();
@@ -396,6 +433,11 @@ a.call .ext { font-size: 11.5px; color: #64748b; }
     if (!p) {
       testLink.style.display = "none";
       testHint.textContent = testNum.value.trim() ? "not a dialable number" : "";
+      return;
+    }
+    if (mode === "ext") {
+      testLink.style.display = "none";
+      testHint.textContent = p.display + "  — look for the green Voice icon beside it";
       return;
     }
     testHint.textContent = "";
@@ -454,7 +496,8 @@ a.call .ext { font-size: 11.5px; color: #64748b; }
 
   /* ---------- restore ---------- */
   try {
-    var sm = localStorage.getItem(MODE_KEY); if (sm === "tel" || sm === "web") mode = sm;
+    var sm = localStorage.getItem(MODE_KEY);
+    if (sm === "tel" || sm === "web" || sm === "ext") mode = sm;
     var sa = localStorage.getItem(ACCT_KEY); if (sa !== null) acct = sa;
     acctSel.value = acct;
     document.querySelector('input[name="mode"][value="' + mode + '"]').checked = true;
