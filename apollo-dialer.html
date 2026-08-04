@@ -387,6 +387,7 @@ a.site:hover { text-decoration: underline; }
     var iTitle = findCol(headers, ["Title", "Job Title", "Position"]);
     var iCo = findCol(headers, ["Company", "Company Name for Emails", "Account Name", "Organization Name", "Employer"]);
     var iSite = findCol(headers, ["Website", "Company Website", "Organization Website Url", "Website Url", "Company Domain", "Domain"]);
+    var iNote = findCol(headers, ["Notes", "Note", "Contact Notes", "Account Notes", "Description", "Comments", "Comment"]);
 
     var phoneCols = [];
     PHONE_SPECS.forEach(function (spec) {
@@ -423,7 +424,8 @@ a.site:hover { text-decoration: underline; }
         title: get(iTitle),
         company: get(iCo),
         phones: phones,
-        site: normalizeSite(get(iSite))
+        site: normalizeSite(get(iSite)),
+        csvNote: get(iNote)
       });
     }
     if (!out.length) throw new Error("Parsed the file but found no contacts in it.");
@@ -468,8 +470,9 @@ a.site:hover { text-decoration: underline; }
         ? l.phones.map(linkHTML).join("")
         : '<span class="none">no number</span>';
 
+      // A note you've typed always wins; otherwise fall back to what Apollo exported.
       var k = noteKey(l);
-      var noteVal = notes[k] || "";
+      var noteVal = Object.prototype.hasOwnProperty.call(notes, k) ? notes[k] : (l.csvNote || "");
       var noteCell = '<textarea class="note' + (noteVal ? " filled" : "") +
                      '" data-key="' + esc(k) + '" placeholder="Notes…" spellcheck="true">' +
                      esc(noteVal) + "</textarea>";
@@ -573,8 +576,10 @@ a.site:hover { text-decoration: underline; }
     if (!t || !t.classList || !t.classList.contains("note")) return;
     var k = t.getAttribute("data-key");
     var v = t.value;
-    if (v.trim()) { notes[k] = v; t.classList.add("filled"); }
-    else { delete notes[k]; t.classList.remove("filled"); }
+    // Store "" rather than deleting, so clearing a note stays cleared
+    // instead of reverting to the value from the CSV.
+    notes[k] = v;
+    if (v.trim()) t.classList.add("filled"); else t.classList.remove("filled");
     saveNotes();
   });
 
@@ -590,7 +595,7 @@ a.site:hover { text-decoration: underline; }
         l.name, l.title, l.company,
         l.phones.length ? l.phones[0].e164 : "",
         l.site ? l.site.href : "",
-        notes[noteKey(l)] || ""
+        Object.prototype.hasOwnProperty.call(notes, noteKey(l)) ? notes[noteKey(l)] : (l.csvNote || "")
       ]);
     });
     var csv = rows.map(function (r) { return r.map(csvCell).join(","); }).join("\r\n");
