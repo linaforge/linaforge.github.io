@@ -121,6 +121,27 @@ a.call .ext { font-size: 11.5px; color: #64748b; }
 }
 .plain .ext { font-size: 11.5px; color: #64748b; }
 .none { color: #9ca3af; font-size: 12.5px; }
+
+textarea.note {
+  font: inherit; font-size: 12.5px; line-height: 1.45;
+  width: 100%; min-width: 190px; height: 46px; resize: vertical;
+  padding: 6px 8px; border: 1px solid #e2e8f0; border-radius: 6px;
+  background: #fff; color: #1e293b;
+}
+textarea.note:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.12); }
+textarea.note.filled { border-color: #bfdbfe; background: #f8fbff; }
+
+a.site {
+  color: #1d4ed8; text-decoration: none; font-size: 12.5px;
+  white-space: nowrap; display: inline-block; max-width: 190px;
+  overflow: hidden; text-overflow: ellipsis; vertical-align: bottom;
+}
+a.site:hover { text-decoration: underline; }
+#saved {
+  font-size: 12px; color: #16a34a; opacity: 0;
+  transition: opacity .2s;
+}
+#saved.on { opacity: 1; }
 #err { color: #b91c1c; font-size: 13px; margin-top: 12px; display: none; }
 #tblwrap { display: none; }
 #tblwrap.on { display: block; }
@@ -209,12 +230,14 @@ a.call .ext { font-size: 11.5px; color: #64748b; }
 
 <div class="bar" id="bar">
   <span id="count"></span>
+  <span id="saved">notes saved</span>
+  <button id="export">Export notes (CSV)</button>
   <button id="clear">Clear list</button>
 </div>
 
 <div id="tblwrap">
   <table>
-    <thead><tr><th>Name</th><th>Title</th><th>Company</th><th>Numbers</th></tr></thead>
+    <thead><tr><th>Name</th><th>Title</th><th>Company</th><th>Numbers</th><th>Notes</th><th>Website</th></tr></thead>
     <tbody id="rows"></tbody>
   </table>
 </div>
@@ -226,6 +249,7 @@ a.call .ext { font-size: 11.5px; color: #64748b; }
   var KEY = "apollo_call_list_v1";
   var MODE_KEY = "apollo_call_mode_v1";
   var ACCT_KEY = "apollo_call_acct_v1";
+  var NOTES_KEY = "apollo_call_notes_v1";
 
   var $ = function (id) { return document.getElementById(id); };
   var drop = $("drop"), fileInput = $("file"), rowsEl = $("rows");
@@ -305,6 +329,41 @@ a.call .ext { font-size: 11.5px; color: #64748b; }
     return { e164: e164, display: prettify(e164), ext: ext };
   }
 
+  // "acme.com" / "http://acme.com/x" -> { href, label }
+  function normalizeSite(raw) {
+    if (!raw) return null;
+    var s = String(raw).trim();
+    if (!s || /^(n\/?a|none|null|-)$/i.test(s)) return null;
+    if (!/^https?:\/\//i.test(s)) s = "https://" + s.replace(/^\/+/, "");
+    var label;
+    try {
+      var u = new URL(s);
+      if (!u.hostname || u.hostname.indexOf(".") === -1) return null;
+      label = u.hostname.replace(/^www\./i, "") + (u.pathname !== "/" ? u.pathname : "");
+    } catch (e) { return null; }
+    if (label.length > 34) label = label.slice(0, 33) + "…";
+    return { href: s, label: label };
+  }
+
+  /* ---------- notes ---------- */
+  var notes = {};
+  try { notes = JSON.parse(localStorage.getItem(NOTES_KEY) || "{}") || {}; } catch (e) { notes = {}; }
+
+  // Stable per-contact key so notes survive re-uploading the same list.
+  function noteKey(l) {
+    var ph = l.phones.length ? l.phones[0].e164 : "";
+    return (norm(l.name) + "|" + norm(l.company) + "|" + ph);
+  }
+
+  var saveTimer = null;
+  function saveNotes() {
+    try { localStorage.setItem(NOTES_KEY, JSON.stringify(notes)); } catch (e) {}
+    var el = $("saved");
+    el.classList.add("on");
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(function () { el.classList.remove("on"); }, 1200);
+  }
+
   function prettify(e164) {
     var m = e164.match(/^\+1(\d{3})(\d{3})(\d{4})$/);
     return m ? "(" + m[1] + ") " + m[2] + "-" + m[3] : e164;
@@ -327,6 +386,7 @@ a.call .ext { font-size: 11.5px; color: #64748b; }
     var iFull = findCol(headers, ["Name", "Full Name", "Contact Name"]);
     var iTitle = findCol(headers, ["Title", "Job Title", "Position"]);
     var iCo = findCol(headers, ["Company", "Company Name for Emails", "Account Name", "Organization Name", "Employer"]);
+    var iSite = findCol(headers, ["Website", "Company Website", "Organization Website Url", "Website Url", "Company Domain", "Domain"]);
 
     var phoneCols = [];
     PHONE_SPECS.forEach(function (spec) {
@@ -358,7 +418,13 @@ a.call .ext { font-size: 11.5px; color: #64748b; }
       });
 
       if (!name && !phones.length) continue;
-      out.push({ name: name || "—", title: get(iTitle), company: get(iCo), phones: phones });
+      out.push({
+        name: name || "—",
+        title: get(iTitle),
+        company: get(iCo),
+        phones: phones,
+        site: normalizeSite(get(iSite))
+      });
     }
     if (!out.length) throw new Error("Parsed the file but found no contacts in it.");
     return out;
@@ -401,11 +467,25 @@ a.call .ext { font-size: 11.5px; color: #64748b; }
       var ph = l.phones.length
         ? l.phones.map(linkHTML).join("")
         : '<span class="none">no number</span>';
+
+      var k = noteKey(l);
+      var noteVal = notes[k] || "";
+      var noteCell = '<textarea class="note' + (noteVal ? " filled" : "") +
+                     '" data-key="' + esc(k) + '" placeholder="Notes…" spellcheck="true">' +
+                     esc(noteVal) + "</textarea>";
+
+      var siteCell = l.site
+        ? '<a class="site" href="' + esc(l.site.href) + '" target="_blank" rel="noopener noreferrer">' +
+          esc(l.site.label) + "</a>"
+        : '<span class="none">—</span>';
+
       tr.innerHTML =
         '<td class="nm">' + esc(l.name) + "</td>" +
         '<td class="ttl">' + esc(l.title) + "</td>" +
         '<td class="co">' + esc(l.company) + "</td>" +
-        '<td><div class="ph">' + ph + "</div></td>";
+        '<td><div class="ph">' + ph + "</div></td>" +
+        "<td>" + noteCell + "</td>" +
+        "<td>" + siteCell + "</td>";
       rowsEl.appendChild(tr);
     });
     countEl.innerHTML = "<b>" + leads.length + "</b> contacts &middot; <b>" + withPhone +
@@ -486,6 +566,43 @@ a.call .ext { font-size: 11.5px; color: #64748b; }
   });
   document.addEventListener("dragover", function (e) { e.preventDefault(); });
   document.addEventListener("drop", function (e) { e.preventDefault(); });
+
+  // Notes: save as you type (delegated, so it survives re-renders).
+  rowsEl.addEventListener("input", function (e) {
+    var t = e.target;
+    if (!t || !t.classList || !t.classList.contains("note")) return;
+    var k = t.getAttribute("data-key");
+    var v = t.value;
+    if (v.trim()) { notes[k] = v; t.classList.add("filled"); }
+    else { delete notes[k]; t.classList.remove("filled"); }
+    saveNotes();
+  });
+
+  function csvCell(v) {
+    v = v == null ? "" : String(v);
+    return /[",\r\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v;
+  }
+
+  $("export").addEventListener("click", function () {
+    var rows = [["Name", "Title", "Company", "Phone", "Website", "Notes"]];
+    leads.forEach(function (l) {
+      rows.push([
+        l.name, l.title, l.company,
+        l.phones.length ? l.phones[0].e164 : "",
+        l.site ? l.site.href : "",
+        notes[noteKey(l)] || ""
+      ]);
+    });
+    var csv = rows.map(function (r) { return r.map(csvCell).join(","); }).join("\r\n");
+    var blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8" });
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "call-notes-" + new Date().toISOString().slice(0, 10) + ".csv";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
+  });
 
   $("clear").addEventListener("click", function () {
     try { localStorage.removeItem(KEY); } catch (e) {}
