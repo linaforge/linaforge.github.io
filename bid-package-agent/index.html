@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#003057" />
+<meta name="color-scheme" content="light" />
+<meta name="robots" content="noindex" />
+<title>RFQ &amp; Bid Package Intake Assistant &middot; Interactive Demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    color-scheme: light;
+    --ink: #172431;
+    --navy: #003057;
+    --navy-deep: #002340;
+    --navy-soft: #0d456f;
+    --page: #eef1f4;
+    --surface: #f6f8f9;
+    --panel: #ffffff;
+    --panel-soft: #f7f9fb;
+    --line: #e8ecef;
+    --line-soft: #eef2f4;
+    --steel: #64748b;
+    --muted: #94a3b0;
+    --accent: #0a86ab;
+    --accent-deep: #076b8a;
+    --accent-bg: #eaf6fa;
+    --amber: #b57a1f;
+    --amber-bg: #fdf3e3;
+    --red: #c0392b;
+    --red-bg: #fdeeec;
+    --green: #1f9d63;
+    --green-bg: #e9f8f0;
+    --rec: #d64545;
+    --display: "Space Grotesk", sans-serif;
+    --body: "IBM Plex Sans", sans-serif;
+    --mono: "IBM Plex Mono", monospace;
+    --r-lg: 22px;
+    --r-md: 14px;
+    --r-sm: 10px;
+    --r-pill: 999px;
+    --shadow-card: 0 1px 2px rgba(23,36,49,0.04), 0 10px 30px -14px rgba(23,36,49,0.14);
+    --shadow-pop: 0 24px 70px -16px rgba(0,35,64,0.35);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: var(--body); color: var(--ink); background: var(--page); line-height: 1.55; -webkit-font-smoothing: antialiased; padding: 22px 16px 40px; }
+  .wrap { max-width: 1220px; margin: 0 auto; padding: 0 24px; }
+  .app-shell { max-width: 1320px; margin: 0 auto; background: var(--panel); border-radius: 28px; box-shadow: var(--shadow-card); overflow: hidden; }
+  header { background: var(--panel); border-bottom: 1px solid var(--line); }
+  .head-inner { display: flex; align-items: center; justify-content: space-between; padding: 20px 32px; gap: 16px; flex-wrap: wrap; }
+  .brand { display: flex; align-items: center; gap: 14px; }
+  .brand-mark { font-family: var(--display); font-weight: 700; font-size: 17px; color: var(--navy); letter-spacing: -0.01em; }
+  .brand .div { width: 1px; height: 20px; background: var(--line); }
+  .brand .tool { font-size: 13px; color: var(--muted); font-weight: 500; }
+  /* ---- Demo ribbon ---- */
+  .demo-ribbon { max-width: 1320px; margin: 0 auto 14px; background: var(--navy); color: #fff; border-radius: var(--r-md); padding: 13px 22px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; box-shadow: 0 10px 26px -14px rgba(0,35,64,0.6); }
+  .demo-ribbon .dr-tag { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; background: rgba(255,255,255,0.15); border-radius: var(--r-pill); padding: 5px 12px; color: #8fd0e6; flex: 0 0 auto; }
+  .demo-ribbon .dr-txt { font-size: 13.5px; color: #d7e6ef; line-height: 1.5; }
+  .demo-ribbon .dr-txt b { color: #fff; font-weight: 600; }
+  .hero { padding: 34px 32px 22px; }
+  .eyebrow { font-size: 12.5px; font-weight: 600; color: var(--accent-deep); background: var(--accent-bg); border-radius: var(--r-pill); padding: 8px 17px; margin-bottom: 16px; display: inline-flex; align-items: center; gap: 7px; }
+  h1 { font-family: var(--display); font-weight: 600; font-size: clamp(26px, 3.2vw, 34px); line-height: 1.18; letter-spacing: -0.01em; color: var(--ink); max-width: 24ch; }
+  .lede { margin-top: 13px; max-width: 100ch; font-size: 16.5px; color: var(--steel); line-height: 1.5; }
+  .lede b { color: var(--ink); font-weight: 600; }
+  .qbar { margin-top: 20px; display: flex; flex-wrap: wrap; gap: 12px; }
+  .qbar { margin-top: 30px; padding-top: 22px; border-top: 1px solid var(--line); }
+  .qbar-label { font-size: 12px; color: var(--muted); margin-bottom: 12px; letter-spacing: 0.02em; }
+  .qgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(215px, 1fr)); gap: 7px 26px; max-width: 1050px; }
+  .qitem { display: flex; align-items: baseline; gap: 9px; font-size: 13px; color: var(--steel); line-height: 1.5; }
+  .qitem i { font-family: var(--mono); font-style: normal; font-size: 11px; color: var(--muted); flex: 0 0 auto; }
+  .scenarios { margin-top: 24px; }
+  .scen-label { font-family: var(--display); font-size: 14px; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
+  .scen-sub { font-size: 13px; color: var(--steel); margin-bottom: 14px; }
+  .chips { display: grid; grid-template-columns: repeat(auto-fit, minmax(268px, 1fr)); gap: 14px; max-width: 1050px; }
+  .chip { display: flex; flex-direction: column; align-items: stretch; text-align: left; font-family: var(--body); background: var(--panel); border: 1px solid var(--line); border-radius: var(--r-sm); padding: 0; cursor: pointer; color: var(--ink); transition: border-color 0.16s ease, box-shadow 0.16s ease; box-shadow: 0 1px 2px rgba(23,36,49,0.04); overflow: hidden; }
+  .chip:hover { border-color: var(--accent); box-shadow: 0 6px 18px -10px rgba(23,36,49,0.32); }
+  .chip .chip-head { display: flex; align-items: baseline; gap: 10px; padding: 17px 20px 0; }
+  .chip .chip-head i { font-family: var(--mono); font-style: normal; font-size: 11px; color: var(--muted); flex: 0 0 auto; }
+  .chip .chip-title { font-family: var(--display); font-size: 15px; font-weight: 600; color: var(--ink); line-height: 1.3; }
+  .chip .chip-sub { font-size: 12.5px; color: var(--steel); line-height: 1.55; padding: 6px 20px 16px 42px; }
+  .chip .chip-go { margin-top: auto; padding: 11px 20px; border-top: 1px solid var(--line); background: var(--panel-soft); font-family: var(--display); font-size: 12.5px; font-weight: 600; color: var(--accent-deep); transition: background 0.16s ease; }
+  .chip:hover .chip-go { background: var(--accent-bg); }
+  .chip { font-family: var(--body); font-size: 13.5px; font-weight: 500; background: var(--panel); border: 1px solid var(--line); border-radius: var(--r-pill); padding: 9px 18px 9px 10px; cursor: pointer; color: var(--ink); transition: all 0.15s ease; display: flex; align-items: center; gap: 9px; box-shadow: 0 1px 2px rgba(23,36,49,0.03); }
+  .chip:hover { border-color: var(--accent); background: var(--accent-bg); }
+  .chip .tag { font-size: 11px; font-weight: 700; color: var(--accent-deep); background: var(--panel-soft); border-radius: var(--r-pill); padding: 3px 9px; letter-spacing: 0.02em; }
+  .grid { display: grid; grid-template-columns: 460px 1fr; gap: 20px; padding: 24px 32px 40px; align-items: stretch; }
+  @media (max-width: 940px){ .grid { grid-template-columns: 1fr; padding: 20px 20px 32px; } }
+  .panel { display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); box-shadow: var(--shadow-card); overflow: hidden; }
+  .panel > .tabs, .panel > .panel-head { flex: 0 0 auto; }
+  .panel > .tabpane, .panel > .out-body { flex: 1 1 auto; display: flex; flex-direction: column; }
+  #pane-rfq, #pane-manual { display: none; flex: 1; flex-direction: column; }
+  #pane-rfq.active, #pane-manual.active { display: flex; }
+  #rfqForm, #manualForm { flex: 1; display: flex; flex-direction: column; }
+  #rfqText { flex: 1; min-height: 200px; }
+  .out-body { flex: 1; display: flex; flex-direction: column; }
+  .out-body > .placeholder, .out-body > .loading { flex: 1; }
+  .panel-head { padding: 18px 22px; display: flex; align-items: center; justify-content: space-between; }
+  .panel-head h2 { font-family: var(--display); font-weight: 600; font-size: 16px; color: var(--ink); }
+  .panel-head .step { font-size: 12.5px; color: var(--muted); font-weight: 500; background: var(--panel); border: 1px solid var(--line); border-radius: var(--r-pill); padding: 7px 15px; }
+  .tabs { display: flex; gap: 4px; padding: 5px; margin: 20px 18px 0; background: var(--panel); border-radius: var(--r-pill); border: 1px solid var(--line); }
+  .tab { flex: 1; padding: 12px 14px; text-align: center; font-size: 13.5px; font-weight: 500; color: var(--steel); background: transparent; border: none; border-radius: var(--r-pill); cursor: pointer; transition: all 0.15s; }
+  .tab.active { background: var(--navy); color: #fff; }
+  .tabpane { display: none; }
+  .tabpane.active { display: block; }
+  form { padding: 6px 18px 18px; }
+  .field { margin-top: 14px; }
+  .field label { display: flex; align-items: center; justify-content: space-between; font-size: 12.5px; font-weight: 600; color: var(--steel); margin-bottom: 7px; }
+  .field textarea, .field input, .field select { width: 100%; font-family: var(--body); font-size: 14px; color: var(--ink); padding: 11px 13px; border: 1px solid var(--line); background: var(--panel); border-radius: var(--r-sm); transition: all 0.15s; }
+  .field select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2364748b' stroke-width='1.6' fill='none'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 13px center; padding-right: 34px; cursor: pointer; }
+  .field textarea { resize: vertical; line-height: 1.55; font-family: var(--mono); font-size: 12.5px; }
+  #rfqText { min-height: 260px; }
+  .field textarea:focus, .field input:focus, .field select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-bg); }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .custom-reveal { margin-top: 8px; display: none; }
+  .custom-reveal.show { display: block; }
+  .hint-sm { font-size: 12px; color: var(--muted); margin-top: 7px; line-height: 1.55; }
+  .run { margin-top: 20px; width: 100%; font-family: var(--display); font-weight: 600; font-size: 15px; color: #fff; background: var(--navy); border: none; border-radius: var(--r-pill); padding: 15px; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 8px 20px -8px rgba(0,48,87,0.5); }
+  .run:hover { background: var(--navy-soft); transform: translateY(-1px); }
+  .run:disabled { background: var(--muted); cursor: default; transform: none; box-shadow: none; }
+  .out-body { padding: 22px; min-height: 360px; }
+  .placeholder { min-height: 340px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: var(--muted); gap: 14px; }
+  .placeholder p { font-size: 14px; max-width: 38ch; }
+  .placeholder .hint { font-size: 12px; color: var(--muted); background: var(--panel); border: 1px solid var(--line); border-radius: var(--r-pill); padding: 4px 12px; }
+  .loading { min-height: 340px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; }
+  .scanner { width: 210px; height: 4px; background: var(--line); border-radius: var(--r-pill); overflow: hidden; position: relative; }
+  .scanner::after { content: ""; position: absolute; top: 0; left: -40%; height: 100%; width: 40%; background: var(--accent); animation: scan 1.1s ease-in-out infinite; }
+  @keyframes scan { 0% { left: -40%; } 100% { left: 100%; } }
+  .loading .msg { font-size: 12.5px; color: var(--steel); }
+  .load-steps { width: 300px; display: flex; flex-direction: column; gap: 13px; margin-top: 4px; }
+  .load-step { display: flex; align-items: center; gap: 11px; font-size: 13px; color: var(--muted); transition: color 0.3s ease; }
+  .load-step .ic { width: 16px; height: 16px; border: 1.5px solid var(--line); border-radius: 50%; flex: 0 0 auto; position: relative; box-sizing: border-box; }
+  .load-step.active { color: var(--ink); font-weight: 500; }
+  .load-step.active .ic { border-color: var(--accent); border-top-color: transparent; animation: spin 0.7s linear infinite; }
+  .load-step.done { color: var(--steel); }
+  .load-step.done .ic { border-color: var(--accent); background: var(--accent); animation: none; }
+  .load-step.done .ic::after { content: ""; position: absolute; left: 5px; top: 2px; width: 4px; height: 7px; border: solid #fff; border-width: 0 1.6px 1.6px 0; transform: rotate(45deg); }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .result { animation: rise 0.4s ease; }
+  @keyframes rise { from { opacity: 0; transform: translateY(8px);} to { opacity: 1; transform: none;} }
+  .verdict { border-radius: var(--r-lg); background: linear-gradient(155deg, var(--navy) 0%, var(--navy-deep) 100%); color: #fff; padding: 24px 26px; margin-bottom: 22px; box-shadow: 0 14px 34px -14px rgba(0,35,64,0.55); }
+  .verdict .vlabel { font-size: 12.5px; font-weight: 600; color: #8fd0e6; margin-bottom: 10px; background: rgba(255,255,255,0.1); display: inline-block; padding: 4px 12px; border-radius: var(--r-pill); }
+  .verdict .vname { font-family: var(--display); font-weight: 600; font-size: 25px; line-height: 1.2; margin-top: 4px; }
+  .verdict .vreason { margin-top: 9px; font-size: 13.5px; color: #c3d9e6; line-height: 1.6; max-width: 62ch; }
+  .verdict .vmeta { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 8px; }
+  .verdict .vmeta span { font-size: 12px; font-weight: 500; background: rgba(255,255,255,0.12); border-radius: var(--r-pill); padding: 5px 12px; color: #e4eff5; }
+  .qa-grid { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
+  .qa-row { display: grid; grid-template-columns: 210px 1fr; gap: 18px; padding: 16px 18px; align-items: start; background: var(--panel); border: 1px solid var(--line); border-radius: var(--r-md); }
+  .qa-row .q { font-size: 12.5px; color: var(--steel); line-height: 1.5; font-weight: 500; }
+  .qa-row .q .qn { display: block; font-size: 12px; color: var(--muted); margin-bottom: 3px; }
+  .qa-row .a { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+  .qa-row .a .val { font-family: var(--display); font-weight: 600; font-size: 14.5px; color: var(--ink); line-height: 1.45; flex: 1; }
+  .qa-row .badge { flex: 0 0 auto; font-size: 10.5px; font-weight: 600; padding: 3px 10px; border-radius: var(--r-pill); white-space: nowrap; display: inline-flex; align-items: center; gap: 5px; }
+  .qa-row .badge::before { content: ""; width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
+  .qa-row .badge.ok { color: var(--green); background: var(--green-bg); } .qa-row .badge.ok::before { background: var(--green); }
+  .qa-row .badge.warn { color: var(--amber); background: var(--amber-bg); } .qa-row .badge.warn::before { background: var(--amber); }
+  .qa-row .badge.na { color: var(--muted); background: var(--panel-soft); } .qa-row .badge.na::before { background: var(--muted); }
+  .qa-row .cite { margin-top: 8px; font-size: 12.5px; color: var(--steel); background: var(--panel-soft); border-radius: var(--r-sm); padding: 8px 12px; line-height: 1.5; font-style: italic; }
+  .qa-row .cite b { font-style: normal; color: var(--accent-deep); font-size: 11px; font-weight: 600; display: block; margin-bottom: 3px; }
+  .specrow { display: grid; grid-template-columns: 160px 1fr; gap: 14px; padding: 14px 18px; align-items: start; background: var(--panel); border: 1px solid var(--line); border-radius: var(--r-md); margin-bottom: 10px; }
+  .specrow .k { font-size: 12.5px; font-weight: 600; color: var(--steel); padding-top: 2px; }
+  .specrow .v .val { font-family: var(--display); font-weight: 600; font-size: 15px; color: var(--ink); }
+  .specrow .v .why { font-size: 13px; color: var(--steel); margin-top: 3px; line-height: 1.5; }
+  .block { margin-top: 24px; }
+  .block h3 { font-size: 13.5px; font-weight: 600; color: var(--ink); margin-bottom: 12px; display: flex; align-items: center; gap: 9px; }
+  .block h3::before { content: ""; width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+  .block.notes h3::before { background: var(--accent);}
+  .block.review h3::before { background: var(--amber);}
+  .block.flags h3::before { background: var(--red);}
+  .block.questions h3::before { background: var(--steel);}
+  ul.items { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  ul.items li { position: relative; padding: 11px 14px 11px 30px; font-size: 13.5px; color: var(--ink); line-height: 1.55; background: var(--panel); border: 1px solid var(--line); border-radius: var(--r-md); }
+  ul.items li::before { content: ""; position: absolute; left: 13px; top: 15px; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+  .block.review ul.items li::before { background: var(--amber); }
+  .block.flags ul.items li::before { background: var(--red); }
+  .summary { margin-bottom: 22px; padding: 18px 20px; background: var(--accent-bg); border-radius: var(--r-md); font-size: 14px; line-height: 1.6; color: var(--ink); }
+  .summary .slabel { font-size: 12px; font-weight: 600; color: var(--accent-deep); margin-bottom: 10px; }
+  .summary ul.items { display: flex; flex-direction: column; gap: 8px; }
+  .summary ul.items li { background: #fff; border: 1px solid rgba(10,134,171,0.16); border-radius: var(--r-sm); padding: 10px 14px 10px 30px; font-weight: 500; }
+  .summary ul.items li::before { background: var(--accent-deep); }
+  .disclaimer { margin-top: 20px; font-size: 12px; color: var(--muted); line-height: 1.55; padding: 12px 16px; background: var(--panel-soft); border-radius: var(--r-sm); }
+  .error { padding: 18px 20px; background: var(--red-bg); border-radius: var(--r-md); color: #8a2d21; font-size: 13.5px; line-height: 1.55; }
+  .error b { display: block; font-family: var(--display); margin-bottom: 5px; font-size: 14px; color: var(--red); }
+  .matched { margin-bottom: 18px; padding: 14px 18px; background: var(--amber-bg); border-radius: var(--r-md); font-size: 13px; line-height: 1.55; color: #7a5312; }
+  .matched b { display: block; font-family: var(--display); font-size: 13.5px; color: var(--amber); margin-bottom: 4px; }
+  .collapse { margin-top: 24px; border: 1px solid var(--line); border-radius: var(--r-md); overflow: hidden; }
+  .collapse summary { font-size: 13px; font-weight: 600; color: var(--ink); background: var(--panel); padding: 13px 18px; cursor: pointer; }
+  .collapse .cbody { padding: 6px 18px 18px; }
+  .profile { margin: 16px 18px 18px; border: 1px solid var(--line); border-radius: var(--r-md); overflow: hidden; background: var(--panel); }
+  .profile summary { font-size: 12.5px; font-weight: 600; color: var(--ink); padding: 12px 16px; cursor: pointer; }
+  .profile .pbody { padding: 2px 16px 14px; }
+  .profile .prow { font-size: 12.5px; line-height: 1.55; color: var(--steel); padding: 7px 0; border-top: 1px solid var(--line-soft); }
+  .profile .prow b { color: var(--ink); font-weight: 600; display: block; font-size: 12px; }
+  .profile .pnote { font-size: 11.5px; color: var(--muted); margin-top: 10px; line-height: 1.55; }
+  footer { margin-top: 4px; border-top: 1px solid var(--line); }
+  footer .wrap { padding: 22px 32px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; max-width: none; }
+  footer .addr { font-size: 12.5px; line-height: 1.5; color: var(--steel); }
+  footer .addr b { color: var(--ink); font-family: var(--display); letter-spacing: 0.02em; }
+  footer .meta { font-size: 12px; color: var(--muted); text-align: right; line-height: 1.6; }
+  footer .meta a { color: var(--accent-deep); text-decoration: none; font-weight: 500; }
+  .closer { max-width: 1320px; margin: 18px auto 0; background: var(--panel); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 26px 32px; box-shadow: var(--shadow-card); }
+  .closer h3 { font-family: var(--display); font-weight: 600; font-size: 18px; color: var(--ink); }
+  .closer p { font-size: 14px; color: var(--steel); margin-top: 8px; line-height: 1.6; max-width: 78ch; }
+  .closer ul { margin-top: 14px; list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; }
+  .closer li { font-size: 13px; color: var(--ink); background: var(--panel-soft); border: 1px solid var(--line); border-radius: var(--r-md); padding: 12px 15px; line-height: 1.5; }
+  .closer li b { display: block; font-family: var(--display); font-size: 13px; margin-bottom: 3px; color: var(--navy); }
+  .export-bar { display: flex; justify-content: flex-end; gap: 10px; margin-bottom: 16px; }
+  .export-btn { display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; font-weight: 500; color: var(--ink); background: #fff; border: 1px solid var(--line); border-radius: var(--r-pill); padding: 8px 15px; cursor: pointer; transition: all 0.15s; }
+  .export-btn:hover { border-color: var(--accent); background: var(--accent-bg); color: var(--accent-deep); }
+  .export-btn svg { width: 13px; height: 13px; }
+  #printDoc { display: none; }
+  @media print {
+    @page { margin: 16mm; }
+    body > *:not(#printDoc) { display: none !important; }
+    #printDoc { display: block !important; color: #10222e; font-family: var(--body); }
+    #printDoc .pd-head { border-bottom: 2px solid var(--navy); padding-bottom: 14px; margin-bottom: 20px; }
+    #printDoc .pd-title { font-family: var(--display); font-weight: 600; font-size: 20px; color: var(--navy); }
+    #printDoc .pd-meta { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.05em; color: var(--steel); margin-top: 5px; }
+    #printDoc .pd-sec { margin-top: 16px; break-inside: avoid; }
+    #printDoc .pd-label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent-deep); margin-bottom: 7px; border-bottom: 1px solid #dde5e9; padding-bottom: 4px; }
+    #printDoc .pd-verdict { background: var(--navy) !important; color: #fff !important; padding: 14px 16px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    #printDoc .pd-verdict .l { font-family: var(--mono); font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: #7fd0e6; }
+    #printDoc .pd-verdict .n { font-family: var(--display); font-weight: 600; font-size: 18px; margin-top: 4px; }
+    #printDoc .pd-verdict .r { font-size: 11.5px; color: #cbdae6; margin-top: 5px; line-height: 1.5; }
+    #printDoc .pd-qa { font-size: 12px; line-height: 1.55; margin: 6px 0; padding-bottom: 6px; border-bottom: 1px solid #eef2f4; }
+    #printDoc .pd-qa .k { font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--steel); display:block; }
+    #printDoc .pd-qa .v { font-weight: 600; color: var(--navy); }
+    #printDoc .pd-qa .c { font-style: italic; color: #5c7183; font-size: 11px; margin-top: 2px; }
+    #printDoc .pd-kv { font-size: 12.5px; line-height: 1.55; margin: 3px 0; }
+    #printDoc .pd-kv b { color: var(--navy); }
+    #printDoc ul { margin: 0; padding-left: 18px; }
+    #printDoc li { font-size: 12px; line-height: 1.55; margin-bottom: 3px; }
+    #printDoc .pd-brief { font-size: 12.5px; line-height: 1.6; background: #f1fafc !important; border-left: 3px solid var(--accent); padding: 12px 14px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    #printDoc .pd-disc { margin-top: 20px; font-family: var(--mono); font-size: 9.5px; color: var(--muted); line-height: 1.5; border-top: 1px solid #dde5e9; padding-top: 10px; }
+  }
+</style>
+</head>
+<body>
+<div class="demo-ribbon">
+  <span class="dr-tag">Interactive demo</span>
+  <span class="dr-txt"><b>Bellweather Filtration is a fictional manufacturer.</b> Everything below runs entirely in your browser on three pre-loaded sample bid packages. The production version reads live documents against your real product line, certifications, and commercial terms.</span>
+</div>
+<div class="app-shell">
+<header>
+  <div class="head-inner">
+    <div class="brand">
+      <div class="brand-mark">BELLWEATHER FILTRATION</div>
+      <div class="div"></div>
+      <div class="tool">Configurator Suite &middot; RFQ Assistant</div>
+    </div>
+  </div>
+</header>
+<div>
+  <section class="hero">
+    <div class="eyebrow">RFQ &amp; Bid Package Intake Assistant</div>
+    <h1>Bid Package Intake Agent</h1>
+    <p class="lede">Drop in a 40-page bid package, get the product line, specs, codes, and red flags before anyone spends an afternoon reading it.</p>
+    <div class="scenarios">
+      <div class="scen-label">Start here &middot; pick a sample bid package</div>
+      <div class="scen-sub">Each one is a real-length RFQ that has already been read by the agent. Click any card to load it and run the analysis.</div>
+      <div class="chips">
+        <button class="chip" data-scenario="chlorine"><span class="chip-head"><i>01</i><span class="chip-title">Chlor-alkali plant</span></span><span class="chip-sub">Brine prefiltration and hot caustic polishing. Two duty points, one code problem.</span><span class="chip-go">Load and analyze &rarr;</span></button>
+        <button class="chip" data-scenario="swro"><span class="chip-head"><i>02</i><span class="chip-title">Seawater RO prefiltration</span></span><span class="chip-sub">Export bid, two trains, and one buried clause that changes everything.</span><span class="chip-go">Load and analyze &rarr;</span></button>
+        <button class="chip" data-scenario="hospital"><span class="chip-head"><i>03</i><span class="chip-title">Hospital exhaust filtration</span></span><span class="chip-sub">Air-side scope under an NRC license. The agent calls this a no-bid.</span><span class="chip-go">Load and analyze &rarr;</span></button>
+      </div>
+    </div>
+    <div class="qbar">
+      <div class="qbar-label">Every package is read against the same ten questions, in this order</div>
+      <div class="qgrid">
+        <span class="qitem"><i>01</i>Product line / division</span>
+        <span class="qitem"><i>02</i>Flow &amp; duty</span>
+        <span class="qitem"><i>03</i>Influent condition</span>
+        <span class="qitem"><i>04</i>Effluent target</span>
+        <span class="qitem"><i>05</i>Codes &amp; standards</span>
+        <span class="qitem"><i>06</i>Connections</span>
+        <span class="qitem"><i>07</i>Timeline</span>
+        <span class="qitem"><i>08</i>Location</span>
+        <span class="qitem"><i>09</i>Shipping &amp; packaging</span>
+        <span class="qitem"><i>10</i>Commercial terms</span>
+      </div>
+    </div>
+  </section>
+  <section class="grid">
+    <!-- INTAKE -->
+    <div class="panel">
+      <div class="tabs">
+        <button class="tab active" data-tab="rfq">RFQ / Bid Package</button>
+        <button class="tab" data-tab="manual">Quick Manual Spec</button>
+      </div>
+      <!-- RFQ MODE -->
+      <div class="tabpane active" id="pane-rfq">
+        <div class="panel-head" style="border-bottom:none;"><h2 style="font-size:13px;">The bid package</h2><span class="step">01 / INPUT</span></div>
+        <form id="rfqForm">
+          <div class="field">
+            <label>Bid package text</label>
+            <textarea id="rfqText" placeholder="Pick a sample bid package above to load its full text here."></textarea>
+            <div class="hint-sm">The working version also accepts PDF, Word, Excel, and zipped bid packages. File upload is switched off in this demo, so the three samples above load their text here instead.</div>
+          </div>
+          <button type="submit" class="run" id="runBtn">Analyze bid package &rarr;</button>
+        </form>
+        <details class="profile">
+          <summary>What this agent knows about Bellweather</summary>
+          <div class="pbody">
+            <div class="prow"><b>Certifications</b>ASME Section X (RP-1 &amp; RP-2), National Board &quot;R&quot; registration, ISO 9001:2015, NSF/ANSI 61 on listed housing configurations. No Section VIII metallic stamp.</div>
+            <div class="prow"><b>Catalog limits</b>Standard cartridge housings to 1,200 gpm single vessel; max 84 elements per Type 2 body; design pressure to 150 psi standard, 300 psi on request. FRP pH range 2&ndash;13.</div>
+            <div class="prow"><b>Divisions</b>Liquid filtration vessels, liquid filter cartridges, bag filtration. No nuclear or pharmaceutical-grade air cleaning.</div>
+            <div class="prow"><b>Commercial norms</b>Net 30 standard, 12-month warranty, pricing firm 45 days, no retention beyond mechanical completion, no LC issuance absorbed.</div>
+            <div class="pnote">This is the layer that makes the difference. A generic document reader restates what the buyer asked for. An agent that knows what you can actually build tells you which requirements you fail. In production these fields are yours.</div>
+          </div>
+        </details>
+      </div>
+      <!-- MANUAL MODE -->
+      <div class="tabpane" id="pane-manual">
+        <div class="panel-head" style="border-bottom:none;"><h2 style="font-size:13px;">Quick structured entry</h2><span class="step">01 / INPUT</span></div>
+        <form id="manualForm">
+          <div class="field">
+            <label>Application type</label>
+            <select id="appType">
+              <option value="">Select an application</option>
+              <option>Prefiltration ahead of RO / desalination</option>
+              <option>Municipal / potable water treatment</option>
+              <option>Process or chemical filtration</option>
+              <option>Cooling water / HVAC loop</option>
+              <option>Bag filtration / high solids loading</option>
+              <option>Pharmaceutical / high purity</option>
+              <option>Food &amp; beverage</option>
+              <option>Industrial air / baghouse / dust collection</option>
+              <option>Other / not sure</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Application description</label>
+            <textarea id="app" style="font-family:var(--body); font-size:14px; min-height:84px;" placeholder="Describe the situation in your own words."></textarea>
+          </div>
+          <div class="row2">
+            <div class="field">
+              <label>Flow rate</label>
+              <select id="flow" data-custom="flowCustom">
+                <option value="">Select flow</option>
+                <option>Under 50 gpm</option>
+                <option>50&ndash;150 gpm</option>
+                <option>150&ndash;300 gpm</option>
+                <option>300&ndash;600 gpm</option>
+                <option>600&ndash;1,000 gpm</option>
+                <option>Over 1,000 gpm</option>
+                <option value="__custom">Enter exact value&hellip;</option>
+              </select>
+              <input class="custom-reveal" id="flowCustom" placeholder="e.g. 200 gpm" />
+            </div>
+            <div class="field">
+              <label>Operating pressure</label>
+              <select id="pressure" data-custom="pressureCustom">
+                <option value="">Select pressure</option>
+                <option>Under 75 psi</option>
+                <option>75&ndash;125 psi</option>
+                <option>125&ndash;175 psi</option>
+                <option>175&ndash;250 psi</option>
+                <option>Over 250 psi</option>
+                <option value="__custom">Enter exact value&hellip;</option>
+              </select>
+              <input class="custom-reveal" id="pressureCustom" placeholder="e.g. 150 psi" />
+            </div>
+          </div>
+          <div class="field">
+            <label>Fluid &amp; environment</label>
+            <select id="fluid">
+              <option value="">Select fluid type</option>
+              <option>Fresh / potable water</option>
+              <option>Brackish / saline (corrosive)</option>
+              <option>Seawater / desalination feed</option>
+              <option>Process water with suspended solids</option>
+              <option>Caustic / high-pH chemical (aggressive)</option>
+              <option>Acidic / low-pH chemical</option>
+              <option>Solvent / aggressive chemical</option>
+              <option>Oily or organic-laden water</option>
+              <option>Air / gas stream</option>
+            </select>
+          </div>
+          <div class="row2">
+            <div class="field">
+              <label>Standard / code</label>
+              <select id="standard">
+                <option value="">None specified</option>
+                <option>ASME Section X</option>
+                <option>ASME Section VIII</option>
+                <option>NSF / potable certified</option>
+                <option>ASHRAE 170</option>
+                <option>MIL-SPEC</option>
+                <option>Seismic rating required</option>
+                <option>Other / to confirm</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Need-by date</label>
+              <input id="needBy" placeholder="e.g. 6 weeks / Q3 2026" />
+            </div>
+          </div>
+          <button type="submit" class="run" id="runBtnManual">Generate configuration &rarr;</button>
+        </form>
+      </div>
+    </div>
+    <!-- OUTPUT -->
+    <div class="panel">
+      <div class="panel-head"><h2>Structured bid read</h2><span class="step">02 / OUTPUT</span></div>
+      <div class="out-body" id="output">
+        <div class="placeholder">
+          <svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="#5c7183" stroke-width="1.3"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6M9 17h6M9 9h1"/></svg>
+          <p>Load a sample bid package above, then run the analysis.</p>
+          <div class="hint">AWAITING INPUT</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+<footer>
+  <div class="wrap">
+    <div class="addr">
+      <b>BELLWEATHER FILTRATION</b> &middot; example manufacturer<br />
+      Fictional company used for demonstration purposes only
+    </div>
+    <div class="meta">
+      RFQ &amp; BID PACKAGE INTAKE ASSISTANT &middot; DEMO<br />
+      Built by <a href="https://linaforge.com">Lina Forge</a>
+    </div>
+  </div>
+</footer>
+</div><!-- /app-shell -->
+<div class="closer">
+  <h3>What you just watched</h3>
+  <p>A bid package like the ones above takes a sales engineer two to four hours to read properly, and most shops do not have those hours. So packages get skimmed, the wrong ones get bid, and the disqualifying detail turns up after the quote goes out. This agent reads the whole thing in under a minute and puts the disqualifying detail on the first screen.</p>
+  <ul>
+    <li><b>It reads your actual documents</b>PDFs, Word files, spreadsheets, zipped bid packages. Scanned drawings and multi-column specs included.</li>
+    <li><b>It knows what you can build</b>Your certifications, catalog limits, and commercial terms are loaded in, so it flags what you fail, not just what they asked.</li>
+    <li><b>It tells you when to walk</b>The third sample is a no-bid. Knowing that on day one is worth more than a polished quote on day fourteen.</li>
+    <li><b>It is yours, not a subscription</b>Built around your product line, your ten questions, your quoting rules. It runs where you want it to run.</li>
+  </ul>
+</div>
+<div id="printDoc"></div>
+<script>
+  /* =====================================================================
+     DEMO BUILD. No API key, no network calls, no server.
+     Every analysis below is pre-computed and stored in this file.
+     ===================================================================== */
+  let lastResult = null, lastMode = "rfq";
+
+  // ===== Sample bid packages (synthetic; fictional buyers) =====
+  const SCENARIOS = {
+    chlorine: {
+      label: "Chlor-alkali plant, brine & caustic filtration",
+      text: `REQUEST FOR QUOTATION
+Project: Chlor-Alkali Facility, Brine & Process Stream Filtration
+Buyer: Gulf Reach Chemical Processing LLC (industrial chemical manufacturer)
+RFQ No: GRC-2026-0447
+
+1. SCOPE OF SUPPLY
+Vendor to supply filtration vessels and cartridge elements for two duty points: (a) saturated brine filtration ahead of the electrolyzer feed, and (b) a secondary caustic soda (50% NaOH) polishing filter downstream of the evaporators.
+
+2. PROCESS CONDITIONS
+- Brine filtration: average flow 220 gpm, max 280 gpm, continuous 24/7 operation. Feed contains suspended calcium/magnesium precipitates and trace sulfate scale, target removal to 5 micron nominal ahead of the membrane cells.
+- Caustic polishing: average flow 60 gpm, batch campaigns of 8-12 hours, feed temperature typically 85-95 deg C, target 1 micron absolute to protect downstream instrumentation.
+- Both streams are highly corrosive; vendor must state wetted material compatibility with 50% NaOH at elevated temperature and with saturated brine (chlorides).
+
+3. CODES & STANDARDS
+Vessels must be built to ASME Section VIII Div. 1 with National Board registration. Facility operates under a Process Safety Management (PSM) program per OSHA 1910.119; documentation package must support PSM equipment files. Electrical area classification at the brine filtration skid is Class I, Div 2.
+
+4. CONNECTIONS
+150# ANSI flanged inlet/outlet, 4" on the brine train, 2" on the caustic polishing unit. Vessels must accept davit-assisted top head removal for cartridge changeout; existing structural steel platform has 8'-6" of overhead clearance.
+
+5. DELIVERY
+Need equipment on site within 14 weeks of PO to support a planned turnaround window. Ship to: Gulf Reach Chemical Processing LLC, 4100 Battleground Rd, Freeport, TX 77541. Partial shipments acceptable if brine train ships first.
+
+6. SHIPPING & PACKAGING
+FOB Origin, freight collect, buyer's carrier. Vessels over 500 lb require export-grade crating suitable for flatbed transport; include lifting lug certification.
+
+7. COMMERCIAL TERMS
+Net 45 from invoice. Buyer requires a 10% retention held until commissioning sign-off. Firm pricing required for 90 days. Buyer to issue PO against this RFQ; no blanket order.
+
+8. CLARIFICATIONS REQUESTED FROM BIDDER
+Please confirm cartridge change-out frequency assumptions, provide a materials compatibility statement for both duty points, and note any deviations from the stated code requirements.`
+    },
+    swro: {
+      label: "Seawater RO prefiltration, export bid",
+      text: `SOLICITACAO DE COTACAO / REQUEST FOR QUOTATION
+Project: Coastal Seawater Desalination Expansion, Cartridge Prefiltration Package
+Buyer: Companhia Regional de Aguas do Litoral (regional water utility)
+Reference: CRAL-DESAL-2026-118
+
+1. BACKGROUND
+The utility is expanding an existing SWRO (seawater reverse osmosis) plant by two trains. Bidder is asked to supply cartridge-style prefiltration housings and replacement elements ahead of the RO membrane skids, sized for continuous operation.
+
+2. PROCESS DATA
+Average flow per train: 850 gpm, maximum 1,050 gpm, continuous duty, 2 trains (parallel). Source water is raw Atlantic seawater with seasonal turbidity spikes during the rainy season (Feb-May); SDI15 target at RO inlet is <3. Target cartridge rating: 5 micron nominal, with a coarser 20 micron stage under consideration to extend element life ahead of the fine stage. Two-stage filtration is open for bidder recommendation.
+
+3. WATER QUALITY
+Feed turbidity: 0.5-15 NTU depending on season. Feed contains fine sand, algae/organic matter, and occasional oil sheen near the intake (adjacent small-craft harbor). Chlorination is dosed upstream for biofouling control and neutralized (SBS) just ahead of the cartridge stage.
+
+4. CODES & CERTIFICATIONS
+Housings must be NSF/ANSI 61 certified for potable water contact (post-RO water is used for municipal supply) and rated for max working pressure of 150 psi. Utility also requests confirmation of ISO 9001 manufacturing certification.
+
+5. CONNECTIONS
+Victaulic grooved connections preferred, 8" on the main header per train, with davit or hinged-head design for rapid element changeout by a two-person crew, since the plant runs with minimal staffing.
+
+6. TIMELINE
+Award decision expected within 60 days of bid close. Delivery required within 20 weeks of PO to support a fixed commissioning date tied to municipal water supply contracts.
+
+7. LOCATION & LOGISTICS
+Delivery point: coastal container port, northeast Brazil (ocean freight). Bidder to quote both CIF destination and FOB origin (US port) pricing so the utility can compare against its own freight forwarder rates. Equipment must be suitable for tropical marine ambient storage prior to installation (humidity, salt air).
+
+8. SHIPPING & PACKAGING
+Seaworthy export crating required, moisture barrier packaging on all wetted internals, and full commercial invoice / packing list / certificate of origin for customs clearance (importer of record is the utility).
+
+9. COMMERCIAL TERMS
+Payment: 30% with PO, 60% on shipment (against copy of bill of lading), 10% on commissioning. Requires an irrevocable letter of credit or equivalent for the balance. Local in-country agent/representative may be required for spare parts support post-installation. Please indicate if bidder has one.
+
+10. QUESTIONS FOR BIDDER
+Confirm single-stage vs. two-stage filtration recommendation with rationale, replacement element lead time and minimum order quantities, and whether a local spares stocking arrangement is available.`
+    },
+    hospital: {
+      label: "Hospital exhaust filtration (a no-bid)",
+      text: `INVITATION TO BID
+Project: Cedar Ridge Regional Medical Center, Nuclear Medicine Ward Exhaust Air Filtration Upgrade
+Buyer: Cedar Ridge Health System, Facilities Engineering
+Bid Reference: CRH-FAC-2026-092
+
+1. PROJECT DESCRIPTION
+The hospital is upgrading exhaust air handling serving the Nuclear Medicine department (hot lab, uptake/dose rooms, and patient holding areas where I-131 and Tc-99m procedures are performed). Scope covers replacement of the dedicated exhaust filtration bank prior to discharge, and associated housing/frames.
+
+2. AIR HANDLING DATA
+System exhausts approximately 4,000 CFM continuously from the affected suite (24/7, hospital cannot tolerate downtime beyond a scheduled 6-hour maintenance window). Current bank is HEPA (99.97% @ 0.3 micron) with an upstream activated carbon/impregnated carbon stage for iodine capture (radioiodine, particularly I-131 vapor species). Facilities wants bidder's recommendation on whether the existing HEPA + iodine-rated carbon configuration should be retained or modified.
+
+3. AIR QUALITY / CONTAMINANT PROFILE
+Exhaust stream carries low-level airborne radioactive particulate and volatile iodine species from patient dose preparation and administration. No liquid process involved. This is an air/gas filtration scope, not liquid filtration. Facility operates under an NRC (Nuclear Regulatory Commission) materials license and must maintain effluent releases within license limits.
+
+4. CODES & STANDARDS
+Filtration must comply with ASHRAE 170 (Ventilation of Health Care Facilities) for the space type, and housings/media must meet applicable NRC guidance for radioiodine effluent control (per ANSI/ASME AG-1 filter housing practices where applicable; bidder to confirm applicable standard). Bag-in/bag-out (BIBO) housing design is required for safe filter changeout without technician exposure.
+
+5. CONNECTIONS / PHYSICAL
+Existing ductwork is 24" round, housing must mount in-line in a mechanical penthouse with 7'-2" clearance. Must accommodate bag-in/bag-out changeout procedure per current radiation safety officer (RSO) protocol.
+
+6. TIMELINE
+Facilities wants the work scheduled around an already-approved shutdown window in 10 weeks; equipment must be on-site with 3 weeks of lead time before that date for RSO and infection-control sign-off.
+
+7. LOCATION
+Cedar Ridge Regional Medical Center, Central Plant / Nuclear Medicine wing. Delivery to hospital loading dock, coordination with facilities required for after-hours delivery (occupied healthcare environment).
+
+8. SHIPPING & PACKAGING
+Standard domestic freight, but bidder must note if any media components are radioactive-material-license-controlled for shipment (they should not be, since unused filter media is not licensed material, but confirm).
+
+9. COMMERCIAL TERMS
+Hospital purchasing requires quote to reference their standard PO terms (Net 30, hospital tax-exempt certificate on file). RSO and infection control sign-off required before final acceptance; retention of 5% until sign-off.
+
+10. QUESTIONS FOR BIDDER
+Confirm HEPA + iodine-rated carbon is the correct approach vs. alternatives, confirm BIBO housing compatibility with existing 24" ductwork, and flag any gap between ASHRAE 170 and NRC-oriented guidance the hospital's RSO should be aware of.`
+    }
+  };
+
+  // ===== Pre-computed analyses =====
+  const RESULTS = {
+    chlorine: {
+      project_name: "Chlor-Alkali Brine & Caustic Filtration (GRC-2026-0447)",
+      buyer: "Gulf Reach Chemical Processing LLC",
+      routing: {
+        division: "Liquid Vessels + Cartridges (split scope, partial fit)",
+        reason: "Both duty points are liquid filtration and squarely in the product line on the cartridge side. The vessel side is only a partial fit: the buyer specified a metallic pressure vessel code we do not hold. Route to applications engineering, not straight to quoting."
+      },
+      qa: {
+        flow_volume: { answer: "Brine train 220 gpm average, 280 gpm max, continuous 24/7. Caustic polishing 60 gpm in 8-12 hour batch campaigns.", citation: "average flow 220 gpm, max 280 gpm, continuous 24/7 operation" },
+        influent_condition: { answer: "Saturated brine carrying suspended calcium and magnesium precipitates plus trace sulfate scale. Second stream is 50% NaOH at 85-95 deg C.", citation: "suspended calcium/magnesium precipitates and trace sulfate scale" },
+        effluent_target: { answer: "5 micron nominal on the brine ahead of the electrolyzer cells. 1 micron absolute on the caustic polishing leg.", citation: "5 micron nominal ahead of the membrane cells" },
+        codes_standards: { answer: "ASME Section VIII Div. 1 with National Board registration. OSHA 1910.119 PSM documentation package. Class I Div 2 area classification at the brine skid.", citation: "ASME Section VIII Div. 1 with National Board registration" },
+        connections_interfaces: { answer: "150# ANSI flanged, 4 inch brine and 2 inch caustic. Davit-assisted top head removal under 8'-6\" of overhead clearance.", citation: "existing structural steel platform has 8'-6\" of overhead clearance" },
+        timeline: { answer: "On site within 14 weeks of PO against a planned turnaround. Partial shipment allowed if the brine train goes first.", citation: "within 14 weeks of PO to support a planned turnaround window" },
+        location: { answer: "Freeport, Texas, Gulf Coast petrochemical corridor. 4100 Battleground Rd.", citation: "Freeport, TX 77541" },
+        shipping_packaging: { answer: "FOB Origin, freight collect on the buyer's carrier. Export-grade crating on anything over 500 lb, plus lifting lug certification.", citation: "FOB Origin, freight collect, buyer's carrier" },
+        commercial_terms: { answer: "Net 45, 10% retention held to commissioning sign-off, firm pricing for 90 days, discrete PO with no blanket order.", citation: "Net 45 from invoice ... 10% retention held until commissioning sign-off" }
+      },
+      starting_configuration: {
+        applicable: true,
+        vessel: { type: "Horizontal 1 (H1) on the brine train, Type 1 on the caustic polisher", reason: "The 8'-6\" overhead clearance is the binding constraint and it rules out a standard vertical body with davit swing. H1 has the lowest assembled height in the line and still supports assisted head removal. The 60 gpm caustic duty is small enough for a Type 1." },
+        material: { choice: "Polypropylene on brine, PVDF on caustic", reason: "PolyPro handles saturated chloride brine at ambient temperature and is the cost-appropriate call there. 50% NaOH at 85-95 deg C sits above where PolyPro should be specified, so the caustic leg needs PVDF. Do not blend these into one material to simplify the quote." },
+        cartridge: { media: "Pleated on brine, absolute-rated meltblown on caustic", micron: "5 micron nominal / 1 micron absolute", reason: "Continuous solids loading on the brine side makes surface area and element life the dominant variables, which is pleated. The caustic leg is an absolute-rating duty protecting instrumentation, so nominal media will not satisfy the spec." },
+        note: ""
+      },
+      red_flags: [
+        "ASME Section VIII Div. 1 with National Board registration is a metallic pressure vessel code. Our FRP line is built to Section X. This is a scope gap on the vessel side, not a detail to negotiate after award.",
+        "50% NaOH at 85-95 deg C is above where polypropylene should be specified. If a PolyPro price was assumed in order to be competitive, the material will not hold in service.",
+        "Class I Div 2 area classification is called out but no instrumentation or electrical scope is defined anywhere in the package. Confirm whether DP transmitters or automated changeover are ours before pricing.",
+        "10% retention held to commissioning sign-off on a buyer-run turnaround puts final payment behind a schedule we do not control and cannot accelerate.",
+        "Firm pricing for 90 days against a 14-week lead with resin and freight exposure. Our standard is 45 days. Check whether current resin quotes hold that long before agreeing.",
+        "14 weeks to a fixed turnaround window with a code-stamped vessel in scope is aggressive. Confirm fabricator capacity and NB registration lead time before committing to the date."
+      ],
+      follow_up_questions: [
+        "Is Section VIII Div. 1 a hard requirement on both duty points, or is the buyer's intent simply a registered, code-stamped vessel? Section X FRP may satisfy the actual design condition and we should ask before we no-bid the vessel scope.",
+        "What is the design temperature and design pressure at each duty point, not just the operating range? Neither is stated and both are required to size anything.",
+        "Is any instrumentation, DP monitoring, or control scope included, or are we supplying bare vessels into the buyer's skid?",
+        "What differential pressure at changeout and what changeout frequency is the buyer assuming? They asked us to confirm their assumptions and never stated them.",
+        "Is retention negotiable down to mechanical completion rather than full commissioning?",
+        "Who owns the PSM equipment file deliverables, and what documentation format does their program require?"
+      ],
+      config_notes: [
+        "Two duty points with different chemistry, different temperature, and different code posture. Quote them as separate line items. A blended price hides the fact that the caustic leg is the expensive one and makes the brine leg look overpriced.",
+        "Davit clearance under 8'-6\" should be dimensionally verified against the actual H1 head swing before the quote goes out, not after the PO."
+      ],
+      executive_summary: [
+        "Chlor-alkali plant in Freeport, Texas bidding two filtration duty points: 220 gpm brine prefiltration and 60 gpm hot caustic polishing.",
+        "Cartridge scope is a clean fit. Vessel scope is not, because they specified ASME Section VIII and we hold Section X.",
+        "Biggest risk is that code mismatch. Second is 50% NaOH at 95 deg C, which forces PVDF on the caustic leg and moves the price materially.",
+        "Pursue, but send the Section VIII clarification before any number goes out. Do not quote around it and hope."
+      ]
+    },
+
+    swro: {
+      project_name: "Coastal SWRO Expansion, Cartridge Prefiltration (CRAL-DESAL-2026-118)",
+      buyer: "Companhia Regional de Aguas do Litoral",
+      routing: {
+        division: "Liquid Filter Cartridges (with housings)",
+        reason: "Cartridge prefiltration ahead of RO membranes, at flows and connection sizes well inside the standard catalog. This is the center of the product line, and the two-stage question the buyer left open is an opportunity to differentiate rather than a gap."
+      },
+      qa: {
+        flow_volume: { answer: "850 gpm average and 1,050 gpm maximum per train, two parallel trains, continuous duty. Roughly 2,100 gpm at plant peak.", citation: "Average flow per train: 850 gpm, maximum 1,050 gpm, continuous duty, 2 trains" },
+        influent_condition: { answer: "Raw Atlantic seawater, 0.5 to 15 NTU seasonally, carrying fine sand, algae and organics, and occasional oil sheen from an adjacent small-craft harbor. Dechlorinated with SBS immediately upstream.", citation: "occasional oil sheen near the intake (adjacent small-craft harbor)" },
+        effluent_target: { answer: "5 micron nominal to the membranes with SDI15 under 3 at the RO inlet. A 20 micron roughing stage is explicitly open for bidder recommendation.", citation: "SDI15 target at RO inlet is <3" },
+        codes_standards: { answer: "NSF/ANSI 61 for potable contact, 150 psi maximum working pressure, and confirmation of ISO 9001 manufacturing certification.", citation: "NSF/ANSI 61 certified for potable water contact" },
+        connections_interfaces: { answer: "8 inch Victaulic grooved on the main header per train, davit or hinged head for two-person changeout under minimal staffing.", citation: "Victaulic grooved connections preferred, 8\" on the main header per train" },
+        timeline: { answer: "Award expected within 60 days of bid close, delivery within 20 weeks of PO against a fixed commissioning date tied to municipal supply contracts.", citation: "Delivery required within 20 weeks of PO" },
+        location: { answer: "Coastal container port, northeast Brazil, ocean freight. Tropical marine ambient storage before installation.", citation: "suitable for tropical marine ambient storage prior to installation" },
+        shipping_packaging: { answer: "Quote both CIF destination and FOB US origin. Seaworthy export crating, moisture barrier on all wetted internals, commercial invoice, packing list, and certificate of origin for customs.", citation: "Seaworthy export crating required, moisture barrier packaging on all wetted internals" },
+        commercial_terms: { answer: "30% with PO, 60% on shipment against a bill of lading copy, 10% on commissioning, backed by an irrevocable letter of credit. Local agent may be required for spares.", citation: "irrevocable letter of credit or equivalent for the balance" }
+      },
+      starting_configuration: {
+        applicable: true,
+        vessel: { type: "Duo Inline System per train, Type 2 bodies", reason: "Continuous municipal duty with no downtime tolerance, plus seasonal turbidity that will shorten element life exactly when the plant is busiest. Duo Inline lets a two-person crew change one side while the other stays online, which is the constraint the buyer flagged. Type 2 gives the element count needed at 1,050 gpm." },
+        material: { choice: "Polypropylene", reason: "Seawater chloride service is where FRP and PolyPro beat stainless on corrosion at a fraction of the weight, which also matters for ocean freight cost. PVDF is unnecessary here and would not survive the price comparison against other bidders." },
+        cartridge: { media: "High Flow, two-stage", micron: "20 micron roughing into 5 micron nominal", reason: "Two-stage is the right recommendation and we should say so rather than bidding the spec as written. Rainy-season turbidity to 15 NTU will blind a single 5 micron stage quickly; a 20 micron roughing stage protects it and cuts lifetime element spend. High Flow gives the flow-per-footprint the 8 inch header implies." },
+        note: ""
+      },
+      red_flags: [
+        "Occasional oil sheen at the intake is one clause buried in section 3 and it is the most important sentence in this package. Oil blinds cartridge media, and no oil removal stage appears anywhere in the specified scope.",
+        "The buyer asks us to confirm NSF/ANSI 61 certification. Confirm internally which specific housing sizes and material configurations carry a current listing, since certification is per-configuration and not a blanket company claim.",
+        "Delivery is tied to a fixed commissioning date driven by municipal supply contracts, but award is only 'expected' within 60 days. If award slips, the 20-week clock does not move with it. Get delivery tied to PO date in writing.",
+        "Letter of credit terms plus 10% held to commissioning on an overseas installation we do not control. LC issuance and confirmation costs need to be priced in, not absorbed, and this is outside our normal terms.",
+        "The buyer asked directly whether we have a local agent and spares stocking arrangement. We do not. On a scored public bid an unanswered question is often scored as a zero, not a neutral.",
+        "Element replacement MOQ and lead time were requested. Ocean freight on replacement elements is a recurring cost the utility will evaluate over the plant's life, not just at award. That total-cost number may matter more than our unit price."
+      ],
+      follow_up_questions: [
+        "What is the measured or expected oil and grease concentration at the intake, and is any upstream oil removal planned? This determines whether the specified cartridge scope is viable at all.",
+        "Will the delivery clock start at PO issuance? If award slips beyond 60 days, does the commissioning date move with it or do we absorb the compression?",
+        "Which party is importer of record for spare elements after commissioning, and is a local stocking arrangement scored in the bid evaluation?",
+        "Confirm the pressure basis. 150 psi maximum working pressure is stated, but what is the design pressure and the feed pump shutoff condition?",
+        "Is the two-stage arrangement acceptable as a bid alternate, or must we bid single-stage as specified with the alternate submitted separately?",
+        "What are the LC terms, the issuing bank, and is confirmation by a US bank required?"
+      ],
+      config_notes: [
+        "Quote the two-stage arrangement as the recommended configuration with single-stage priced as an alternate. The element-life math is the strongest technical differentiator available on this bid and the buyer explicitly invited it.",
+        "Tropical marine storage before installation means gasket and elastomer selection matters more than usual. Specify it deliberately rather than letting it default."
+      ],
+      executive_summary: [
+        "Two-train seawater RO prefiltration expansion for a regional water utility in northeast Brazil. 850 gpm per train, continuous, export shipment.",
+        "Strong fit. Flows, connection sizes, and materials all sit inside the standard catalog.",
+        "Biggest risk is a single clause about oil sheen at the intake. Nothing in the specified scope handles oil and it will blind the media.",
+        "Second risk is commercial rather than technical: LC terms, 10% held to commissioning overseas, and a fixed date tied to a floating award.",
+        "Pursue. Recommend the two-stage configuration and raise the oil question in writing before bid close."
+      ]
+    },
+
+    hospital: {
+      project_name: "Nuclear Medicine Ward Exhaust Filtration Upgrade (CRH-FAC-2026-092)",
+      buyer: "Cedar Ridge Health System, Facilities Engineering",
+      routing: {
+        division: "Other / Not a fit",
+        reason: "This is an air-side scope, so it is outside the liquid vessel and cartridge line entirely. It is also not general industrial dust collection. Radioiodine effluent control under an NRC materials license with bag-in/bag-out housings is a separately qualified nuclear air cleaning market."
+      },
+      qa: {
+        flow_volume: { answer: "Approximately 4,000 CFM continuous, 24/7, with a single scheduled 6-hour maintenance window as the maximum tolerable outage.", citation: "exhausts approximately 4,000 CFM continuously" },
+        influent_condition: { answer: "Low-level airborne radioactive particulate and volatile iodine species from I-131 and Tc-99m dose preparation and administration. Air stream only, no liquid process.", citation: "low-level airborne radioactive particulate and volatile iodine species" },
+        effluent_target: { answer: "HEPA at 99.97% on 0.3 micron plus impregnated carbon for radioiodine, with total releases held inside NRC materials license limits.", citation: "HEPA (99.97% @ 0.3 micron) with an upstream activated carbon/impregnated carbon stage" },
+        codes_standards: { answer: "ASHRAE 170, NRC materials license effluent limits, ANSI/ASME AG-1 housing practice with applicability to be confirmed by the bidder, and a mandatory bag-in/bag-out changeout design.", citation: "must comply with ASHRAE 170 ... and applicable NRC guidance for radioiodine effluent control" },
+        connections_interfaces: { answer: "24 inch round in-line ductwork in a mechanical penthouse with 7'-2\" clearance, bag-in/bag-out changeout per the radiation safety officer's protocol.", citation: "Existing ductwork is 24\" round ... mechanical penthouse with 7'-2\" clearance" },
+        timeline: { answer: "Approved shutdown window in 10 weeks, but equipment must be on site 3 weeks before that for RSO and infection control sign-off. Real lead time is 7 weeks.", citation: "on-site with 3 weeks of lead time before that date" },
+        location: { answer: "Hospital central plant and nuclear medicine wing. Loading dock delivery with after-hours coordination in an occupied healthcare facility.", citation: "coordination with facilities required for after-hours delivery" },
+        shipping_packaging: { answer: "Standard domestic freight. Bidder asked to confirm that no filter media component is license-controlled for shipment.", citation: "Standard domestic freight" },
+        commercial_terms: { answer: "Net 30 on the hospital's standard PO, tax exempt, with 5% retention held until RSO and infection control sign-off.", citation: "Net 30, hospital tax-exempt certificate on file" }
+      },
+      starting_configuration: {
+        applicable: false,
+        vessel: {}, material: {}, cartridge: {},
+        note: "No configuration proposed. This is air-side nuclear effluent control. Nothing in the FRP vessel or liquid cartridge line applies, and forcing a recommendation onto it would be worse than declining."
+      },
+      red_flags: [
+        "This is a no-bid on the vessel and cartridge line outright. The only open question is whether an air division could qualify, and nuclear air cleaning is a different market from industrial dust collection with different qualification requirements.",
+        "Bag-in/bag-out housings for radioiodine service under an NRC license generally require AG-1 qualification and documented in-place leak testing. Confirm internally whether that capability exists before responding. Bidding without it is a liability, not an opportunity.",
+        "The real lead time is 7 weeks, not 10. The package states a 10-week shutdown window but buries a 3-week on-site requirement ahead of it.",
+        "The buyer is asking us to confirm whether HEPA plus iodine-rated carbon is the correct approach and to flag gaps between ASHRAE 170 and NRC guidance. That is engineering consultation on a licensed radiological system. Answering it informally in a bid response carries real professional exposure.",
+        "Retention held until both RSO and infection control sign-off puts final payment behind two approvers with no defined acceptance criteria and no schedule commitment."
+      ],
+      follow_up_questions: [
+        "Internal first: do we hold, or can we source through a qualified partner, AG-1 rated BIBO housings with documented leak test capability? If not, this should be a courteous decline this week rather than a bid in three.",
+        "If pursuing, what is the existing bank's measured pressure drop and remaining capacity, and is the housing being replaced or only the media?",
+        "Does the hospital have an engineer of record for the radiological ventilation design, and are we being asked to take design responsibility or to supply against a specification someone else stamped?",
+        "Can the 3-week pre-delivery sign-off period be overlapped with fabrication, and what is the actual expected PO date?"
+      ],
+      config_notes: [
+        "No vessel or cartridge configuration is offered. This scope does not belong to that product line and a recommendation here would be misleading to whoever reads the output next."
+      ],
+      executive_summary: [
+        "Hospital nuclear medicine exhaust upgrade: 4,000 CFM of HEPA plus iodine-rated carbon under an NRC materials license.",
+        "Not a vessel or cartridge job. It is air-side, and specifically nuclear air cleaning, which is its own qualified market.",
+        "Biggest issue is the AG-1 and BIBO qualification question, which should be answered internally before anyone spends another hour on it.",
+        "The stated 10-week window is really 7 weeks once the pre-delivery sign-off period is counted.",
+        "No-bid unless AG-1 qualified BIBO capability can be confirmed this week. Send a short, gracious decline and keep the relationship."
+      ]
+    }
+  };
+
+  // ===== Helpers =====
+  function esc(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+  function listItems(a) { return (!Array.isArray(a) || !a.length) ? "<li>None flagged.</li>" : a.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join(""); }
+  function toBullets(val) {
+    if (Array.isArray(val)) return val.filter(Boolean);
+    if (typeof val === "string" && val.trim()) return val.split(/(?<=[.!?])\s+(?=[A-Z0-9])/).map(function (s) { return s.trim(); }).filter(Boolean);
+    return [];
+  }
+  function safeScroll(el) { if (el && typeof el.scrollIntoView === "function") el.scrollIntoView({ behavior: "smooth", block: "start" }); }
+  const output = document.getElementById("output");
+  const rfqText = document.getElementById("rfqText");
+
+  // ===== Tabs =====
+  document.querySelectorAll(".tab").forEach(function (t) {
+    t.addEventListener("click", function () {
+      document.querySelectorAll(".tab").forEach(function (x) { x.classList.remove("active"); });
+      document.querySelectorAll(".tabpane").forEach(function (x) { x.classList.remove("active"); });
+      t.classList.add("active");
+      document.getElementById("pane-" + t.dataset.tab).classList.add("active");
+      lastMode = t.dataset.tab;
+    });
+  });
+
+  // ===== Custom-value reveals (manual tab) =====
+  document.querySelectorAll("select[data-custom]").forEach(function (sel) {
+    sel.addEventListener("change", function () {
+      const inp = document.getElementById(sel.dataset.custom);
+      if (sel.value === "__custom") { inp.classList.add("show"); inp.focus(); }
+      else { inp.classList.remove("show"); inp.value = ""; }
+    });
+  });
+  function valOf(id) {
+    const sel = document.getElementById(id);
+    if (sel.value === "__custom") {
+      const c = document.getElementById(sel.dataset.custom);
+      return c && c.value.trim() ? c.value.trim() : "not stated";
+    }
+    return sel.value.trim() || "not stated";
+  }
+
+  // ===== Sample scenario chips =====
+  let activeScenario = null;
+  document.querySelectorAll(".chip").forEach(function (c) {
+    c.addEventListener("click", function () {
+      const key = c.dataset.scenario;
+      activeScenario = key;
+      rfqText.value = SCENARIOS[key].text;
+      document.querySelector('.tab[data-tab="rfq"]').click();
+      rfqText.scrollTop = 0;
+      safeScroll(document.querySelector(".grid"));
+    });
+  });
+
+  // Matches arbitrary pasted text to the closest sample so the demo always returns
+  // something coherent rather than a dead end.
+  const MATCH_KEYS = {
+    chlorine: ["brine", "caustic", "naoh", "chlor", "chemical", "electrolyz", "psm", "corrosive", "acid", "solvent", "process stream"],
+    swro: ["seawater", "swro", "desalinat", "reverse osmosis", " ro ", "membrane", "sdi", "potable", "municipal", "nsf", "export", "letter of credit", "turbidity"],
+    hospital: ["hepa", "cfm", "duct", "hospital", "ashrae", "bibo", "bag-in", "air handl", "dust collect", "baghouse", "exhaust", "nrc", "radio"]
+  };
+  function matchScenario(text) {
+    const t = (" " + text + " ").toLowerCase();
+    let best = "chlorine", bestScore = 0;
+    Object.keys(MATCH_KEYS).forEach(function (k) {
+      let score = 0;
+      MATCH_KEYS[k].forEach(function (w) { if (t.indexOf(w) !== -1) score++; });
+      if (score > bestScore) { bestScore = score; best = k; }
+    });
+    return { key: best, score: bestScore };
+  }
+
+
+  const LOAD_STEPS_RFQ = ["Reading the bid package", "Routing to a product line", "Extracting flow & fluid data", "Checking codes & standards", "Cross-checking against Bellweather's capabilities", "Scanning terms & logistics", "Flagging risks", "Compiling the brief"];
+  const LOAD_STEPS_MANUAL = ["Reading the application", "Matching wetted material", "Sizing the vessel", "Selecting cartridge media", "Flagging engineering review", "Compiling the brief"];
+  let loadTimer = null;
+  function runStaged(btn, steps, stepMs, done) {
+    btn.disabled = true;
+    const original = btn.innerHTML;
+    btn.textContent = "Reasoning through it...";
+    let h = '<div class="loading"><div class="scanner"></div><div class="load-steps">';
+    for (let i = 0; i < steps.length; i++) h += '<div class="load-step"><span class="ic"></span>' + steps[i] + '</div>';
+    h += '</div></div>';
+    output.innerHTML = h;
+    const stepEls = output.querySelectorAll(".load-step");
+    let idx = 0;
+    function advance() {
+      for (let i = 0; i < stepEls.length; i++) {
+        stepEls[i].classList.remove("active");
+        if (i < idx) stepEls[i].classList.add("done");
+      }
+      if (idx < stepEls.length) stepEls[idx].classList.add("active");
+      idx++;
+      if (idx > stepEls.length) {
+        clearInterval(loadTimer); loadTimer = null;
+        btn.disabled = false; btn.innerHTML = original;
+        done();
+      }
+    }
+    advance();
+    loadTimer = setInterval(advance, stepMs);
+  }
+
+  // ===== RFQ mode =====
+  const QLABELS = {
+    flow_volume: "02 &middot; Flow rate / volume & duty",
+    influent_condition: "03 &middot; How dirty is the input",
+    effluent_target: "04 &middot; How clean is the target output",
+    codes_standards: "05 &middot; Applicable codes & standards",
+    connections_interfaces: "06 &middot; Connections & interfaces",
+    timeline: "07 &middot; When do they want it",
+    location: "08 &middot; Where do they want it",
+    shipping_packaging: "09 &middot; Shipping terms & packaging",
+    commercial_terms: "10 &middot; Desired commercial terms"
+  };
+  document.getElementById("rfqForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+    const text = rfqText.value.trim();
+    if (!text) { rfqText.focus(); return; }
+    let key = activeScenario, matched = false;
+    if (!key || SCENARIOS[key].text.trim() !== text) {
+      const m = matchScenario(text);
+      key = m.key;
+      matched = true;
+    }
+    runStaged(document.getElementById("runBtn"), LOAD_STEPS_RFQ, 700, function () {
+      renderRFQResult(RESULTS[key], matched ? SCENARIOS[key].label : null);
+    });
+  });
+
+  function renderRFQResult(r, matchedLabel) {
+    lastResult = r; lastMode = "rfq";
+    const routing = r.routing || {}, qa = r.qa || {}, sc = r.starting_configuration || {};
+    let qaHtml = "";
+    Object.keys(QLABELS).forEach(function (key) {
+      const item = qa[key] || {};
+      const notStated = !item.answer || /^not stated/i.test(item.answer);
+      const badge = notStated ? '<span class="badge na">Not stated</span>' : (item.citation ? '<span class="badge ok">Cited</span>' : '<span class="badge warn">No citation</span>');
+      qaHtml += '<div class="qa-row"><div class="q"><span class="qn">' + QLABELS[key] + '</span></div><div class="a-wrap">' +
+        '<div class="a"><div class="val">' + esc(item.answer || "Not stated in package") + '</div>' + badge + '</div>' +
+        (item.citation ? '<div class="cite"><b>Source</b>' + esc(item.citation) + '</div>' : '') +
+        '</div></div>';
+    });
+    let configHtml = "";
+    if (sc.applicable) {
+      const v = sc.vessel || {}, m = sc.material || {}, c = sc.cartridge || {};
+      configHtml =
+        '<div class="specrow"><div class="k">Vessel type</div><div class="v"><div class="val">' + esc(v.type || "-") + '</div><div class="why">' + esc(v.reason || "") + '</div></div></div>' +
+        '<div class="specrow"><div class="k">Wetted material</div><div class="v"><div class="val">' + esc(m.choice || "-") + '</div><div class="why">' + esc(m.reason || "") + '</div></div></div>' +
+        '<div class="specrow"><div class="k">Cartridge media</div><div class="v"><div class="val">' + esc(c.media || "-") + ' (' + esc(c.micron || "-") + ')</div><div class="why">' + esc(c.reason || "") + '</div></div></div>';
+    } else {
+      configHtml = '<div class="hint-sm" style="padding:10px 0;">' + esc(sc.note || "") + '</div>';
+    }
+    const summaryBullets = toBullets(r.executive_summary);
+    output.innerHTML =
+      '<div class="result">' +
+        (matchedLabel ? '<div class="matched"><b>Demo mode</b>The live agent reads whatever you give it. This demo ships with three fully pre-computed sample reads, so your input has been matched to the closest one: <b style="display:inline">' + esc(matchedLabel) + '</b>. Everything below is the real output format on that package.</div>' : '') +
+        '<div class="export-bar"><button type="button" class="export-btn" id="exportBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M8 11l4 4 4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>Export PDF</button></div>' +
+        (summaryBullets.length ? '<div class="summary"><div class="slabel">Executive summary</div><ul class="items">' + summaryBullets.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + '</ul></div>' : '') +
+        '<div class="verdict"><div class="vlabel">01 &middot; Product line / division</div><div class="vname">' + esc(routing.division || "-") + '</div><div class="vreason">' + esc(routing.reason || "") + '</div>' +
+          '<div class="vmeta"><span>' + esc(r.project_name || "Untitled bid") + '</span><span>Buyer: ' + esc(r.buyer || "Not stated") + '</span></div>' +
+        '</div>' +
+        '<div class="qa-grid">' + qaHtml + '</div>' +
+        '<div class="block flags"><h3>Red flags before bidding</h3><ul class="items">' + listItems(r.red_flags) + '</ul></div>' +
+        '<div class="block questions"><h3>Follow-up questions to send the buyer</h3><ul class="items">' + listItems(r.follow_up_questions) + '</ul></div>' +
+        '<details class="collapse" open><summary>Suggested starting configuration</summary><div class="cbody">' + configHtml +
+          (r.config_notes && r.config_notes.length ? '<div class="block notes" style="margin-top:16px;"><h3>Configuration notes</h3><ul class="items">' + listItems(r.config_notes) + '</ul></div>' : '') +
+        '</div></details>' +
+        '<div class="disclaimer">DEMONSTRATION OUTPUT. Bellweather Filtration is a fictional manufacturer and these bid packages are synthetic. In production this is a first-pass read to be verified by a rep against the full package before a quote goes out. No price is implied or should be inferred.</div>' +
+      '</div>';
+    const eb = document.getElementById("exportBtn");
+    if (eb) eb.addEventListener("click", function () { exportPDF("rfq"); });
+    safeScroll(output);
+  }
+
+  // ===== Manual mode: local deterministic configuration engine =====
+  const MATERIAL_RULES = {
+    "Fresh / potable water": { choice: "PVC", reason: "General-purpose potable and mild service. PVC is the cost-appropriate call and anything higher is over-specified." },
+    "Brackish / saline (corrosive)": { choice: "Polypropylene", reason: "Chloride service where FRP and polypropylene hold up far better than stainless, at roughly half the weight." },
+    "Seawater / desalination feed": { choice: "Polypropylene", reason: "Seawater chloride attack is the governing condition. PVDF is unnecessary here and will not survive a price comparison." },
+    "Process water with suspended solids": { choice: "PVC", reason: "Solids loading drives element and vessel sizing, not material. PVC is adequate unless chemistry says otherwise." },
+    "Caustic / high-pH chemical (aggressive)": { choice: "Polypropylene, or PVDF above 80 deg C", reason: "Polypropylene covers most caustic duty. Concentrated hot caustic pushes past its practical ceiling and needs PVDF. Confirm the temperature before pricing." },
+    "Acidic / low-pH chemical": { choice: "Polypropylene", reason: "Broad acid resistance at moderate temperature. Verify the specific acid and concentration against the compatibility chart." },
+    "Solvent / aggressive chemical": { choice: "PVDF", reason: "Solvent service is where the cheaper thermoplastics fail. This is one of the few cases where PVDF is genuinely required rather than defensive." },
+    "Oily or organic-laden water": { choice: "Polypropylene", reason: "Material is the easy part here. The real issue is that oil blinds cartridge media, so upstream separation belongs in the conversation." },
+    "Air / gas stream": { choice: "Not applicable", reason: "Air and gas scopes are outside the liquid vessel and cartridge line." }
+  };
+  const CARTRIDGE_RULES = {
+    "Prefiltration ahead of RO / desalination": { media: "High Flow", micron: "5 micron nominal, with a 20 micron roughing stage recommended", reason: "Flow per footprint and element life dominate on RO prefiltration. A roughing stage ahead of the fine stage usually pays for itself within the first year of element spend." },
+    "Municipal / potable water treatment": { media: "Pleated", micron: "5 micron nominal", reason: "Maximum surface area and lowest integrated pressure drop for long service intervals. Confirm NSF/ANSI 61 listing on the specific housing configuration." },
+    "Process or chemical filtration": { media: "Pleated, or absolute-rated meltblown where a spec demands it", micron: "1 to 5 micron", reason: "Nominal media is fine for bulk solids removal. If the specification says absolute, nominal will not satisfy it regardless of measured performance." },
+    "Cooling water / HVAC loop": { media: "String wound (depth)", micron: "25 micron", reason: "Side-stream cooling duty is a low-value, high-volume application. Depth media at a coarse rating is the cost-correct answer." },
+    "Bag filtration / high solids loading": { media: "Bag filtration", micron: "25 to 50 micron", reason: "High solids loading is a bag application, not a cartridge one. Cartridges at this loading become a changeout labor problem quickly." },
+    "Pharmaceutical / high purity": { media: "Absolute-rated meltblown", micron: "0.2 to 1 micron absolute", reason: "Validation and documentation requirements usually matter more than the media itself here. Flag for engineering before committing." },
+    "Food & beverage": { media: "Pleated, with activated carbon polish where taste and odor matter", micron: "5 micron", reason: "Sediment removal plus organics polish. Confirm any food-contact certification the customer expects." },
+    "Industrial air / baghouse / dust collection": { media: "Not applicable", micron: "-", reason: "Air-side scope, outside the liquid vessel and cartridge line." },
+    "Other / not sure": { media: "Pleated", micron: "10 micron", reason: "A sensible starting point until the duty is better defined. Treat this as a placeholder, not a recommendation." }
+  };
+  function vesselFor(flow, appType) {
+    if (appType === "Bag filtration / high solids loading") return { type: "Type 3", reason: "Type 3 combines the flow dynamics of the Type 2 body with Type 1 plumbing flexibility, and it is the standard single or multi-bag housing configuration." };
+    const f = String(flow || "");
+    if (/Over 1,000/.test(f)) return { type: "Quad Inline System", reason: "Above 1,000 gpm the practical answer is redundancy rather than a single larger body. Quad Inline gives four-vessel changeover with no downtime." };
+    if (/600/.test(f)) return { type: "Duo Inline System, Type 2 bodies", reason: "At this flow, continuous duty usually means a changeout cannot take the system offline. Duo Inline lets one side stay in service while the other is changed." };
+    if (/300|150.?300/.test(f)) return { type: "Type 2", reason: "Type 2 gives the roomiest cartridge capacity and the lowest center of gravity, which is what mid-range continuous flow needs." };
+    if (/Under 50|50/.test(f)) return { type: "Type 1", reason: "The original Excel body. Good flow dynamics, low-positioned inlet and outlet for plumbing flexibility, and minimal pressure drop. The right default at this flow." };
+    return { type: "Type 1", reason: "Sensible general-purpose default until the flow is pinned down. Confirm the actual duty point before this becomes a quote." };
+  }
+  function standardFlags(std, pressure, fluid, appType) {
+    const out = [];
+    if (std === "ASME Section VIII") out.push("ASME Section VIII is a metallic pressure vessel code. Bellweather holds Section X. This is a scope gap and needs to be resolved with the buyer before quoting, not after.");
+    if (std === "ASME Section X") out.push("Section X is in scope. Confirm the design pressure and temperature so the right RP class is applied.");
+    if (std === "NSF / potable certified") out.push("NSF/ANSI 61 listing is per housing configuration, not a blanket company certification. Verify the specific size and material combination is listed before claiming it in writing.");
+    if (std === "ASHRAE 170") out.push("ASHRAE 170 is a healthcare ventilation standard. If this is genuinely in scope, the application is air-side and outside the liquid line.");
+    if (std === "MIL-SPEC") out.push("Confirm the specific MIL specification and whether QPL listing is required. Most MIL-SPEC callouts are inherited from an old drawing and are worth questioning.");
+    if (std === "Seismic rating required") out.push("Seismic design needs the site class and design spectral response values. Neither is inferable from this form; request them before sizing anchors or saddles.");
+    if (std === "Other / to confirm" || !std) out.push("No code stated. Ask directly rather than assuming none applies. Unstated code requirements are the most common cause of a re-quote.");
+    if (/Over 250/.test(String(pressure || ""))) out.push("Above 250 psi is outside the standard design pressure range and requires engineering review before any number goes out.");
+    if (/175.?250/.test(String(pressure || ""))) out.push("175 to 250 psi exceeds the 150 psi standard design pressure. Available on request, but it changes the price and the lead time.");
+    if (fluid === "Air / gas stream" || appType === "Industrial air / baghouse / dust collection") out.push("This is an air or gas scope. Nothing in the liquid vessel and cartridge line applies and no configuration should be quoted from it.");
+    if (appType === "Pharmaceutical / high purity") out.push("Pharmaceutical duty typically carries validation, documentation, and traceability requirements well beyond the hardware. Confirm what the customer actually expects to receive.");
+    if (fluid === "Oily or organic-laden water") out.push("Oil blinds cartridge media. Confirm the oil and grease concentration and whether upstream separation exists, or element life will be a fraction of what anyone assumes.");
+    return out;
+  }
+  document.getElementById("manualForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+    const app = document.getElementById("app").value.trim();
+    const appType = document.getElementById("appType").value.trim();
+    if (!app && !appType) { document.getElementById("appType").focus(); return; }
+    const flow = valOf("flow"), pressure = valOf("pressure");
+    const fluid = document.getElementById("fluid").value.trim();
+    const std = document.getElementById("standard").value.trim();
+    const needBy = document.getElementById("needBy").value.trim();
+    const outOfLine = fluid === "Air / gas stream" || appType === "Industrial air / baghouse / dust collection";
+    const mat = MATERIAL_RULES[fluid] || { choice: "To be determined", reason: "No fluid selected. Wetted material cannot be responsibly chosen without the chemistry and temperature." };
+    const cart = CARTRIDGE_RULES[appType] || CARTRIDGE_RULES["Other / not sure"];
+    const ves = outOfLine ? { type: "Not applicable", reason: "Air and gas scopes are outside the liquid vessel line." } : vesselFor(flow, appType);
+    const r = {
+      vessel: ves, material: mat, cartridge: cart,
+      config_notes: [
+        "Duty point as entered: " + (flow === "not stated" ? "flow not stated" : flow) + ", " + (pressure === "not stated" ? "pressure not stated" : pressure) + (fluid ? ", " + fluid.toLowerCase() : "") + (needBy ? ", needed " + needBy : "") + ".",
+        "This is a first-pass starting point generated from the selections above, not a quote. The real value shows up when a full bid package goes through the RFQ tab."
+      ],
+      engineering_review: standardFlags(std, pressure, fluid, appType),
+      open_questions: [
+        flow === "not stated" ? "What is the actual design flow, and is duty continuous, batch, or intermittent?" : "Is the stated flow the design point or the operating average? Sizing to the average is how vessels end up undersized.",
+        pressure === "not stated" ? "What is the design pressure, including pump shutoff condition?" : "What is the design pressure as distinct from the operating pressure?",
+        "What differential pressure triggers changeout, and what element life does the customer expect?",
+        "What is the operating temperature? It is the single most common omission and it drives material selection.",
+        needBy ? "Is the stated need-by date tied to a fixed shutdown or turnaround window that cannot move?" : "What is the need-by date, and is it tied to a fixed outage?"
+      ],
+      summary: outOfLine
+        ? "Air-side scope. Nothing in the liquid vessel or cartridge line applies here, and the honest answer is to route this elsewhere rather than force-fit a recommendation."
+        : "Starting point is a " + ves.type + " in " + mat.choice + " with " + cart.media + " at " + cart.micron + ". " + (standardFlags(std, pressure, fluid, appType).length ? "There are items flagged for engineering review below that should be resolved before this becomes a quote." : "No blocking issues from the selections given, but the open questions below still need answers.")
+    };
+    runStaged(document.getElementById("runBtnManual"), LOAD_STEPS_MANUAL, 550, function () { renderManualResult(r); });
+  });
+  function renderManualResult(r) {
+    lastResult = r; lastMode = "manual";
+    const v = r.vessel || {}, m = r.material || {}, c = r.cartridge || {};
+    output.innerHTML =
+      '<div class="result">' +
+        '<div class="export-bar"><button type="button" class="export-btn" id="exportBtn">Export PDF</button></div>' +
+        '<div class="verdict"><div class="vlabel">Recommended vessel</div><div class="vname">' + esc(v.type || "-") + '</div><div class="vreason">' + esc(v.reason || "") + '</div></div>' +
+        '<div class="specrow"><div class="k">Wetted material</div><div class="v"><div class="val">' + esc(m.choice || "-") + '</div><div class="why">' + esc(m.reason || "") + '</div></div></div>' +
+        '<div class="specrow"><div class="k">Cartridge media</div><div class="v"><div class="val">' + esc(c.media || "-") + '</div><div class="why">' + esc(c.reason || "") + '</div></div></div>' +
+        '<div class="specrow"><div class="k">Starting micron</div><div class="v"><div class="val">' + esc(c.micron || "-") + '</div></div></div>' +
+        '<div class="block notes"><h3>Configuration notes</h3><ul class="items">' + listItems(r.config_notes) + '</ul></div>' +
+        '<div class="block review"><h3>Flag for engineering review</h3><ul class="items">' + listItems(r.engineering_review) + '</ul></div>' +
+        '<div class="block questions"><h3>Open questions before quoting</h3><ul class="items">' + listItems(r.open_questions) + '</ul></div>' +
+        '<div class="summary"><div class="slabel">Plain-language brief</div>' + esc(r.summary || "") + '</div>' +
+        '<div class="disclaimer">DEMONSTRATION OUTPUT. Bellweather Filtration is a fictional manufacturer. First-pass only, generated from the selections above. No price is implied.</div>' +
+      '</div>';
+    const eb = document.getElementById("exportBtn");
+    if (eb) eb.addEventListener("click", function () { exportPDF("manual"); });
+    safeScroll(output);
+  }
+
+  // ===== PDF export (browser print, no server) =====
+  function bulletList(arr) {
+    if (!Array.isArray(arr) || !arr.length) return "<ul><li>None flagged.</li></ul>";
+    return "<ul>" + arr.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul>";
+  }
+  function stripTags(s) { return String(s).replace(/&middot;/g, "-").replace(/<[^>]*>/g, ""); }
+  function buildPrintDocRFQ(r) {
+    const routing = r.routing || {}, qa = r.qa || {}, sc = r.starting_configuration || {};
+    const dateStr = new Date().toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" });
+    let qaHtml = "";
+    Object.keys(QLABELS).forEach(function (key) {
+      const item = qa[key] || {};
+      qaHtml += '<div class="pd-qa"><span class="k">' + esc(stripTags(QLABELS[key])) + '</span><span class="v">' + esc(item.answer || "Not stated in package") + '</span>' +
+        (item.citation ? '<div class="c">"' + esc(item.citation) + '"</div>' : '') + '</div>';
+    });
+    let configHtml = '<div class="pd-kv">' + esc((sc && sc.note) || "Not applicable.") + '</div>';
+    if (sc && sc.applicable) {
+      const v = sc.vessel || {}, m = sc.material || {}, c = sc.cartridge || {};
+      configHtml = '<div class="pd-kv"><b>Vessel:</b> ' + esc(v.type || "-") + ' - ' + esc(v.reason || "") + '</div>' +
+        '<div class="pd-kv"><b>Material:</b> ' + esc(m.choice || "-") + ' - ' + esc(m.reason || "") + '</div>' +
+        '<div class="pd-kv"><b>Cartridge:</b> ' + esc(c.media || "-") + ' (' + esc(c.micron || "-") + ') - ' + esc(c.reason || "") + '</div>';
+    }
+    return '<div class="pd-head"><div class="pd-title">RFQ / Bid Package: Structured Read</div>' +
+        '<div class="pd-meta">' + esc(r.project_name || "Untitled bid") + ' &nbsp;-&nbsp; Buyer: ' + esc(r.buyer || "Not stated") + ' &nbsp;-&nbsp; Generated ' + dateStr + ' &nbsp;-&nbsp; Demo / Bellweather Filtration (fictional)</div></div>' +
+      '<div class="pd-sec"><div class="pd-label">Executive summary</div>' + bulletList(toBullets(r.executive_summary)) + '</div>' +
+      '<div class="pd-sec"><div class="pd-verdict"><div class="l">Product line / division</div><div class="n">' + esc(routing.division || "-") + '</div><div class="r">' + esc(routing.reason || "") + '</div></div></div>' +
+      '<div class="pd-sec"><div class="pd-label">The ten questions</div>' + qaHtml + '</div>' +
+      '<div class="pd-sec"><div class="pd-label">Red flags before bidding</div>' + bulletList(r.red_flags) + '</div>' +
+      '<div class="pd-sec"><div class="pd-label">Follow-up questions for the buyer</div>' + bulletList(r.follow_up_questions) + '</div>' +
+      '<div class="pd-sec"><div class="pd-label">Suggested starting configuration</div>' + configHtml + '</div>' +
+      '<div class="pd-disc">DEMONSTRATION OUTPUT. Bellweather Filtration is a fictional manufacturer and this bid package is synthetic. Produced by an intake agent built by Lina Forge. No price implied.</div>';
+  }
+  function buildPrintDocManual(r) {
+    const v = r.vessel || {}, m = r.material || {}, c = r.cartridge || {};
+    const dateStr = new Date().toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" });
+    return '<div class="pd-head"><div class="pd-title">Vessel Configuration: First-Pass Spec</div>' +
+        '<div class="pd-meta">Generated ' + dateStr + ' &nbsp;-&nbsp; Demo / Bellweather Filtration (fictional)</div></div>' +
+      '<div class="pd-sec"><div class="pd-verdict"><div class="l">Recommended vessel</div><div class="n">' + esc(v.type || "-") + '</div><div class="r">' + esc(v.reason || "") + '</div></div></div>' +
+      '<div class="pd-sec"><div class="pd-kv"><b>Wetted material:</b> ' + esc(m.choice || "-") + ' - ' + esc(m.reason || "") + '</div>' +
+        '<div class="pd-kv"><b>Cartridge media:</b> ' + esc(c.media || "-") + ' (' + esc(c.micron || "-") + ') - ' + esc(c.reason || "") + '</div></div>' +
+      '<div class="pd-sec"><div class="pd-label">Configuration notes</div>' + bulletList(r.config_notes) + '</div>' +
+      '<div class="pd-sec"><div class="pd-label">Flag for engineering review</div>' + bulletList(r.engineering_review) + '</div>' +
+      '<div class="pd-sec"><div class="pd-label">Open questions before quoting</div>' + bulletList(r.open_questions) + '</div>' +
+      '<div class="pd-sec"><div class="pd-label">Plain-language brief</div><div class="pd-brief">' + esc(r.summary || "") + '</div></div>' +
+      '<div class="pd-disc">DEMONSTRATION OUTPUT. Bellweather Filtration is a fictional manufacturer. Built by Lina Forge. No price implied.</div>';
+  }
+  function exportPDF(mode) {
+    if (!lastResult) return;
+    const pd = document.getElementById("printDoc");
+    pd.innerHTML = mode === "manual" ? buildPrintDocManual(lastResult) : buildPrintDocRFQ(lastResult);
+    window.print();
+  }
+</script>
+</body>
+</html>
