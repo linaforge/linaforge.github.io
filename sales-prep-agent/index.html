@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex" />
+<title>Sales Prep Agent &middot; Example Demo</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --white: #ffffff; --off-white: #f7f8fa; --light-gray: #eef0f4; --border: #e2e5eb;
+    --text: #1a1a2e; --text-mid: #4a4f6a; --text-muted: #8a8fa8; --navy: #0f1629;
+    --accent: #ff6b2b; --accent-hover: #e85a1a; --accent-light: #fff3ee;
+    --green: #00c48c; --green-light: #e8faf5; --blue: #2563eb; --blue-light: #eff6ff;
+    --radius: 14px; --radius-sm: 8px;
+    --shadow: 0 2px 16px rgba(0,0,0,0.07);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--off-white); color: var(--text); font-family: 'Open Sans', sans-serif; min-height: 100vh; }
+  nav { background: var(--navy); padding: 0 40px; display: flex; align-items: center; justify-content: space-between; height: 64px; position: sticky; top: 0; z-index: 100; }
+  .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+  .nav-logo-img { width: 32px; height: 32px; background: var(--accent); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 13px; color: white; letter-spacing: -0.5px; }
+  .nav-logo-text { font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 15px; color: white; letter-spacing: 0.3px; }
+  .nav-logo-text span { color: var(--accent); }
+  .nav-badge { background: rgba(255,107,43,0.15); border: 1px solid rgba(255,107,43,0.3); border-radius: 20px; padding: 5px 12px; font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 600; color: var(--accent); letter-spacing: 0.5px; }
+  .demo-ribbon { background: #1b2438; color: rgba(255,255,255,0.72); padding: 12px 40px; font-size: 12.5px; line-height: 1.6; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; border-bottom: 1px solid rgba(255,255,255,0.07); }
+  .demo-ribbon .dr-tag { font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent); background: rgba(255,107,43,0.14); border: 1px solid rgba(255,107,43,0.28); border-radius: 20px; padding: 4px 11px; flex-shrink: 0; }
+  .demo-ribbon b { color: #fff; font-weight: 600; }
+  .hero { background: var(--navy); padding: 48px 40px 64px; text-align: center; position: relative; overflow: hidden; }
+  .hero::before { content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 40px; background: var(--off-white); clip-path: ellipse(55% 100% at 50% 100%); }
+  .hero-eyebrow { display: inline-block; background: rgba(255,107,43,0.15); border: 1px solid rgba(255,107,43,0.3); border-radius: 20px; padding: 5px 16px; font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 700; color: var(--accent); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 20px; }
+  .hero-title { font-family: 'Montserrat', sans-serif; font-size: 42px; font-weight: 900; color: white; line-height: 1.15; margin-bottom: 16px; letter-spacing: -0.5px; }
+  .hero-title span { color: var(--accent); }
+  .hero-sub { font-size: 16px; color: rgba(255,255,255,0.6); max-width: 660px; margin: 0 auto 28px; line-height: 1.7; }
+  .hero-cta { display: inline-flex; align-items: center; gap: 9px; background: var(--accent); color: #fff; text-decoration: none; border-radius: var(--radius-sm); padding: 14px 28px; font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 14px; letter-spacing: 0.3px; margin-bottom: 40px; transition: all 0.2s; box-shadow: 0 6px 20px -6px rgba(255,107,43,0.6); }
+  .hero-cta:hover { background: var(--accent-hover); transform: translateY(-1px); box-shadow: 0 10px 26px -6px rgba(255,107,43,0.7); }
+  .hero-cta svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+  .how-it-works { display: flex; justify-content: center; max-width: 700px; margin: 0 auto 40px; }
+  .how-step { flex: 1; text-align: center; padding: 0 16px; position: relative; }
+  .how-step:not(:last-child)::after { content: '\2192'; position: absolute; right: -8px; top: 14px; color: rgba(255,255,255,0.25); font-size: 16px; }
+  .how-step-num { width: 32px; height: 32px; border-radius: 50%; background: rgba(255,107,43,0.2); border: 1px solid rgba(255,107,43,0.4); color: var(--accent); font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 13px; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; }
+  .how-step-label { font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.5); line-height: 1.4; }
+  .outcomes-strip { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; max-width: 760px; margin: 0 auto; }
+  .outcome-chip { display: flex; align-items: center; gap: 7px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); border-radius: 20px; padding: 7px 14px; font-size: 12px; color: rgba(255,255,255,0.7); font-family: 'Montserrat', sans-serif; font-weight: 500; }
+  .outcome-chip-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+  .content { max-width: 940px; margin: 0 auto; padding: 36px 40px 60px; }
+  /* PRIMER */
+  .primer { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; margin-bottom: 22px; }
+  .primer-top { padding: 22px 28px 18px; border-bottom: 1px solid var(--border); }
+  .primer-kicker { font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 1.6px; text-transform: uppercase; color: var(--accent); margin-bottom: 9px; }
+  .primer-title { font-family: 'Montserrat', sans-serif; font-size: 18px; font-weight: 800; margin-bottom: 9px; }
+  .primer-body { font-size: 13.5px; line-height: 1.75; color: var(--text-mid); max-width: 76ch; }
+  .primer-body + .primer-body { margin-top: 10px; }
+  .primer-body b { color: var(--text); font-weight: 600; }
+  .primer-cat { padding: 20px 28px 24px; background: var(--off-white); }
+  .primer-cat-label { font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 1.6px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 12px; }
+  .cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .cat-item { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 13px 15px; }
+  .cat-name { font-family: 'Montserrat', sans-serif; font-size: 12px; font-weight: 800; color: var(--text); margin-bottom: 4px; letter-spacing: 0.3px; }
+  .cat-desc { font-size: 12px; color: var(--text-mid); line-height: 1.6; }
+  .cat-price { font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 700; color: var(--accent); margin-top: 6px; }
+  .primer-terms { margin-top: 12px; font-size: 12px; color: var(--text-mid); line-height: 1.7; background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 15px; }
+  .primer-terms b { font-family: 'Montserrat', sans-serif; font-size: 10.5px; letter-spacing: 0.5px; text-transform: uppercase; color: var(--text-muted); display: block; margin-bottom: 4px; }
+  /* PICKER */
+  .picker-card { scroll-margin-top: 84px; background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 26px 28px; margin-bottom: 24px; }
+  .picker-title { font-family: 'Montserrat', sans-serif; font-size: 18px; font-weight: 800; margin-bottom: 8px; }
+  .picker-sub { font-size: 13px; color: var(--text-mid); line-height: 1.7; margin-bottom: 8px; max-width: 76ch; }
+  .picker-callout { font-size: 12.5px; line-height: 1.7; color: #7a5312; background: #fdf3e3; border: 1px solid rgba(181,122,31,0.3); border-radius: var(--radius-sm); padding: 12px 15px; margin-bottom: 20px; }
+  .picker-callout b { font-family: 'Montserrat', sans-serif; color: #b57a1f; }
+  .picker-label { font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 1.6px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 12px; }
+  .picker-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .pick-btn { display: flex; align-items: center; gap: 13px; text-align: left; background: var(--off-white); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px 16px; cursor: pointer; transition: all 0.15s; font-family: 'Open Sans', sans-serif; width: 100%; }
+  .pick-btn:hover { border-color: var(--accent); background: var(--accent-light); transform: translateY(-1px); }
+  .pick-btn.active { border-color: var(--accent); background: var(--accent-light); }
+  .pick-avatar { width: 34px; height: 34px; border-radius: 7px; background: var(--navy); color: #fff; font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .pick-btn:hover .pick-avatar, .pick-btn.active .pick-avatar { background: var(--accent); }
+  .pick-name { font-family: 'Montserrat', sans-serif; font-size: 12.5px; font-weight: 700; color: var(--text); line-height: 1.35; margin-bottom: 3px; }
+  .pick-vert { font-size: 11px; color: var(--text-muted); line-height: 1.4; }
+  /* LOADING */
+  .loading-card { display: none; background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 44px 28px; text-align: center; margin-bottom: 24px; }
+  .loading-card.visible { display: block; }
+  .loading-spinner { width: 44px; height: 44px; border: 3px solid var(--light-gray); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.75s linear infinite; margin: 0 auto 20px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-title { font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 16px; margin-bottom: 8px; }
+  .loading-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; }
+  .loading-steps { display: flex; flex-direction: column; gap: 8px; align-items: center; }
+  .loading-step { font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 7px; opacity: 0.35; transition: opacity 0.3s, color 0.3s; }
+  .loading-step.on { opacity: 1; color: var(--text-mid); font-weight: 600; }
+  .loading-step::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+  /* BRIEF */
+  .brief-output { display: none; }
+  .brief-output.visible { display: block; }
+  .brief-header-card { background: var(--navy); border-radius: var(--radius); padding: 24px 28px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  .brief-company-name { font-family: 'Montserrat', sans-serif; font-size: 22px; font-weight: 900; color: white; margin-bottom: 4px; }
+  .brief-meta-text { font-size: 12px; color: rgba(255,255,255,0.5); }
+  .brief-timestamp { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); border-radius: 20px; padding: 5px 14px; font-size: 11px; color: rgba(255,255,255,0.5); font-family: 'Montserrat', sans-serif; white-space: nowrap; }
+  .cards-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; opacity: 0; animation: slideUp 0.35s ease forwards; }
+  .card.full-width { grid-column: 1 / -1; }
+  .card:nth-child(1) { animation-delay: 0.05s; } .card:nth-child(2) { animation-delay: 0.10s; }
+  .card:nth-child(3) { animation-delay: 0.15s; } .card:nth-child(4) { animation-delay: 0.20s; }
+  .card:nth-child(5) { animation-delay: 0.25s; } .card:nth-child(6) { animation-delay: 0.30s; }
+  .card:nth-child(7) { animation-delay: 0.35s; }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  .card-top { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+  .card-icon-wrap { width: 28px; height: 28px; border-radius: 7px; background: var(--off-white); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: var(--text-mid); }
+  .card-icon-wrap svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+  .card-label { font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-muted); }
+  .card-body { padding: 18px; }
+  .card-body p { font-size: 13px; line-height: 1.75; color: var(--text-mid); }
+  .item-list { display: flex; flex-direction: column; gap: 10px; }
+  .item-row { display: flex; gap: 12px; padding: 12px 14px; background: var(--off-white); border: 1px solid var(--border); border-radius: var(--radius-sm); align-items: flex-start; }
+  .item-marker { font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 800; color: var(--accent); flex-shrink: 0; margin-top: 1px; min-width: 20px; }
+  .item-label { font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 700; color: var(--text); margin-bottom: 3px; letter-spacing: 0.2px; }
+  .item-detail { font-size: 12px; color: var(--text-mid); line-height: 1.65; }
+  .objection-row { padding: 12px 14px; background: var(--off-white); border: 1px solid var(--border); border-radius: var(--radius-sm); margin-bottom: 10px; }
+  .objection-row:last-child { margin-bottom: 0; }
+  .objection-q { font-size: 12px; font-style: italic; color: var(--text-mid); margin-bottom: 6px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+  .objection-a { font-size: 12px; color: var(--text); line-height: 1.6; }
+  .objection-a-label { font-family: 'Montserrat', sans-serif; font-size: 10px; font-weight: 700; color: var(--green); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 3px; }
+  .q-list { display: flex; flex-direction: column; gap: 8px; }
+  .q-item { display: flex; gap: 10px; padding: 11px 13px; background: var(--blue-light); border: 1px solid rgba(37,99,235,0.12); border-radius: var(--radius-sm); font-size: 12px; color: var(--text-mid); line-height: 1.6; align-items: flex-start; }
+  .q-num { font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 11px; color: var(--blue); flex-shrink: 0; }
+  .pitch-box { background: linear-gradient(135deg, var(--accent-light), #fff8f0); border: 1px solid rgba(255,107,43,0.2); border-radius: var(--radius-sm); padding: 18px; font-size: 14px; color: var(--text); line-height: 1.75; font-style: italic; border-left: 3px solid var(--accent); }
+  .math-head { font-size: 13px; color: var(--text-mid); line-height: 1.7; margin-bottom: 14px; }
+  .math-table { display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; }
+  .math-row { display: grid; grid-template-columns: 1fr auto; gap: 16px; padding: 11px 14px; border-bottom: 1px solid var(--border); align-items: baseline; background: var(--white); }
+  .math-row:last-child { border-bottom: none; }
+  .math-row.total { background: var(--navy); }
+  .math-row.total .math-label { color: #fff; }
+  .math-row.total .math-note { color: rgba(255,255,255,0.5); }
+  .math-row.total .math-value { color: var(--accent); font-size: 15px; }
+  .math-label { font-size: 12px; color: var(--text); font-weight: 600; }
+  .math-note { font-size: 11px; color: var(--text-muted); line-height: 1.5; margin-top: 2px; }
+  .math-value { font-family: 'Montserrat', sans-serif; font-size: 14px; font-weight: 800; color: var(--text); white-space: nowrap; }
+  .math-verdict { margin-top: 14px; padding: 13px 15px; background: var(--green-light); border: 1px solid rgba(0,196,140,0.25); border-radius: var(--radius-sm); font-size: 12.5px; line-height: 1.65; color: #0a6b4f; }
+  .math-caveat { margin-top: 10px; font-size: 11.5px; color: var(--text-muted); line-height: 1.65; }
+  .math-caveat b { color: var(--text-mid); }
+  .cta-block { grid-column: 1 / -1; background: var(--navy); border-radius: var(--radius); overflow: hidden; opacity: 0; animation: slideUp 0.35s ease forwards; animation-delay: 0.4s; }
+  .cta-inner { padding: 26px 30px; }
+  .cta-title { font-family: 'Montserrat', sans-serif; font-size: 17px; font-weight: 800; color: white; margin-bottom: 8px; letter-spacing: -0.2px; }
+  .cta-sub { font-size: 13px; color: rgba(255,255,255,0.55); line-height: 1.7; max-width: 78ch; }
+  footer { background: var(--navy); text-align: center; padding: 22px; font-size: 11px; color: rgba(255,255,255,0.3); font-family: 'Montserrat', sans-serif; letter-spacing: 0.5px; line-height: 1.9; }
+  footer a { color: var(--accent); text-decoration: none; }
+  @media (max-width: 860px) {
+    .cards-grid, .cat-grid, .picker-grid { grid-template-columns: 1fr; }
+    .hero-title { font-size: 28px; }
+    nav, .demo-ribbon, .hero { padding-left: 20px; padding-right: 20px; }
+    .content { padding: 24px 20px 40px; }
+  }
+</style>
+</head>
+<body>
+<nav>
+  <a class="nav-logo" href="#" onclick="return false;">
+    <div class="nav-logo-img">IR</div>
+    <div class="nav-logo-text">IRON<span>WOOD</span> &nbsp;&middot;&nbsp; Sales Prep</div>
+  </a>
+  <div class="nav-badge">EXAMPLE DEMO</div>
+</nav>
+<div class="demo-ribbon">
+  <span class="dr-tag">Read this first</span>
+  <span><b>This is a worked example, not a live tool.</b> Ironwood Robotics is a company we invented. The four prospects below are fictional, and their briefs were generated ahead of time and saved into this page. Nothing here searches the web when you click it. We would rather show you exactly what the output looks like than have you wonder how much of it was real.</span>
+</div>
+<div class="hero">
+  <div class="hero-eyebrow">A Lina Forge automation tool</div>
+  <h1 class="hero-title">Every rep walks in<br/><span>already prepared.</span></h1>
+  <p class="hero-sub">A rep types a prospect's name. A minute later they have the operational pain points, the products that fit, the labor math that justifies the spend, and the three objections they are about to hear, all written against your catalog and your prices.</p>
+  <a href="#try" class="hero-cta">Try it now
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
+  </a>
+  <div class="how-it-works">
+    <div class="how-step"><div class="how-step-num">1</div><div class="how-step-label">Rep enters a prospect company</div></div>
+    <div class="how-step"><div class="how-step-num">2</div><div class="how-step-label">The agent researches them on the web</div></div>
+    <div class="how-step"><div class="how-step-num">3</div><div class="how-step-label">Full brief ready before the call</div></div>
+  </div>
+  <div class="outcomes-strip">
+    <div class="outcome-chip"><div class="outcome-chip-dot"></div>No prep time burned per call</div>
+    <div class="outcome-chip"><div class="outcome-chip-dot"></div>New reps sound like veterans</div>
+    <div class="outcome-chip"><div class="outcome-chip-dot"></div>Same quality across every vertical</div>
+    <div class="outcome-chip"><div class="outcome-chip-dot"></div>Objections answered before they land</div>
+  </div>
+</div>
+<div class="content">
+
+  <div class="primer">
+    <div class="primer-top">
+      <div class="primer-kicker">Start here &middot; what you are looking at</div>
+      <div class="primer-title">The example company: Ironwood Robotics</div>
+      <p class="primer-body">To show you this tool we had to build it for <i>someone</i>, so we invented a company. <b>Ironwood Robotics is a fictional regional dealer of commercial service robots.</b> They sell and lease four families of robot to businesses that have large floors, long distances, and staff who spend their shift walking: hotels, hospitals, warehouses, campuses, and the like. They are not a manufacturer. They are a dealer with a catalog, a price list, and a sales team making cold calls.</p>
+      <p class="primer-body">That last part matters. <b>The agent has been loaded with Ironwood's entire commercial position</b> — what each robot does, what it costs, what the lease terms are, what the service guarantee is. That is why the briefs below can do labor math and answer objections with real numbers instead of describing a company back to you. Any research tool can summarize a prospect's website. This one arrives quote-ready because it knows what the rep is actually selling.</p>
+      <p class="primer-body">If we built this for your business, everything in the panel below would be replaced with your products, your pricing, your terms, and the objections your reps actually hear.</p>
+    </div>
+    <div class="primer-cat">
+      <div class="primer-cat-label">What Ironwood sells &middot; loaded into the agent</div>
+      <div class="cat-grid">
+        <div class="cat-item">
+          <div class="cat-name">COURIER SERIES</div>
+          <div class="cat-desc">Tray and item delivery. Three shelves, 88 lb capacity, 12-hour runtime. Used in restaurants, hotels, and hospitals to move food, linens, supplies, and specimens.</div>
+          <div class="cat-price">$18,500 purchase &middot; $465/mo on 48</div>
+        </div>
+        <div class="cat-item">
+          <div class="cat-name">BURNISH SERIES</div>
+          <div class="cat-desc">Autonomous floor scrubbers and sweepers. 22,000 sq ft per hour. Used in warehouses, retail, ballrooms, and campuses, typically replacing an outsourced night crew.</div>
+          <div class="cat-price">$32,000 purchase &middot; $795/mo on 48</div>
+        </div>
+        <div class="cat-item">
+          <div class="cat-name">DRAFT SERIES</div>
+          <div class="cat-desc">Cargo tugs rated to 1,300 lb. Pull carts, pallets, and staging equipment so people stop pushing them. Sold mainly on injury reduction rather than speed.</div>
+          <div class="cat-price">$27,500 purchase &middot; $690/mo on 48</div>
+        </div>
+        <div class="cat-item">
+          <div class="cat-name">ESCORT SERIES</div>
+          <div class="cat-desc">Mobility assistance for moving people, not things. Hospitals, airports, and senior living, where staff currently do this by hand.</div>
+          <div class="cat-price">$24,000 purchase &middot; $600/mo on 48</div>
+        </div>
+      </div>
+      <div class="primer-terms">
+        <b>Ironwood's commercial position</b>
+        Purchase outright or lease on 36, 48, or 60 months. No subscription and no per-robot software fee. Price match held for 30 days. If a unit fails under warranty and cannot be fixed remotely, a technician is on site inside 24 hours or a loaner ships. Every unit reports utilization and coverage data back to the customer.
+      </div>
+    </div>
+  </div>
+
+  <div class="picker-card" id="try">
+    <div class="picker-title">The four example briefs</div>
+    <p class="picker-sub">Each brief below is the complete output the agent produces, shown exactly as a rep would see it.</p>
+    <div class="picker-callout"><b>In the live version, this is a search box.</b> Your rep types in any company name or URL, and the agent goes and researches that company from scratch. For this demo we ran it ahead of time on four companies so you can see the finished result right away. Click any one of them.</div>
+    <div class="picker-label">Pre-researched example prospects</div>
+    <div class="picker-grid" id="picker-grid"></div>
+  </div>
+
+  <div class="loading-card" id="loading-card">
+    <div class="loading-spinner"></div>
+    <div class="loading-title">Building the brief...</div>
+    <div class="loading-sub">Replaying the steps the agent runs on a live prospect.</div>
+    <div class="loading-steps" id="loading-steps"></div>
+  </div>
+
+  <div class="brief-output" id="brief-output">
+    <div class="brief-header-card">
+      <div>
+        <div class="brief-company-name" id="brief-company-name"></div>
+        <div class="brief-meta-text" id="brief-meta"></div>
+      </div>
+      <div class="brief-timestamp" id="brief-timestamp"></div>
+    </div>
+    <div class="cards-grid" id="cards-grid"></div>
+  </div>
+
+</div>
+<footer>
+  Ironwood Robotics and all four prospects are fictional. Figures are illustrative.<br/>
+  A demo built by <a href="https://linaforge.com" target="_blank" rel="noopener">Lina Forge</a>
+</footer>
+<script>
+/* =====================================================================
+   EXAMPLE DEMO BUILD. No API key, no network calls, no server, no gate.
+   Four prospect briefs are pre-computed and stored in this file.
+   ===================================================================== */
+const PROSPECTS = [
+  {
+    id: "harborpoint", initials: "HP", vertical: "Hotel",
+    chip: "412-room hotel and conference center",
+    keywords: ["hotel", "resort", "hospitality", "room service", "banquet", "conference", "inn", "suites", "marriott", "hilton", "hyatt", "lodging"],
+    companyName: "Harbor Point Hotel & Conference Center",
+    meta: "Full-service hotel · 412 rooms, 62,000 sq ft event space · waterfront",
+    snapshot: "Independent full-service property with a conference and banquet business that runs larger than the rooms business. Roughly 800,000 sq ft of interior floor including ballrooms, pre-function corridors, and back of house.",
+    bestFitProducts: [
+      { product: "COURIER SERIES", reason: "Overnight amenity and room service delivery, which currently pulls the night audit and one overnight houseman off station." },
+      { product: "BURNISH SERIES", reason: "Ballroom and pre-function floor care between events, on a turn window that is often under four hours." },
+      { product: "DRAFT SERIES", reason: "Banquet setup. Chair carts, staging tables, and AV cases are the injury source in this building." }
+    ],
+    painPoints: [
+      { label: "Overnight coverage is thin by design", detail: "Between 11pm and 6am the property runs a skeleton crew, and every amenity delivery pulls someone off the desk." },
+      { label: "Ballroom turns are the real constraint", detail: "Back-to-back events leave under four hours to strip, clean, and reset 62,000 sq ft." },
+      { label: "Banquet setup drives the injury log", detail: "Chair carts and staging tables account for most lost-time incidents in full-service properties this size." },
+      { label: "Floor care is outsourced and expensive", detail: "Contract floor care on this footprint typically runs $6,000 to $8,000 monthly before any event-driven extras." }
+    ],
+    laborMath: {
+      headline: "Two separate budgets pay for this: the overnight labor line and the outsourced floor care contract. The floor care contract alone nearly covers the whole fleet.",
+      rows: [
+        { label: "Overnight amenity and room service runs", note: "Nightly average, 11pm to 6am", value: "48" },
+        { label: "Average round trip, elevator included", note: "Time-and-motion estimate for this floor plate", value: "11 min" },
+        { label: "Overnight labor hours absorbed per month", note: "Currently split across night audit and houseman", value: "264 hrs" },
+        { label: "Current outsourced floor care contract", note: "Estimated for 800,000 sq ft interior", value: "$6,800/mo" },
+        { label: "Courier + Burnish + Draft, 48-month lease", note: "One of each", value: "$1,950/mo" },
+        { label: "Contract offset before labor savings", note: "Floor care line only", value: "+$4,850", total: true }
+      ],
+      verdict: "Sell to the GM and the Director of Engineering together. The floor care contract is a line item the GM can cancel, which makes this an easier internal case than a labor argument that runs through HR.",
+      caveat: "The floor care number is an estimate from square footage. Ask what they actually pay and whether the contract bundles window, carpet, or exterior work that Burnish does not replace."
+    },
+    objections: [
+      { objection: "Our guests are paying for a full-service experience.", handle: "Room service is still delivered by a person at the door. The robot does the corridor and elevator leg at 2am, when the alternative is a 40-minute wait." },
+      { objection: "We are locked into a janitorial contract.", handle: "Worth checking the term. Most are 12-month with a 60-day out. Time the pilot to the renewal date and it becomes a swap, not an add." },
+      { objection: "Our ballroom floor plan changes every day.", handle: "That is the normal case, not the exception. Mapping is redone by walking the space once, and it holds through resets." }
+    ],
+    openingQuestions: [
+      "What do you currently pay for outsourced floor care, and when does that contract renew?",
+      "How many hours between a ballroom strike and the next setup on a back-to-back weekend?",
+      "What does your overnight team actually stop doing when an amenity request comes in?"
+    ],
+    pitchAngle: "Anchor on the floor care contract because it is a real number they already pay and a budget the GM controls directly. Bring the banquet injury angle second, since risk and workers comp is a different approver with a different budget."
+  },
+  {
+    id: "staubin", initials: "SA", vertical: "Healthcare",
+    chip: "340-bed regional hospital",
+    keywords: ["hospital", "health", "medical center", "clinic", "nurse", "patient", "care", "surgery", "lab", "pharmacy"],
+    companyName: "St. Aubin Regional Medical Center",
+    meta: "Acute care hospital · 340 beds · ~2,400 staff · Level II trauma",
+    snapshot: "Independent regional acute care hospital with a Level II trauma designation. Publicly reported nursing vacancy above 15% and has been running contract labor to cover it for six consecutive quarters.",
+    bestFitProducts: [
+      { product: "COURIER SERIES", reason: "Lab specimen, pharmacy, and central supply runs, which currently come out of nursing and tech time." },
+      { product: "ESCORT SERIES", reason: "Non-acute patient movement between units, imaging, and discharge." },
+      { product: "BURNISH SERIES", reason: "Corridor and common area floor care on a 24-hour building with no cleaning window." }
+    ],
+    painPoints: [
+      { label: "Nursing vacancy above 15%", detail: "Contract labor is filling the gap at roughly double the cost of staff nurses, and it has been six quarters." },
+      { label: "Clinical staff are doing logistics", detail: "Specimen runs, supply pulls, and pharmacy trips are being absorbed by the people the hospital can least afford to have walking." },
+      { label: "Transport delays push discharge past noon", detail: "Late discharge compresses bed availability and shows up directly in throughput metrics leadership already watches." },
+      { label: "Patient handling injuries", detail: "Manual patient movement is consistently among the top drivers of staff injury and lost time in facilities this size." }
+    ],
+    laborMath: {
+      headline: "The number that moves a hospital is not the cost of the robot. It is the fully loaded hourly cost of the clinical staff currently doing non-clinical work.",
+      rows: [
+        { label: "Clinical hours per week spent on transport and runs", note: "Specimen, supply, pharmacy, non-acute patient moves", value: "410 hrs" },
+        { label: "Fully loaded clinical hourly cost", note: "Blended RN and tech, benefits and burden included", value: "$52/hr" },
+        { label: "Annualized value of that time", note: "Redeployed, not eliminated", value: "$1.11M" },
+        { label: "Proposed fleet", note: "4 Courier, 2 Escort, 2 Burnish", value: "8 units" },
+        { label: "Fleet cost, 60-month lease", note: "Blended across the three series", value: "$4,320/mo" },
+        { label: "Annual fleet cost against redeployed time", note: "$51,840 against $1.11M", value: "4.7%", total: true }
+      ],
+      verdict: "This is a Chief Nursing Officer sale, not a procurement sale. Frame it entirely as giving nursing hours back to the bedside. The CFO will care about the contract labor line; the CNO will care about retention, and the CNO is the one who can make it happen.",
+      caveat: "The 410-hour figure is a benchmark for this bed count, not a measurement of their building. Offer to run a two-week time study before quoting. That offer alone differentiates from every vendor who shows up with a brochure."
+    },
+    objections: [
+      { objection: "We are a hospital. Anything in a corridor is an infection control and safety question.", handle: "Correct, and it should be. Expect infection prevention and safety review as part of the pilot, not after. Wipe-down protocols and corridor traffic modeling are part of the deployment scope." },
+      { objection: "Our nurses will say we are replacing them.", handle: "They will say it, and the honest answer is that you are trying to stop losing them. Nobody went to nursing school to walk specimens to the lab." },
+      { objection: "We cannot take on a capital project this year.", handle: "Then do not. Lease structure keeps it in operating expense, which is also where the contract labor spend already sits." }
+    ],
+    openingQuestions: [
+      "How many hours a week are your nurses and techs spending on transport that a non-clinical resource could do?",
+      "What is your average discharge time, and how much of the delay is waiting on transport?",
+      "What are you currently spending on contract labor per quarter, and is that trending down?"
+    ],
+    pitchAngle: "Do not lead with robots. Lead with the nursing vacancy rate, which is public, and the contract labor spend, which they hate. Position the fleet as the only lever available that adds clinical capacity without hiring a single person."
+  },
+  {
+    id: "meridian", initials: "ML", vertical: "Warehouse",
+    chip: "1.1M sq ft 3PL distribution center",
+    keywords: ["warehouse", "logistics", "3pl", "distribution", "fulfillment", "supply chain", "pallet", "picker", "forklift", "freight", "shipping", "amazon", "dc"],
+    companyName: "Meridian Logistics Group",
+    meta: "Third-party logistics · 1.1M sq ft DC · ~340 associates · 3 shifts",
+    snapshot: "Contract logistics provider operating a single large distribution center on three shifts, serving retail and e-commerce clients with heavy Q4 seasonality. Margins are set by the client contract, so every operational dollar is theirs to keep.",
+    bestFitProducts: [
+      { product: "DRAFT SERIES", reason: "Cart and pallet tugging on long picking runs, taking the push-and-pull load off associates." },
+      { product: "BURNISH SERIES", reason: "1.1 million square feet of floor that currently gets swept on a rider machine by a paid operator." }
+    ],
+    painPoints: [
+      { label: "Associates walk 12+ miles a shift", detail: "In a building this size, transit is the single largest non-value-added block of the shift." },
+      { label: "Recordable injuries are a margin event", detail: "Lifting and pushing injuries in 3PL carry direct cost plus an experience modifier that reprices every future premium." },
+      { label: "Peak season temp labor is unreliable", detail: "Q4 headcount doubles with the least trained and highest injury-risk population in the building." },
+      { label: "Client contracts cap the upside", detail: "They cannot price their way to margin. Every improvement has to come out of operations." }
+    ],
+    laborMath: {
+      headline: "In 3PL the productivity argument is the weaker one. Lead with the injury number, because it hits the experience modifier and reprices insurance for three years.",
+      rows: [
+        { label: "Pickers per shift", note: "Across three shifts", value: "85" },
+        { label: "Average walking distance per shift", note: "Typical for a 1.1M sq ft pick path", value: "12.4 mi" },
+        { label: "Share of shift spent in transit", note: "Not picking, not packing", value: "41%" },
+        { label: "Recordable lifting and pushing injuries, trailing 12 mo", note: "Benchmark for this headcount and format", value: "9" },
+        { label: "Average fully loaded cost per recordable", note: "Direct, indirect, and premium impact", value: "$41,000" },
+        { label: "Draft fleet of 6, 48-month lease", note: "$49,680 per year against $369,000 in injury cost", value: "$4,140/mo", total: true }
+      ],
+      verdict: "Get the risk manager and the insurance broker in the room. Operations will debate your productivity math all day. Nobody debates the loss run.",
+      caveat: "The injury count is a benchmark, not their actual OSHA 300 log. Ask for it. If their number is lower than benchmark, the pitch shifts back to transit time and you should know that before the meeting, not during it."
+    },
+    objections: [
+      { objection: "We already looked at AMRs and the integration cost killed it.", handle: "Different category. Draft is a tug, not a goods-to-person system. No WMS integration, no rack change, no conveyor. It follows a person or a route." },
+      { objection: "Our clients would have to approve any change in the building.", handle: "Usually true for process changes. This is equipment that does not touch inventory accuracy or the client's data, which is normally what triggers approval." },
+      { objection: "Q4 is the only time we would need them and that is when we cannot risk anything new.", handle: "Which is why you deploy in Q2. A tug that has run for two quarters is not a risk in November." }
+    ],
+    openingQuestions: [
+      "What does your OSHA 300 log look like for the last twelve months, and what share is lifting or pushing?",
+      "What is your current experience modifier, and where was it three years ago?",
+      "How many miles is a picker walking in an average shift in this building?"
+    ],
+    pitchAngle: "Skip the productivity pitch, which every automation vendor already made. Open on the loss run and the experience modifier. That is a number the CFO and the risk manager both own, and it is the one that survives a procurement review."
+  },
+  {
+    id: "alderpoint", initials: "AP", vertical: "Education",
+    chip: "University dining, 11 locations",
+    keywords: ["university", "college", "campus", "student", "dining hall", "school", "academic", "cafeteria", "education"],
+    companyName: "Alder Point University Dining Services",
+    meta: "Self-operated campus dining · 11 locations · 18,400 students",
+    snapshot: "Self-operated university dining program running eleven locations including two large residential halls, a retail food court, and athletics concessions. Staffed largely by student labor with a small career core.",
+    bestFitProducts: [
+      { product: "COURIER SERIES", reason: "Tray return and bussing between the dining floor and the dish room during a 90-minute lunch crush." },
+      { product: "BURNISH SERIES", reason: "240,000 square feet of dining floor across eleven locations, currently cleaned by student workers after close." }
+    ],
+    painPoints: [
+      { label: "Student labor no-show rate around 22%", detail: "Shifts get covered by whoever is already there, which means the career staff absorb it during the busiest hour of the day." },
+      { label: "Lunch is a 90-minute cliff", detail: "Peak covers concentrate into a narrow window and the dish room is the bottleneck every single day." },
+      { label: "Turnover is structural, not fixable", detail: "Students graduate. The program retrains its entire workforce on a four-year cycle no matter what anyone does." },
+      { label: "Budget is fixed and politically visible", detail: "Self-operated programs answer to the university budget office, where any capital request gets scrutinized publicly." }
+    ],
+    laborMath: {
+      headline: "The honest version of this math has a problem in it, and a good rep raises it before the customer finds it.",
+      rows: [
+        { label: "Peak lunch covers", note: "Across two residential halls, 90 minutes", value: "2,900" },
+        { label: "Student worker no-show rate", note: "Program-wide average", value: "22%" },
+        { label: "Weekly hours on bussing and tray return", note: "All eleven locations", value: "520 hrs" },
+        { label: "Blended student labor cost", note: "Fully loaded", value: "$15/hr" },
+        { label: "Annualized, academic year only", note: "32 weeks, not 52", value: "$249,600" },
+        { label: "Fleet of 6 Courier, 4 Burnish, 60-month lease", note: "Billed 12 months, used 8", value: "$4,150/mo", total: true }
+      ],
+      verdict: "Payback holds, but only if you are honest about the calendar. Bring it up first: they pay twelve months and use eight, and the ROI still works. Saying that yourself is the most persuasive thing you can do in this meeting.",
+      caveat: "Ask whether athletics, conference services, or summer camps use the facilities in the off months. If they do, the idle-period problem shrinks and the deal gets materially better. Most programs have not thought about it that way."
+    },
+    objections: [
+      { objection: "Those are student jobs. Cutting them is a campus politics problem.", handle: "So do not cut them. Move students off the dish line and onto service positions students actually want. Same headcount, better retention, easier story for the student paper." },
+      { objection: "The equipment sits idle three months a year.", handle: "It does, and the math still works on an eight-month year. Ask them to check whether summer conference services could use it, which usually closes the gap entirely." },
+      { objection: "We do not have capital budget for this.", handle: "Lease keeps it in operating, alongside the student wage line it offsets. That is often an easier internal path at a university than a capital request." }
+    ],
+    openingQuestions: [
+      "What is your student worker no-show rate during peak lunch, and who absorbs those shifts?",
+      "Do athletics, summer camps, or conference services use these facilities between May and August?",
+      "Is a purchase like this a capital request through the budget office, or can dining fund it operationally?"
+    ],
+    pitchAngle: "Two moves win this. First, reframe it as student job quality rather than job reduction, because campus politics will otherwise kill it. Second, raise the summer idle problem yourself before they do, then solve it with conference services. Volunteering the weakness is what makes the rest of the brief credible."
+  }
+];
+
+// ===== Monochrome line icons =====
+const ICONS = {
+  snapshot: '<path d="M3 21h18M5 21V5a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v16M14 21V9h4a1 1 0 0 1 1 1v11"/><path d="M8 8h2M8 12h2M8 16h2"/>',
+  products: '<rect x="4" y="8" width="16" height="11" rx="2"/><path d="M12 8V4M9 4h6"/><circle cx="9" cy="13" r="1"/><circle cx="15" cy="13" r="1"/><path d="M2 12v3M22 12v3"/>',
+  pain:     '<path d="M10.3 3.9 1.9 18a2 2 0 0 0 1.7 3h16.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/>',
+  math:     '<path d="M3 3v18h18"/><path d="m7 15 4-5 3 3 5-7"/>',
+  objection:'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/>',
+  questions:'<path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/>',
+  pitch:    '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/>'
+};
+function icon(name) { return '<svg viewBox="0 0 24 24" aria-hidden="true">' + ICONS[name] + '</svg>'; }
+
+// ===== Helpers =====
+function esc(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+function byId(id) { return document.getElementById(id); }
+function safeScroll(el) { if (el && typeof el.scrollIntoView === "function") el.scrollIntoView({ behavior: "smooth", block: "start" }); }
+function findProspect(id) { return PROSPECTS.filter(function (p) { return p.id === id; })[0]; }
+
+// ===== Picker =====
+function renderPicker(activeId) {
+  byId("picker-grid").innerHTML = PROSPECTS.map(function (p) {
+    return '<button class="pick-btn' + (p.id === activeId ? " active" : "") + '" data-id="' + p.id + '">' +
+      '<div class="pick-avatar">' + esc(p.initials) + '</div>' +
+      '<div><div class="pick-name">' + esc(p.companyName) + '</div>' +
+      '<div class="pick-vert">' + esc(p.vertical) + " &middot; " + esc(p.chip) + "</div></div></button>";
+  }).join("");
+  byId("picker-grid").querySelectorAll(".pick-btn").forEach(function (el) {
+    el.addEventListener("click", function () { run(el.dataset.id); });
+  });
+}
+
+// ===== Staged replay =====
+const STEPS = [
+  "Searching company background, size, and footprint",
+  "Reading recent news, filings, and job postings",
+  "Identifying operational pain points",
+  "Matching to the Ironwood catalog and price points",
+  "Building the labor math and objection handling"
+];
+let stepTimer = null, running = false;
+function runStaged(done) {
+  const card = byId("loading-card");
+  running = true;
+  byId("brief-output").classList.remove("visible");
+  card.classList.add("visible");
+  byId("loading-steps").innerHTML = STEPS.map(function (s) { return '<div class="loading-step">' + s + "</div>"; }).join("");
+  const els = byId("loading-steps").querySelectorAll(".loading-step");
+  let i = 0;
+  function tick() {
+    if (i < els.length) els[i].classList.add("on");
+    i++;
+    if (i > els.length) {
+      clearInterval(stepTimer); stepTimer = null;
+      card.classList.remove("visible");
+      running = false;
+      done();
+    }
+  }
+  tick();
+  stepTimer = setInterval(tick, 700);
+}
+function run(id) {
+  if (running) return;
+  const p = findProspect(id);
+  if (!p) return;
+  renderPicker(id);
+  safeScroll(byId("loading-card"));
+  runStaged(function () { renderBrief(p); });
+}
+
+// ===== Brief rendering =====
+function card(iconName, label, extraClass, bodyHTML) {
+  const div = document.createElement("div");
+  div.className = "card" + (extraClass ? " " + extraClass : "");
+  div.innerHTML =
+    '<div class="card-top"><div class="card-icon-wrap">' + icon(iconName) + "</div>" +
+    '<div class="card-label">' + label + "</div></div>" +
+    '<div class="card-body">' + bodyHTML + "</div>";
+  return div;
+}
+function renderBrief(b) {
+  byId("brief-output").classList.add("visible");
+  byId("brief-company-name").textContent = b.companyName;
+  byId("brief-meta").textContent = b.meta;
+  byId("brief-timestamp").textContent = "Example brief";
+  const grid = byId("cards-grid");
+  grid.innerHTML = "";
+
+  grid.appendChild(card("snapshot", "Company Snapshot", "full-width", "<p>" + esc(b.snapshot) + "</p>"));
+
+  grid.appendChild(card("products", "Best-Fit Products", "",
+    '<div class="item-list">' + b.bestFitProducts.map(function (p) {
+      return '<div class="item-row"><div class="item-marker">&rarr;</div><div>' +
+        '<div class="item-label">' + esc(p.product) + '</div><div class="item-detail">' + esc(p.reason) + "</div></div></div>";
+    }).join("") + "</div>"));
+
+  grid.appendChild(card("pain", "Current Pain Points", "",
+    '<div class="item-list">' + b.painPoints.map(function (p, i) {
+      return '<div class="item-row"><div class="item-marker">0' + (i + 1) + '</div><div>' +
+        '<div class="item-label">' + esc(p.label) + '</div><div class="item-detail">' + esc(p.detail) + "</div></div></div>";
+    }).join("") + "</div>"));
+
+  const lm = b.laborMath;
+  grid.appendChild(card("math", "The Labor Math", "full-width",
+    '<div class="math-head">' + esc(lm.headline) + "</div>" +
+    '<div class="math-table">' + lm.rows.map(function (r) {
+      return '<div class="math-row' + (r.total ? " total" : "") + '">' +
+        '<div><div class="math-label">' + esc(r.label) + '</div><div class="math-note">' + esc(r.note) + "</div></div>" +
+        '<div class="math-value">' + esc(r.value) + "</div></div>";
+    }).join("") + "</div>" +
+    '<div class="math-verdict">' + esc(lm.verdict) + "</div>" +
+    '<div class="math-caveat"><b>What the agent is not sure about:</b> ' + esc(lm.caveat) + "</div>"));
+
+  grid.appendChild(card("objection", "Likely Objections", "",
+    b.objections.map(function (o) {
+      return '<div class="objection-row"><div class="objection-q">&ldquo;' + esc(o.objection) + '&rdquo;</div>' +
+        '<div class="objection-a-label">How to handle</div><div class="objection-a">' + esc(o.handle) + "</div></div>";
+    }).join("")));
+
+  grid.appendChild(card("questions", "Opening Questions", "",
+    '<div class="q-list">' + b.openingQuestions.map(function (q, i) {
+      return '<div class="q-item"><div class="q-num">Q' + (i + 1) + '</div><div>' + esc(q) + "</div></div>";
+    }).join("") + "</div>"));
+
+  grid.appendChild(card("pitch", "Suggested Pitch Angle", "full-width",
+    '<div class="pitch-box">' + esc(b.pitchAngle) + "</div>"));
+
+  const cta = document.createElement("div");
+  cta.className = "cta-block";
+  cta.innerHTML = '<div class="cta-inner">' +
+    '<div class="cta-title">What this took to build</div>' +
+    '<div class="cta-sub">The research in the snapshot and pain points is the commodity half. Any AI tool can do it. The half that matters is the labor math, the objection handling, and the pitch angle, and none of that is possible without loading in a real catalog, real prices, real lease terms, and the objections a real sales team hears every week. Replace Ironwood with your business and these four briefs become briefs on your actual pipeline.</div>' +
+    "</div>";
+  grid.appendChild(cta);
+  safeScroll(byId("brief-output"));
+}
+
+renderPicker(null);
+</script>
+</body>
+</html>
