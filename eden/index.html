@@ -1,132 +1,165 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#003057" />
-<title>Eden Excel · Vessel Configuration Assistant</title>
+<meta name="color-scheme" content="light" />
+<title>Eden Excel · RFQ &amp; Bid Package Intake Assistant</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
   :root {
-    --ink: #10222e;
-    --navy: #003057;        /* Eden brand navy */
+    color-scheme: light;
+    --ink: #172431;
+    --navy: #003057;
     --navy-deep: #002340;
     --navy-soft: #0d456f;
-    --surface: #f3f6f8;
+    --page: #eef1f4;
+    --surface: #f6f8f9;
     --panel: #ffffff;
-    --line: #d3dde3;
-    --line-soft: #e4ebee;
-    --steel: #5c7183;
-    --muted: #78909e;
-    --accent: #0a86ab;      /* Eden "water" blue */
+    --panel-soft: #f7f9fb;
+    --line: #e8ecef;
+    --line-soft: #eef2f4;
+    --steel: #64748b;
+    --muted: #94a3b0;
+    --accent: #0a86ab;
     --accent-deep: #076b8a;
-    --amber: #c07a16;
-    --amber-bg: #fbf1de;
+    --accent-bg: #eaf6fa;
+    --amber: #b57a1f;
+    --amber-bg: #fdf3e3;
+    --red: #c0392b;
+    --red-bg: #fdeeec;
+    --green: #1f9d63;
+    --green-bg: #e9f8f0;
     --rec: #d64545;
     --display: "Space Grotesk", sans-serif;
     --body: "IBM Plex Sans", sans-serif;
     --mono: "IBM Plex Mono", monospace;
+    --r-lg: 22px;
+    --r-md: 14px;
+    --r-sm: 10px;
+    --r-pill: 999px;
+    --shadow-card: 0 1px 2px rgba(23,36,49,0.04), 0 10px 30px -14px rgba(23,36,49,0.14);
+    --shadow-pop: 0 24px 70px -16px rgba(0,35,64,0.35);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html { scroll-behavior: smooth; }
-  body {
-    font-family: var(--body); color: var(--ink); background: var(--surface);
-    line-height: 1.5; -webkit-font-smoothing: antialiased;
-  }
-  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+  body { font-family: var(--body); color: var(--ink); background: var(--page); line-height: 1.55; -webkit-font-smoothing: antialiased; padding: 22px 16px 40px; }
+  .wrap { max-width: 1220px; margin: 0 auto; padding: 0 24px; }
 
-  /* ---- Top utility strip ---- */
-  .utility { background: var(--navy-deep); color: #b9cdda; font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; }
-  .utility .wrap { display: flex; justify-content: space-between; align-items: center; padding: 7px 24px; flex-wrap: wrap; gap: 6px; }
-  .utility a { color: #d6e6f0; text-decoration: none; }
+  .app-shell { max-width: 1320px; margin: 0 auto; background: var(--panel); border-radius: 28px; box-shadow: var(--shadow-card); overflow: hidden; }
 
-  /* ---- Header ---- */
-  header { background: #fff; color: var(--navy); border-bottom: 3px solid var(--accent); }
-  .head-inner { display: flex; align-items: center; justify-content: space-between; padding: 16px 0; gap: 16px; flex-wrap: wrap; }
-  .brand { display: flex; align-items: center; gap: 16px; }
-  .brand img { height: 30px; display: block; }
-  .brand .div { width: 1px; height: 24px; background: var(--line); }
-  .brand .tool { font-family: var(--mono); font-size: 11px; letter-spacing: 0.13em; text-transform: uppercase; color: var(--muted); }
-  .nav-links { display: flex; gap: 22px; font-size: 13.5px; }
-  .nav-links a { color: var(--navy); text-decoration: none; transition: color 0.15s; }
-  .nav-links a:hover { color: var(--accent); }
+  header { background: var(--panel); border-bottom: 1px solid var(--line); }
+  .head-inner { display: flex; align-items: center; justify-content: space-between; padding: 20px 32px; gap: 16px; flex-wrap: wrap; }
+  .brand { display: flex; align-items: center; gap: 14px; }
+  .brand-mark { font-family: var(--display); font-weight: 700; font-size: 17px; color: var(--navy); letter-spacing: -0.01em; }
+  .brand .div { width: 1px; height: 20px; background: var(--line); }
+  .brand .tool { font-size: 13px; color: var(--muted); font-weight: 500; }
+  .nav-links { display: flex; gap: 8px; font-size: 13.5px; }
+  .nav-links a { color: var(--steel); text-decoration: none; transition: all 0.15s; padding: 8px 14px; border-radius: var(--r-pill); }
+  .nav-links a:hover { color: var(--navy); background: var(--panel-soft); }
   @media (max-width: 720px){ .nav-links { display:none; } }
 
-  /* ---- Breadcrumb ---- */
-  .crumb { background: #fff; border-bottom: 1px solid var(--line-soft); }
-  .crumb .wrap { padding: 11px 24px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.05em; color: var(--muted); }
-  .crumb a { color: var(--accent-deep); text-decoration: none; }
-  .crumb span { color: var(--ink); }
-
-  /* ---- Hero ---- */
-  .hero { padding: 42px 0 26px; }
-  .eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent-deep); margin-bottom: 14px; display: flex; align-items: center; gap: 10px; }
-  .eyebrow::before { content: ""; width: 26px; height: 2px; background: var(--accent); display: inline-block; }
-  h1 { font-family: var(--display); font-weight: 600; font-size: clamp(30px, 4.3vw, 45px); line-height: 1.05; letter-spacing: -0.015em; color: var(--navy); max-width: 16ch; }
-  .lede { margin-top: 15px; max-width: 64ch; font-size: 16px; color: var(--steel); }
+  .hero { padding: 34px 32px 22px; }
+  .eyebrow { font-size: 12.5px; font-weight: 600; color: var(--accent-deep); background: var(--accent-bg); border-radius: var(--r-pill); padding: 8px 17px; margin-bottom: 16px; display: inline-flex; align-items: center; gap: 7px; }
+  h1 { font-family: var(--display); font-weight: 600; font-size: clamp(26px, 3.2vw, 34px); line-height: 1.18; letter-spacing: -0.01em; color: var(--ink); max-width: 24ch; }
+  .lede { margin-top: 13px; max-width: 100ch; font-size: 16.5px; color: var(--steel); line-height: 1.5; white-space: nowrap; }
+  @media (max-width: 720px){ .lede { white-space: normal; } }
   .lede b { color: var(--ink); font-weight: 600; }
 
-  .scenarios { margin-top: 26px; }
-  .scen-label { font-family: var(--mono); font-size: 11px; letter-spacing: 0.13em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+  .qbar { margin-top: 20px; display: flex; flex-wrap: wrap; gap: 12px; }
+  .qpill { font-size: 13px; font-weight: 500; color: var(--steel); background: var(--panel-soft); border: 1px solid var(--line); border-radius: var(--r-pill); padding: 11px 20px; line-height: 1.2; }
+
+  .scenarios { margin-top: 22px; }
+  .scen-label { font-size: 13px; color: var(--muted); margin-bottom: 10px; }
   .chips { display: flex; gap: 10px; flex-wrap: wrap; }
-  .chip { font-family: var(--body); font-size: 13.5px; font-weight: 500; background: var(--panel); border: 1px solid var(--line); padding: 9px 15px; cursor: pointer; color: var(--navy); transition: all 0.15s ease; display: flex; align-items: center; gap: 9px; }
-  .chip:hover { border-color: var(--accent); background: #f2fafc; }
-  .chip .tag { font-family: var(--mono); font-size: 10px; color: var(--accent-deep); border: 1px solid var(--line-soft); padding: 1px 5px; letter-spacing: 0.05em; }
+  .chip { font-family: var(--body); font-size: 13.5px; font-weight: 500; background: var(--panel); border: 1px solid var(--line); border-radius: var(--r-pill); padding: 9px 16px 9px 10px; cursor: pointer; color: var(--ink); transition: all 0.15s ease; display: flex; align-items: center; gap: 9px; box-shadow: 0 1px 2px rgba(23,36,49,0.03); }
+  .chip:hover { border-color: var(--accent); background: var(--accent-bg); }
+  .chip .tag { font-size: 11px; font-weight: 700; color: var(--accent-deep); background: var(--panel-soft); border-radius: var(--r-pill); padding: 3px 9px; letter-spacing: 0.02em; }
 
-  /* ---- Grid ---- */
-  .grid { display: grid; grid-template-columns: 420px 1fr; gap: 24px; padding: 30px 0 60px; align-items: start; }
-  @media (max-width: 880px){ .grid { grid-template-columns: 1fr; } }
+  .grid { display: grid; grid-template-columns: 460px 1fr; gap: 20px; padding: 24px 32px 40px; align-items: stretch; }
+  @media (max-width: 940px){ .grid { grid-template-columns: 1fr; padding: 20px 20px 32px; } }
+  @media (min-width: 941px){ .hero, .head-inner { padding-left: 32px; padding-right: 32px; } }
 
-  .panel { background: var(--panel); border: 1px solid var(--line); box-shadow: 0 1px 0 rgba(16,34,46,0.04); }
-  .panel-head { padding: 14px 20px; border-bottom: 1px solid var(--line-soft); display: flex; align-items: center; justify-content: space-between; }
-  .panel-head h2 { font-family: var(--display); font-weight: 600; font-size: 15px; color: var(--navy); }
-  .panel-head .step { font-family: var(--mono); font-size: 11px; color: var(--muted); letter-spacing: 0.08em; }
+  .panel { display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); box-shadow: var(--shadow-card); overflow: hidden; }
+  .panel > .tabs, .panel > .panel-head { flex: 0 0 auto; }
+  .panel > .tabpane, .panel > .out-body { flex: 1 1 auto; display: flex; flex-direction: column; }
+  #pane-rfq, #pane-manual { display: none; flex: 1; flex-direction: column; }
+  #pane-rfq.active, #pane-manual.active { display: flex; }
+  #rfqForm, #manualForm { flex: 1; display: flex; flex-direction: column; }
+  #rfqText { flex: 1; min-height: 200px; }
+  .out-body { flex: 1; display: flex; flex-direction: column; }
+  .out-body > .placeholder, .out-body > .loading { flex: 1; }
+  .panel-head { padding: 18px 22px; display: flex; align-items: center; justify-content: space-between; }
+  .panel-head h2 { font-family: var(--display); font-weight: 600; font-size: 16px; color: var(--ink); }
+  .panel-head .step { font-size: 12.5px; color: var(--muted); font-weight: 500; background: var(--panel); border: 1px solid var(--line); border-radius: var(--r-pill); padding: 7px 15px; }
 
-  /* ---- Form ---- */
-  form { padding: 4px 20px 20px; }
-  .field { margin-top: 15px; }
-  .field label { display: flex; align-items: center; justify-content: space-between; font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--steel); margin-bottom: 6px; }
-  .field textarea, .field input, .field select { width: 100%; font-family: var(--body); font-size: 14px; color: var(--ink); padding: 10px 12px; border: 1px solid var(--line); background: #fbfdfe; border-radius: 0; transition: border 0.15s; }
-  .field select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%235c7183' stroke-width='1.6' fill='none'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 34px; cursor: pointer; }
-  .field textarea { resize: vertical; min-height: 84px; line-height: 1.45; }
-  .field textarea:focus, .field input:focus, .field select:focus { outline: none; border-color: var(--accent); background: #fff; }
+  /* ---- Mode tabs ---- */
+  .tabs { display: flex; gap: 4px; padding: 5px; margin: 20px 18px 0; background: var(--panel); border-radius: var(--r-pill); border: 1px solid var(--line); }
+  .tab { flex: 1; padding: 12px 14px; text-align: center; font-size: 13.5px; font-weight: 500; color: var(--steel); background: transparent; border: none; border-radius: var(--r-pill); cursor: pointer; transition: all 0.15s; }
+  .tab.active { background: var(--navy); color: #fff; }
+  .tabpane { display: none; }
+  .tabpane.active { display: block; }
+
+  /* ---- Dropzone ---- */
+  .dropzone { margin: 18px 18px 0; border: 1.5px dashed var(--line); border-radius: var(--r-md); background: var(--panel); padding: 20px; text-align: center; cursor: pointer; transition: all 0.15s; }
+  .dropzone:hover, .dropzone.drag { border-color: var(--accent); background: var(--accent-bg); }
+  .dropzone .dz-label { font-size: 13.5px; font-weight: 500; color: var(--ink); }
+  .dropzone .dz-sub { font-size: 12px; color: var(--muted); margin-top: 5px; line-height: 1.5; }
+  .filelist { margin: 10px 18px 0; display: flex; flex-direction: column; gap: 6px; }
+  .filechip { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 12.5px; color: var(--ink); background: var(--panel); border: 1px solid var(--line); border-radius: var(--r-sm); padding: 8px 12px; }
+  .filechip .rm { cursor: pointer; color: var(--muted); font-size: 13px; }
+  .filechip .rm:hover { color: var(--red); }
+  .parsing { font-size: 12px; color: var(--accent-deep); padding: 6px 18px 0; }
+
+  form { padding: 6px 18px 18px; }
+  .field { margin-top: 14px; }
+  .field label { display: flex; align-items: center; justify-content: space-between; font-size: 12.5px; font-weight: 600; color: var(--steel); margin-bottom: 7px; }
+  .field textarea, .field input, .field select { width: 100%; font-family: var(--body); font-size: 14px; color: var(--ink); padding: 11px 13px; border: 1px solid var(--line); background: var(--panel); border-radius: var(--r-sm); transition: all 0.15s; }
+  .field select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2364748b' stroke-width='1.6' fill='none'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 13px center; padding-right: 34px; cursor: pointer; }
+  .field textarea { resize: vertical; line-height: 1.55; font-family: var(--mono); font-size: 12.5px; }
+  #rfqText { min-height: 260px; }
+  .field textarea:focus, .field input:focus, .field select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-bg); }
   .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .custom-reveal { margin-top: 8px; display: none; }
   .custom-reveal.show { display: block; }
+  .hint-sm { font-size: 12px; color: var(--muted); margin-top: 7px; line-height: 1.55; }
 
-  /* mic */
-  .mic-btn { display: inline-flex; align-items: center; gap: 6px; font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent-deep); background: none; border: 1px solid var(--line); padding: 3px 9px; cursor: pointer; transition: all 0.15s; }
-  .mic-btn:hover { border-color: var(--accent); background: #f2fafc; }
-  .mic-btn svg { width: 12px; height: 12px; }
-  .mic-btn.listening { color: #fff; background: var(--rec); border-color: var(--rec); animation: pulse 1.2s ease-in-out infinite; }
+  .mic-btn { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; color: var(--accent-deep); background: var(--accent-bg); border: none; border-radius: var(--r-pill); padding: 7px 14px; cursor: pointer; transition: all 0.15s; }
+  .mic-btn:hover { background: #d9eef4; }
+  .mic-btn.listening { color: #fff; background: var(--rec); animation: pulse 1.2s ease-in-out infinite; }
   .mic-btn.disabled { opacity: 0.4; cursor: not-allowed; }
   @keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(214,69,69,0.5);} 50% { box-shadow: 0 0 0 6px rgba(214,69,69,0);} }
 
-  .run { margin-top: 22px; width: 100%; font-family: var(--display); font-weight: 600; font-size: 15px; color: #fff; background: var(--navy); border: none; padding: 14px; cursor: pointer; transition: background 0.15s; display: flex; align-items: center; justify-content: center; gap: 10px; }
-  .run:hover { background: var(--navy-soft); }
-  .run:disabled { background: var(--steel); cursor: default; }
+  .run { margin-top: 20px; width: 100%; font-family: var(--display); font-weight: 600; font-size: 15px; color: #fff; background: var(--navy); border: none; border-radius: var(--r-pill); padding: 15px; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 8px 20px -8px rgba(0,48,87,0.5); }
+  .run:hover { background: var(--navy-soft); transform: translateY(-1px); }
+  .run:disabled { background: var(--muted); cursor: default; transform: none; box-shadow: none; }
 
-  .apikey { margin-top: 18px; padding-top: 16px; border-top: 1px dashed var(--line); }
-  .apikey summary { font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; color: var(--muted); cursor: pointer; text-transform: uppercase; }
+  .apikey { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--line); }
+  .apikey summary { font-size: 12.5px; font-weight: 500; color: var(--muted); cursor: pointer; }
   .apikey input { margin-top: 10px; font-family: var(--mono); font-size: 12px; }
   .apikey p { font-size: 12px; color: var(--muted); margin-top: 8px; line-height: 1.5; }
 
-  /* ---- Output ---- */
   .out-body { padding: 22px; min-height: 360px; }
-  .placeholder { height: 340px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: var(--muted); gap: 14px; }
-  .placeholder p { font-size: 14px; max-width: 34ch; }
-  .placeholder .hint { font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; }
-  .loading { height: 340px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; }
-  .scanner { width: 210px; height: 4px; background: var(--line-soft); overflow: hidden; position: relative; }
+  .placeholder { min-height: 340px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: var(--muted); gap: 14px; }
+  .placeholder p { font-size: 14px; max-width: 38ch; }
+  .placeholder .hint { font-size: 12px; color: var(--muted); background: var(--panel); border: 1px solid var(--line); border-radius: var(--r-pill); padding: 4px 12px; }
+  .loading { min-height: 340px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; }
+  .scanner { width: 210px; height: 4px; background: var(--line); border-radius: var(--r-pill); overflow: hidden; position: relative; }
   .scanner::after { content: ""; position: absolute; top: 0; left: -40%; height: 100%; width: 40%; background: var(--accent); animation: scan 1.1s ease-in-out infinite; }
   @keyframes scan { 0% { left: -40%; } 100% { left: 100%; } }
-  .loading .msg { font-family: var(--mono); font-size: 12px; color: var(--steel); letter-spacing: 0.06em; }
-  .load-steps { width: 250px; display: flex; flex-direction: column; gap: 13px; margin-top: 4px; }
-  .load-step { display: flex; align-items: center; gap: 11px; font-family: var(--mono); font-size: 12px; color: var(--muted); letter-spacing: 0.02em; transition: color 0.3s ease; }
+  .loading .msg { font-size: 12.5px; color: var(--steel); }
+  .load-steps { width: 280px; display: flex; flex-direction: column; gap: 13px; margin-top: 4px; }
+  .load-step { display: flex; align-items: center; gap: 11px; font-size: 13px; color: var(--muted); transition: color 0.3s ease; }
   .load-step .ic { width: 16px; height: 16px; border: 1.5px solid var(--line); border-radius: 50%; flex: 0 0 auto; position: relative; box-sizing: border-box; }
-  .load-step.active { color: var(--navy); }
+  .load-step.active { color: var(--ink); font-weight: 500; }
   .load-step.active .ic { border-color: var(--accent); border-top-color: transparent; animation: spin 0.7s linear infinite; }
   .load-step.done { color: var(--steel); }
   .load-step.done .ic { border-color: var(--accent); background: var(--accent); animation: none; }
@@ -135,104 +168,125 @@
 
   .result { animation: rise 0.4s ease; }
   @keyframes rise { from { opacity: 0; transform: translateY(8px);} to { opacity: 1; transform: none;} }
-  .verdict { border: 1px solid var(--navy); background: var(--navy); color: #fff; padding: 18px 20px; margin-bottom: 20px; }
-  .verdict .vlabel { font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
-  .verdict .vname { font-family: var(--display); font-weight: 600; font-size: 24px; line-height: 1.1; }
-  .verdict .vreason { margin-top: 8px; font-size: 13.5px; color: #cbdae6; line-height: 1.5; }
 
-  .specrow { display: grid; grid-template-columns: 140px 1fr; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--line-soft); align-items: start; }
-  .specrow:first-of-type { border-top: 1px solid var(--line-soft); }
-  .specrow .k { font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--steel); padding-top: 2px; }
-  .specrow .v .val { font-family: var(--display); font-weight: 600; font-size: 15px; color: var(--navy); }
+  .verdict { border-radius: var(--r-lg); background: linear-gradient(155deg, var(--navy) 0%, var(--navy-deep) 100%); color: #fff; padding: 24px 26px; margin-bottom: 22px; box-shadow: 0 14px 34px -14px rgba(0,35,64,0.55); }
+  .verdict .vlabel { font-size: 12.5px; font-weight: 600; color: #8fd0e6; margin-bottom: 10px; background: rgba(255,255,255,0.1); display: inline-block; padding: 4px 12px; border-radius: var(--r-pill); }
+  .verdict .vname { font-family: var(--display); font-weight: 600; font-size: 25px; line-height: 1.2; margin-top: 4px; }
+  .verdict .vreason { margin-top: 9px; font-size: 13.5px; color: #c3d9e6; line-height: 1.6; max-width: 62ch; }
+  .verdict .vmeta { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 8px; }
+  .verdict .vmeta span { font-size: 12px; font-weight: 500; background: rgba(255,255,255,0.12); border-radius: var(--r-pill); padding: 5px 12px; color: #e4eff5; }
+
+  .qa-grid { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
+  .qa-row { display: grid; grid-template-columns: 210px 1fr; gap: 18px; padding: 16px 18px; align-items: start; background: var(--panel); border: 1px solid var(--line); border-radius: var(--r-md); }
+  .qa-row .q { font-size: 12.5px; color: var(--steel); line-height: 1.5; font-weight: 500; }
+  .qa-row .q .qn { display: block; font-size: 12px; color: var(--muted); margin-bottom: 3px; }
+  .qa-row .a { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+  .qa-row .a .val { font-family: var(--display); font-weight: 600; font-size: 14.5px; color: var(--ink); line-height: 1.45; flex: 1; }
+  .qa-row .badge { flex: 0 0 auto; font-size: 10.5px; font-weight: 600; padding: 3px 10px; border-radius: var(--r-pill); white-space: nowrap; display: inline-flex; align-items: center; gap: 5px; }
+  .qa-row .badge::before { content: ""; width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
+  .qa-row .badge.ok { color: var(--green); background: var(--green-bg); } .qa-row .badge.ok::before { background: var(--green); }
+  .qa-row .badge.warn { color: var(--amber); background: var(--amber-bg); } .qa-row .badge.warn::before { background: var(--amber); }
+  .qa-row .badge.na { color: var(--muted); background: var(--panel-soft); } .qa-row .badge.na::before { background: var(--muted); }
+  .qa-row .cite { margin-top: 8px; font-size: 12.5px; color: var(--steel); background: var(--panel-soft); border-radius: var(--r-sm); padding: 8px 12px; line-height: 1.5; font-style: italic; }
+  .qa-row .cite b { font-style: normal; color: var(--accent-deep); font-size: 11px; font-weight: 600; display: block; margin-bottom: 3px; }
+
+  .specrow { display: grid; grid-template-columns: 160px 1fr; gap: 14px; padding: 14px 18px; align-items: start; background: var(--panel); border: 1px solid var(--line); border-radius: var(--r-md); margin-bottom: 10px; }
+  .specrow .k { font-size: 12.5px; font-weight: 600; color: var(--steel); padding-top: 2px; }
+  .specrow .v .val { font-family: var(--display); font-weight: 600; font-size: 15px; color: var(--ink); }
   .specrow .v .why { font-size: 13px; color: var(--steel); margin-top: 3px; line-height: 1.5; }
 
   .block { margin-top: 24px; }
-  .block h3 { font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; gap: 9px; }
-  .block h3::before { content: ""; width: 14px; height: 2px; display: inline-block; }
-  .block.notes h3 { color: var(--accent-deep);} .block.notes h3::before { background: var(--accent);}
-  .block.review h3 { color: var(--amber);} .block.review h3::before { background: var(--amber);}
-  .block.questions h3 { color: var(--steel);} .block.questions h3::before { background: var(--steel);}
-  ul.items { list-style: none; }
-  ul.items li { position: relative; padding: 7px 0 7px 22px; font-size: 13.5px; color: var(--ink); line-height: 1.5; border-bottom: 1px solid #f0f4f6; }
-  ul.items li::before { content: ""; position: absolute; left: 0; top: 13px; width: 7px; height: 7px; border: 1.5px solid var(--accent); background: #fff; }
-  .block.review ul.items li { background: var(--amber-bg); padding-left: 22px; padding-right: 12px; border-bottom: 2px solid #fff; }
-  .block.review ul.items li::before { border-color: var(--amber); left: 8px; }
+  .block h3 { font-size: 13.5px; font-weight: 600; color: var(--ink); margin-bottom: 12px; display: flex; align-items: center; gap: 9px; }
+  .block h3::before { content: ""; width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+  .block.notes h3::before { background: var(--accent);}
+  .block.review h3::before { background: var(--amber);}
+  .block.flags h3::before { background: var(--red);}
+  .block.questions h3::before { background: var(--steel);}
+  ul.items { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  ul.items li { position: relative; padding: 11px 14px 11px 30px; font-size: 13.5px; color: var(--ink); line-height: 1.55; background: var(--panel); border: 1px solid var(--line); border-radius: var(--r-md); }
+  ul.items li::before { content: ""; position: absolute; left: 13px; top: 15px; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+  .block.review ul.items li::before { background: var(--amber); }
+  .block.flags ul.items li::before { background: var(--red); }
 
-  .summary { margin-top: 24px; padding: 18px 20px; background: #f1fafc; border-left: 3px solid var(--accent); font-size: 14px; line-height: 1.6; color: var(--ink); }
-  .summary .slabel { font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent-deep); margin-bottom: 8px; }
-  .disclaimer { margin-top: 22px; font-size: 11.5px; color: var(--muted); line-height: 1.5; font-family: var(--mono); padding-top: 14px; border-top: 1px dashed var(--line); }
-  .error { padding: 16px 18px; background: #fdf0ef; border: 1px solid #e6b8b3; color: #9c3a2f; font-size: 13.5px; line-height: 1.55; }
-  .error b { display: block; font-family: var(--display); margin-bottom: 5px; font-size: 14px; }
+  .summary { margin-bottom: 22px; padding: 18px 20px; background: var(--accent-bg); border-radius: var(--r-md); font-size: 14px; line-height: 1.6; color: var(--ink); }
+  .summary .slabel { font-size: 12px; font-weight: 600; color: var(--accent-deep); margin-bottom: 10px; }
+  .summary ul.items { display: flex; flex-direction: column; gap: 8px; }
+  .summary ul.items li { background: #fff; border: 1px solid rgba(10,134,171,0.16); border-radius: var(--r-sm); padding: 10px 14px 10px 30px; font-weight: 500; }
+  .summary ul.items li::before { background: var(--accent-deep); }
+  .disclaimer { margin-top: 20px; font-size: 12px; color: var(--muted); line-height: 1.55; padding: 12px 16px; background: var(--panel-soft); border-radius: var(--r-sm); }
+  .error { padding: 18px 20px; background: var(--red-bg); border-radius: var(--r-md); color: #8a2d21; font-size: 13.5px; line-height: 1.55; }
+  .error b { display: block; font-family: var(--display); margin-bottom: 5px; font-size: 14px; color: var(--red); }
 
-  /* ---- Footer ---- */
-  footer { background: var(--navy); color: #b9cdda; margin-top: 20px; }
-  footer .wrap { padding: 26px 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
-  footer .addr { font-size: 12.5px; line-height: 1.5; }
-  footer .addr b { color: #fff; font-family: var(--display); letter-spacing: 0.03em; }
-  footer .meta { font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; text-align: right; }
-  footer .meta a { color: #7fd0e6; text-decoration: none; }
+  .collapse { margin-top: 24px; border: 1px solid var(--line); border-radius: var(--r-md); overflow: hidden; }
+  .collapse summary { font-size: 13px; font-weight: 600; color: var(--ink); background: var(--panel); padding: 13px 18px; cursor: pointer; }
+  .collapse .cbody { padding: 6px 18px 18px; }
 
-  /* ---- Lock overlay ---- */
-  .lock-overlay { position: fixed; inset: 0; background: rgba(0,35,64,0.55); backdrop-filter: blur(3px); display: none; align-items: center; justify-content: center; z-index: 50; padding: 24px; }
+  footer { margin-top: 4px; border-top: 1px solid var(--line); }
+  footer .wrap { padding: 22px 32px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; max-width: none; }
+  footer .addr { font-size: 12.5px; line-height: 1.5; color: var(--steel); }
+  footer .addr b { color: var(--ink); font-family: var(--display); letter-spacing: 0.02em; }
+  footer .meta { font-size: 12px; color: var(--muted); text-align: right; line-height: 1.6; }
+  footer .meta a { color: var(--accent-deep); text-decoration: none; font-weight: 500; }
+
+  .lock-overlay { position: fixed; inset: 0; background: rgba(9,20,30,0.5); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 50; padding: 24px; }
   .lock-overlay.show { display: flex; }
-  .lock-card { background: #fff; border: 1px solid var(--line); max-width: 380px; width: 100%; padding: 30px 28px; box-shadow: 0 20px 60px rgba(0,35,64,0.3); }
-  .lock-card .lk-eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent-deep); margin-bottom: 12px; display:flex; align-items:center; gap:8px; }
+  .lock-card { background: #fff; border-radius: var(--r-lg); max-width: 380px; width: 100%; padding: 32px 30px; box-shadow: var(--shadow-pop); }
+  .lock-card .lk-eyebrow { font-size: 12.5px; font-weight: 600; color: var(--accent-deep); background: var(--accent-bg); border-radius: var(--r-pill); padding: 5px 13px; margin-bottom: 16px; display:inline-flex; align-items:center; gap:8px; }
   .lock-card .lk-eyebrow svg { width: 14px; height: 14px; }
-  .lock-card h2 { font-family: var(--display); font-weight: 600; font-size: 22px; color: var(--navy); line-height: 1.15; }
+  .lock-card h2 { font-family: var(--display); font-weight: 600; font-size: 22px; color: var(--ink); line-height: 1.2; }
   .lock-card p { font-size: 13.5px; color: var(--steel); margin-top: 8px; line-height: 1.5; }
-  .lock-card input { width: 100%; margin-top: 18px; font-family: var(--body); font-size: 14px; padding: 11px 12px; border: 1px solid var(--line); background: #fbfdfe; }
-  .lock-card input:focus { outline: none; border-color: var(--accent); background: #fff; }
-  .lock-card .unlock-btn { width: 100%; margin-top: 12px; font-family: var(--display); font-weight: 600; font-size: 14px; color: #fff; background: var(--navy); border: none; padding: 12px; cursor: pointer; }
+  .lock-card input { width: 100%; margin-top: 18px; font-family: var(--body); font-size: 14px; padding: 12px 14px; border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--panel-soft); }
+  .lock-card input:focus { outline: none; border-color: var(--accent); background: #fff; box-shadow: 0 0 0 3px var(--accent-bg); }
+  .lock-card .unlock-btn { width: 100%; margin-top: 12px; font-family: var(--display); font-weight: 600; font-size: 14px; color: #fff; background: var(--navy); border: none; border-radius: var(--r-pill); padding: 13px; cursor: pointer; }
   .lock-card .unlock-btn:hover { background: var(--navy-soft); }
-  .lock-card .lk-msg { margin-top: 12px; font-size: 12.5px; min-height: 16px; color: var(--rec); font-family: var(--mono); letter-spacing: 0.03em; }
+  .lock-card .lk-msg { margin-top: 12px; font-size: 12.5px; min-height: 16px; color: var(--rec); }
   .lock-card .lk-msg.ok { color: var(--accent-deep); }
-  .lock-card .lk-skip { display: block; width: 100%; margin-top: 8px; background: none; border: none; font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; color: var(--muted); text-transform: uppercase; cursor: pointer; }
+  .lock-card .lk-skip { display: block; width: 100%; margin-top: 10px; background: none; border: none; font-size: 12.5px; color: var(--muted); cursor: pointer; }
   .lock-card .lk-skip:hover { color: var(--steel); }
 
-  /* ---- Key status + setup ---- */
-  .keystatus { margin-top: 6px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.05em; display: flex; align-items: center; gap: 7px; }
+  .keystatus { margin-top: 12px; font-size: 12.5px; display: flex; align-items: center; gap: 7px; color: var(--steel); }
   .keystatus .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
   .keystatus.locked .dot { background: var(--amber); }
-  .keystatus.unlocked .dot { background: #2f9e63; }
+  .keystatus.unlocked .dot { background: var(--green); }
   .keystatus .txt { color: var(--steel); }
-  .setup { margin-top: 14px; padding: 14px; background: #f6f9fb; border: 1px solid var(--line-soft); }
-  .setup .stitle { font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--navy); margin-bottom: 4px; }
+  .setup { margin-top: 14px; padding: 16px; background: var(--panel-soft); border-radius: var(--r-md); }
+  .setup .stitle { font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
   .setup .sdesc { font-size: 12px; color: var(--muted); line-height: 1.5; margin-bottom: 10px; }
-  .setup input { width: 100%; margin-bottom: 8px; font-family: var(--mono); font-size: 12px; padding: 9px 10px; border: 1px solid var(--line); background: #fff; }
-  .setup .enc-btn { font-family: var(--display); font-weight: 600; font-size: 12.5px; color: #fff; background: var(--accent-deep); border: none; padding: 9px 14px; cursor: pointer; }
+  .setup input { width: 100%; margin-bottom: 8px; font-family: var(--mono); font-size: 12px; padding: 9px 11px; border: 1px solid var(--line); border-radius: var(--r-sm); background: #fff; }
+  .setup .enc-btn { font-family: var(--display); font-weight: 600; font-size: 12.5px; color: #fff; background: var(--accent-deep); border: none; border-radius: var(--r-pill); padding: 9px 16px; cursor: pointer; }
   .setup .enc-btn:hover { background: var(--accent); }
-  .setup textarea { width: 100%; margin-top: 10px; font-family: var(--mono); font-size: 11px; padding: 10px; border: 1px solid var(--line); background: #fff; min-height: 72px; resize: vertical; display: none; }
+  .setup textarea { width: 100%; margin-top: 10px; font-family: var(--mono); font-size: 11px; padding: 10px; border: 1px solid var(--line); border-radius: var(--r-sm); background: #fff; min-height: 72px; resize: vertical; display: none; }
   .setup textarea.show { display: block; }
   .setup .copyhint { font-size: 11.5px; color: var(--accent-deep); margin-top: 6px; display: none; line-height: 1.5; }
   .setup .copyhint.show { display: block; }
 
-  /* ---- Export button ---- */
-  .export-bar { display: flex; justify-content: flex-end; margin-bottom: 14px; }
-  .export-btn { display: inline-flex; align-items: center; gap: 7px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--navy); background: #fff; border: 1px solid var(--line); padding: 7px 13px; cursor: pointer; transition: all 0.15s; }
-  .export-btn:hover { border-color: var(--accent); background: #f2fafc; color: var(--accent-deep); }
+  .export-bar { display: flex; justify-content: flex-end; gap: 10px; margin-bottom: 16px; }
+  .export-btn { display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; font-weight: 500; color: var(--ink); background: #fff; border: 1px solid var(--line); border-radius: var(--r-pill); padding: 8px 15px; cursor: pointer; transition: all 0.15s; }
+  .export-btn:hover { border-color: var(--accent); background: var(--accent-bg); color: var(--accent-deep); }
   .export-btn svg { width: 13px; height: 13px; }
 
-  /* ---- Print document (screen-hidden) ---- */
   #printDoc { display: none; }
   @media print {
     @page { margin: 16mm; }
     body > *:not(#printDoc) { display: none !important; }
     #printDoc { display: block !important; color: #10222e; font-family: var(--body); }
     #printDoc .pd-head { border-bottom: 2px solid var(--navy); padding-bottom: 14px; margin-bottom: 20px; }
-    #printDoc .pd-logo { height: 30px; margin-bottom: 12px; }
     #printDoc .pd-title { font-family: var(--display); font-weight: 600; font-size: 20px; color: var(--navy); }
     #printDoc .pd-meta { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.05em; color: var(--steel); margin-top: 5px; }
-    #printDoc .pd-sec { margin-top: 18px; break-inside: avoid; }
+    #printDoc .pd-sec { margin-top: 16px; break-inside: avoid; }
     #printDoc .pd-label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent-deep); margin-bottom: 7px; border-bottom: 1px solid #dde5e9; padding-bottom: 4px; }
     #printDoc .pd-verdict { background: var(--navy) !important; color: #fff !important; padding: 14px 16px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     #printDoc .pd-verdict .l { font-family: var(--mono); font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: #7fd0e6; }
-    #printDoc .pd-verdict .n { font-family: var(--display); font-weight: 600; font-size: 19px; margin-top: 4px; }
-    #printDoc .pd-verdict .r { font-size: 12px; color: #cbdae6; margin-top: 5px; line-height: 1.5; }
-    #printDoc .pd-kv { font-size: 13px; line-height: 1.55; margin: 3px 0; }
+    #printDoc .pd-verdict .n { font-family: var(--display); font-weight: 600; font-size: 18px; margin-top: 4px; }
+    #printDoc .pd-verdict .r { font-size: 11.5px; color: #cbdae6; margin-top: 5px; line-height: 1.5; }
+    #printDoc .pd-qa { font-size: 12px; line-height: 1.55; margin: 6px 0; padding-bottom: 6px; border-bottom: 1px solid #eef2f4; }
+    #printDoc .pd-qa .k { font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--steel); display:block; }
+    #printDoc .pd-qa .v { font-weight: 600; color: var(--navy); }
+    #printDoc .pd-qa .c { font-style: italic; color: #5c7183; font-size: 11px; margin-top: 2px; }
+    #printDoc .pd-kv { font-size: 12.5px; line-height: 1.55; margin: 3px 0; }
     #printDoc .pd-kv b { color: var(--navy); }
-    #printDoc .pd-kv .k { font-family: var(--mono); font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--steel); }
     #printDoc ul { margin: 0; padding-left: 18px; }
-    #printDoc li { font-size: 12.5px; line-height: 1.55; margin-bottom: 3px; }
+    #printDoc li { font-size: 12px; line-height: 1.55; margin-bottom: 3px; }
     #printDoc .pd-brief { font-size: 12.5px; line-height: 1.6; background: #f1fafc !important; border-left: 3px solid var(--accent); padding: 12px 14px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     #printDoc .pd-disc { margin-top: 20px; font-family: var(--mono); font-size: 9.5px; color: var(--muted); line-height: 1.5; border-top: 1px solid #dde5e9; padding-top: 10px; }
   }
@@ -244,10 +298,10 @@
   <div class="lock-card">
     <div class="lk-eyebrow">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="11" width="16" height="10" rx="1.5"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
-      Eden Excel Configurator
+      Eden Excel RFQ Assistant
     </div>
     <h2>Unlock to continue</h2>
-    <p>Enter the access password to enable configuration generation.</p>
+    <p>Enter the access password to enable RFQ analysis.</p>
     <input type="password" id="unlockPw" placeholder="Access password" autocomplete="off" />
     <button class="unlock-btn" id="unlockBtn">Unlock</button>
     <div class="lk-msg" id="lockMsg"></div>
@@ -255,19 +309,14 @@
   </div>
 </div>
 
-<div class="utility">
-  <div class="wrap">
-    <div>USA-MANUFACTURED FRP FILTRATION &middot; SINCE 1978</div>
-    <div><a href="#">800.842.5081</a> &nbsp; Austin, TX</div>
-  </div>
-</div>
+<div class="app-shell">
 
 <header>
-  <div class="wrap head-inner">
+  <div class="head-inner">
     <div class="brand">
-      <img src="data:image/png;base64,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" alt="Eden Equipment Company" />
+      <div class="brand-mark">EDEN EXCEL</div>
       <div class="div"></div>
-      <div class="tool">Configurator Suite</div>
+      <div class="tool">Configurator Suite &middot; RFQ Assistant</div>
     </div>
     <nav class="nav-links">
       <a href="https://www.edenequipment.com/industrial-filtration/liquid-filtration-vessels/">Vessels</a>
@@ -277,174 +326,179 @@
   </div>
 </header>
 
-<div class="crumb">
-  <div class="wrap">
-    <a href="https://www.edenequipment.com/industrial-filtration/">Industrial Filtration</a> /
-    <a href="https://www.edenequipment.com/industrial-filtration/configurators/liquid-filtration-vessels/">Configurators</a> /
-    <span>Vessel Configuration Assistant</span>
-  </div>
-</div>
-
-<div class="wrap">
+<div>
   <section class="hero">
-    <div class="eyebrow">Vessel Configuration Assistant</div>
-    <h1>From a raw application to a first-pass spec in seconds.</h1>
-    <p class="lede">Describe an incoming filtration requirement, by voice or by picking the details below. The assistant reasons across Eden Excel's <b>vessel types, wetted materials, and cartridge media</b> to draft a starting configuration, flag what needs an engineer, and surface the open questions before a quote goes out.</p>
+    <div class="eyebrow">RFQ &amp; Bid Package Intake Assistant</div>
+    <h1>Eden RFP Agent</h1>
+    <p class="lede">Drop in a bid package, get the product line, specs, codes, and red flags before you quote.</p>
 
-    <div class="scenarios">
-      <div class="scen-label">Load a sample application</div>
-      <div class="chips" id="chips">
-        <button class="chip" data-scenario="desal"><span class="tag">RO</span> Resort desalination prefilter</button>
-        <button class="chip" data-scenario="municipal"><span class="tag">MUNI</span> Municipal high-flow prefilter</button>
-        <button class="chip" data-scenario="caustic"><span class="tag">CHEM</span> Caustic process stream</button>
-      </div>
+    <div class="qbar">
+      <span class="qpill">01 · Product line / division</span>
+      <span class="qpill">02 · Flow &amp; duty</span>
+      <span class="qpill">03 · Influent condition</span>
+      <span class="qpill">04 · Effluent target</span>
+      <span class="qpill">05 · Codes &amp; standards</span>
+      <span class="qpill">06 · Connections</span>
+      <span class="qpill">07 · Timeline</span>
+      <span class="qpill">08 · Location</span>
+      <span class="qpill">09 · Shipping &amp; packaging</span>
+      <span class="qpill">10 · Commercial terms</span>
     </div>
+
   </section>
 
   <section class="grid">
     <!-- INTAKE -->
     <div class="panel">
-      <div class="panel-head"><h2>Application intake</h2><span class="step">01 / INPUT</span></div>
-      <form id="intakeForm">
-        <div class="field">
-          <label>Application type</label>
-          <select id="appType">
-            <option value="">Select an application</option>
-            <option>Prefiltration ahead of RO / desalination</option>
-            <option>Municipal / potable water treatment</option>
-            <option>Process or chemical filtration</option>
-            <option>Cooling water / HVAC loop</option>
-            <option>Bag filtration / high solids loading</option>
-            <option>Pharmaceutical / high purity</option>
-            <option>Food & beverage</option>
-            <option>Other / not sure</option>
-          </select>
-        </div>
+      <div class="tabs">
+        <button class="tab active" data-tab="rfq">RFQ / Bid Package</button>
+        <button class="tab" data-tab="manual">Quick Manual Spec</button>
+      </div>
 
-        <div class="field">
-          <label>
-            Application description
-            <button type="button" class="mic-btn" id="micBtn" title="Describe it out loud">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v4"/></svg>
-              <span id="micLabel">Speak</span>
-            </button>
-          </label>
-          <textarea id="app" placeholder="Type here, or tap Speak and describe the situation in your own words."></textarea>
-        </div>
+      <!-- RFQ MODE -->
+      <div class="tabpane active" id="pane-rfq">
+        <div class="panel-head" style="border-bottom:none;"><h2 style="font-size:13px;">Paste or upload the package</h2><span class="step">01 / INPUT</span></div>
 
-        <div class="row2">
+        <div class="dropzone" id="dropzone">
+          <div class="dz-label">Drag files here, or click to browse</div>
+          <div class="dz-sub">PDF, Word, Excel, zip, or plain text. Include the full package, not just the cover letter. That's where most of the answers live.</div>
+          <input type="file" id="fileInput" multiple accept=".pdf,.docx,.xlsx,.xls,.zip,.txt" style="display:none;" />
+        </div>
+        <div class="filelist" id="fileList"></div>
+        <div class="parsing" id="parsingMsg"></div>
+        <div class="hint-sm" id="fileListHint" style="display:none; margin:0 20px 4px;">Uncheck a file to leave it out of the analysis.</div>
+
+        <form id="rfqForm">
           <div class="field">
-            <label>Flow rate</label>
-            <select id="flow" data-custom="flowCustom">
-              <option value="">Select flow</option>
-              <option>Under 50 gpm</option>
-              <option>50&ndash;150 gpm</option>
-              <option>150&ndash;300 gpm</option>
-              <option>300&ndash;600 gpm</option>
-              <option>600&ndash;1,000 gpm</option>
-              <option>Over 1,000 gpm</option>
-              <option value="__custom">Enter exact value&hellip;</option>
-            </select>
-            <input class="custom-reveal" id="flowCustom" placeholder="e.g. 200 gpm" />
+            <label>
+              Bid package text
+              <button type="button" class="mic-btn" id="micBtn" title="Dictate a summary">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v4"/></svg>
+                <span id="micLabel">Speak</span>
+              </button>
+            </label>
+            <textarea id="rfqText" placeholder="Paste the RFQ text here, or drop files above."></textarea>
+            <div class="hint-sm">Scanned PDFs sometimes extract as blank text. If that happens, paste the key sections by hand.</div>
           </div>
-          <div class="field">
-            <label>Operating pressure</label>
-            <select id="pressure" data-custom="pressureCustom">
-              <option value="">Select pressure</option>
-              <option>Under 75 psi</option>
-              <option>75&ndash;125 psi</option>
-              <option>125&ndash;175 psi</option>
-              <option>175&ndash;250 psi</option>
-              <option>Over 250 psi</option>
-              <option value="__custom">Enter exact value&hellip;</option>
-            </select>
-            <input class="custom-reveal" id="pressureCustom" placeholder="e.g. 150 psi" />
-          </div>
-        </div>
 
-        <div class="field">
-          <label>Fluid &amp; environment</label>
-          <select id="fluid">
-            <option value="">Select fluid type</option>
-            <option>Fresh / potable water</option>
-            <option>Brackish / saline (corrosive)</option>
-            <option>Seawater / desalination feed</option>
-            <option>Process water with suspended solids</option>
-            <option>Caustic / high-pH chemical (aggressive)</option>
-            <option>Acidic / low-pH chemical</option>
-            <option>Solvent / aggressive chemical</option>
-            <option>Oily or organic-laden water</option>
-          </select>
-        </div>
+          <button type="submit" class="run" id="runBtn">Analyze bid package &rarr;</button>
+          <div class="keystatus" id="keyStatus"><span class="dot"></span><span class="txt">Preview mode &middot; no key loaded</span></div>
 
-        <div class="row2">
+          <details class="apikey">
+            <summary>Key settings</summary>
+            <div class="setup">
+              <div class="stitle">One-time setup: encrypt your key</div>
+              <div class="sdesc">Paste your Anthropic key and a password. Encryption happens in your browser, your raw key never leaves this page. Copy the result into the ENCRYPTED_KEY block near the top of this file, then reload.</div>
+              <input id="setupKey" type="password" placeholder="sk-ant-..." autocomplete="off" />
+              <input id="setupPw" type="password" placeholder="Choose an access password" autocomplete="off" />
+              <button type="button" class="enc-btn" id="encBtn">Encrypt key</button>
+              <textarea id="encOut" readonly></textarea>
+              <div class="copyhint" id="copyHint">Copy this whole block and paste it over the ENCRYPTED_KEY constant in the file.</div>
+            </div>
+            <input id="apiKey" type="password" placeholder="Or paste a key for this session only" autocomplete="off" style="margin-top:12px;" />
+            <p>The session field is for quick testing. Inside the Claude.ai preview both can be left blank. For the hosted build, use the encrypted setup above.</p>
+          </details>
+        </form>
+      </div>
+
+      <!-- MANUAL MODE -->
+      <div class="tabpane" id="pane-manual">
+        <div class="panel-head" style="border-bottom:none;"><h2 style="font-size:13px;">Quick structured entry</h2><span class="step">01 / INPUT</span></div>
+        <form id="manualForm">
           <div class="field">
-            <label>Temperature</label>
-            <select id="temp" data-custom="tempCustom">
-              <option value="">Select range</option>
-              <option>Ambient (under 40&deg;C)</option>
-              <option>Warm (40&ndash;60&deg;C)</option>
-              <option>Hot (60&ndash;90&deg;C)</option>
-              <option>High (over 90&deg;C)</option>
-              <option value="__custom">Enter exact value&hellip;</option>
-            </select>
-            <input class="custom-reveal" id="tempCustom" placeholder="e.g. 80&deg;C" />
-          </div>
-          <div class="field">
-            <label>Space / clearance</label>
-            <select id="space">
-              <option value="">No constraint noted</option>
-              <option>Standard vertical clearance</option>
-              <option>Low overhead clearance</option>
-              <option>Tight footprint</option>
-              <option>Zero-downtime / redundancy required</option>
-              <option>Multi-port loading (e.g. railcar)</option>
+            <label>Application type</label>
+            <select id="appType">
+              <option value="">Select an application</option>
+              <option>Prefiltration ahead of RO / desalination</option>
+              <option>Municipal / potable water treatment</option>
+              <option>Process or chemical filtration</option>
+              <option>Cooling water / HVAC loop</option>
+              <option>Bag filtration / high solids loading</option>
+              <option>Pharmaceutical / high purity</option>
+              <option>Food &amp; beverage</option>
+              <option>Industrial air / baghouse / dust collection</option>
+              <option>Other / not sure</option>
             </select>
           </div>
-        </div>
-
-        <div class="field">
-          <label>Standard / code (optional)</label>
-          <select id="standard">
-            <option value="">None specified</option>
-            <option>ASME Section X</option>
-            <option>ASME Section VIII</option>
-            <option>NSF / potable certified</option>
-            <option>Seismic rating required</option>
-            <option>Other / to confirm</option>
-          </select>
-        </div>
-
-        <button type="submit" class="run" id="runBtn">Generate configuration &rarr;</button>
-
-        <div class="keystatus" id="keyStatus"><span class="dot"></span><span class="txt">Preview mode &middot; no key loaded</span></div>
-
-        <details class="apikey">
-          <summary>Key settings</summary>
-
-          <div class="setup">
-            <div class="stitle">One-time setup: encrypt your key</div>
-            <div class="sdesc">Paste your Anthropic key and a password. Encryption happens in your browser, your raw key never leaves this page. Copy the result into the ENCRYPTED_KEY block near the top of this file, then reload.</div>
-            <input id="setupKey" type="password" placeholder="sk-ant-..." autocomplete="off" />
-            <input id="setupPw" type="password" placeholder="Choose an access password" autocomplete="off" />
-            <button type="button" class="enc-btn" id="encBtn">Encrypt key</button>
-            <textarea id="encOut" readonly></textarea>
-            <div class="copyhint" id="copyHint">Copy this whole block and paste it over the ENCRYPTED_KEY constant in the file.</div>
+          <div class="field">
+            <label>Application description</label>
+            <textarea id="app" style="font-family:var(--body); font-size:14px; min-height:84px;" placeholder="Describe the situation in your own words."></textarea>
           </div>
-
-          <input id="apiKey" type="password" placeholder="Or paste a key for this session only" autocomplete="off" style="margin-top:12px;" />
-          <p>The session field is for quick testing. Inside the Claude.ai preview both can be left blank. For the hosted build, use the encrypted setup above.</p>
-        </details>
-      </form>
+          <div class="row2">
+            <div class="field">
+              <label>Flow rate</label>
+              <select id="flow" data-custom="flowCustom">
+                <option value="">Select flow</option>
+                <option>Under 50 gpm</option>
+                <option>50&ndash;150 gpm</option>
+                <option>150&ndash;300 gpm</option>
+                <option>300&ndash;600 gpm</option>
+                <option>600&ndash;1,000 gpm</option>
+                <option>Over 1,000 gpm</option>
+                <option value="__custom">Enter exact value&hellip;</option>
+              </select>
+              <input class="custom-reveal" id="flowCustom" placeholder="e.g. 200 gpm" />
+            </div>
+            <div class="field">
+              <label>Operating pressure</label>
+              <select id="pressure" data-custom="pressureCustom">
+                <option value="">Select pressure</option>
+                <option>Under 75 psi</option>
+                <option>75&ndash;125 psi</option>
+                <option>125&ndash;175 psi</option>
+                <option>175&ndash;250 psi</option>
+                <option>Over 250 psi</option>
+                <option value="__custom">Enter exact value&hellip;</option>
+              </select>
+              <input class="custom-reveal" id="pressureCustom" placeholder="e.g. 150 psi" />
+            </div>
+          </div>
+          <div class="field">
+            <label>Fluid &amp; environment</label>
+            <select id="fluid">
+              <option value="">Select fluid type</option>
+              <option>Fresh / potable water</option>
+              <option>Brackish / saline (corrosive)</option>
+              <option>Seawater / desalination feed</option>
+              <option>Process water with suspended solids</option>
+              <option>Caustic / high-pH chemical (aggressive)</option>
+              <option>Acidic / low-pH chemical</option>
+              <option>Solvent / aggressive chemical</option>
+              <option>Oily or organic-laden water</option>
+              <option>Air / gas stream</option>
+            </select>
+          </div>
+          <div class="row2">
+            <div class="field">
+              <label>Standard / code</label>
+              <select id="standard">
+                <option value="">None specified</option>
+                <option>ASME Section X</option>
+                <option>ASME Section VIII</option>
+                <option>NSF / potable certified</option>
+                <option>ASHRAE 170</option>
+                <option>MIL-SPEC</option>
+                <option>Seismic rating required</option>
+                <option>Other / to confirm</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Need-by date</label>
+              <input id="needBy" placeholder="e.g. 6 weeks / Q3 2026" />
+            </div>
+          </div>
+          <button type="submit" class="run" id="runBtnManual">Generate configuration &rarr;</button>
+        </form>
+      </div>
     </div>
 
     <!-- OUTPUT -->
     <div class="panel">
-      <div class="panel-head"><h2>Recommended configuration</h2><span class="step">02 / OUTPUT</span></div>
+      <div class="panel-head"><h2>Structured bid read</h2><span class="step">02 / OUTPUT</span></div>
       <div class="out-body" id="output">
         <div class="placeholder">
-          <svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="#5c7183" stroke-width="1.3"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M7 7h10M7 12h10M7 17h10"/></svg>
-          <p>Load a sample application or fill in the intake, then generate a first-pass vessel and cartridge configuration.</p>
+          <svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="#5c7183" stroke-width="1.3"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6M9 17h6M9 9h1"/></svg>
+          <p>Load a sample bid package, paste an RFQ, or drop a file, then run the analysis.</p>
           <div class="hint">AWAITING INPUT</div>
         </div>
       </div>
@@ -459,25 +513,24 @@
       6231 East Stassney Lane, Bldg 12-100, Austin, TX 78744
     </div>
     <div class="meta">
-      VESSEL CONFIGURATION ASSISTANT &middot; PROTOTYPE<br />
+      RFQ &amp; BID PACKAGE INTAKE ASSISTANT &middot; PROTOTYPE<br />
       Built by <a href="https://linaforge.com">Lina Forge</a>
     </div>
   </div>
 </footer>
+
+</div><!-- /app-shell -->
 
 <div id="printDoc"></div>
 
 <script>
   const MODEL = "claude-sonnet-4-5";
   let API_KEY = "";
-  let lastInputs = null, lastResult = null;
+  let lastResult = null, lastMode = "rfq";
+  if (window.pdfjsLib) { pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"; }
 
   // ===== Encrypted key config =====
-  // Paste the block produced by the one-time setup (Key settings > Encrypt key) here.
-  // Leave empty to run in preview mode (Claude.ai) or use the session field.
-  const ENCRYPTED_KEY = {"salt":"nihv25FiPj4w4DrhpE4++A==","iv":"8Qa1/V/g9PqdLU9C","data":"SFTyEofT9hkLHWQsuhaFHo7PrOSOKPjM1uMvCGfz0lXi5dVylVkJK+MOuf6WAKS6odQEYDkp2xW8r3Fpkan4aveny8jWfNuquel1kj8kfOqgyEpnFf2LCXgvjMygFhA0U985hPzsJ1V6rp8ZKJ1j80Jg0ZGPb5tvlvp9dw=="};
-
-  // ---- Web Crypto helpers (AES-GCM, PBKDF2) ----
+  const ENCRYPTED_KEY = {"salt":"LvST1Kv6tEXsGmXpQcTC2g==","iv":"xBCznlN8ZcdMndyI","data":"mCl6rnYUIrsuOdl1EnCsrlGk7ynqcq0l8dT9I8mHlhMxLBKs13VuU5CxYRS3j/vhqE/0ViAJ/TPqfBeEJk/Gx1+YDM51XdivN/s3Ytxy+X/bunMeI8Q8zkPnBq+tZxe4Y9sHcUhY1pnyV9pyuXl5IiSmX0jqFmZaIbotEw=="};
   const _enc = new TextEncoder();
   const _dec = new TextDecoder();
   function _b64(buf) { return btoa(String.fromCharCode.apply(null, new Uint8Array(buf))); }
@@ -503,30 +556,160 @@
   }
   function hasEncryptedKey() { return !!(ENCRYPTED_KEY.data && ENCRYPTED_KEY.salt && ENCRYPTED_KEY.iv); }
 
+  // ===== Eden capability profile =====
+  // Fill this in with Eden's real certifications, catalog limits, and standard commercial
+  // terms and the tool's red-flag and fit checks get sharper immediately. Right now it can
+  // only restate what a buyer is asking for, not say whether Eden can actually meet it.
+  // Everything here is a placeholder until Eden/Aaron provides the real numbers.
+  const EDEN_PROFILE = {
+    certifications: "NOT YET PROVIDED: e.g. active ASME Section X U-stamp status, National Board 'R' registration, ISO 9001, NSF/ANSI 61, seismic/wind design capability by region.",
+    catalog_limits: "NOT YET PROVIDED: real per-vessel-type flow/pressure/dimension ranges and standard cartridge housing capacities (max cartridges per housing, max per-housing flow), so the tool can say 'this exceeds our largest standard housing by ~Nx' instead of a generic engineering-review flag.",
+    divisions: "Eden Excel (liquid FRP filtration vessels & cartridges) is the only division this tool currently has real detail on. NOT YET PROVIDED: whether Eden has a separate air filtration / baghouse / dust collection division and what it actually builds, so routing verdicts on air/gas jobs are grounded rather than inferred.",
+    commercial_norms: "NOT YET PROVIDED: Eden's typical payment terms, standard warranty length, penalty tolerance, and bonding/LC posture, so the tool can flag when a buyer's terms are tighter than what Eden normally accepts instead of only restating the buyer's ask.",
+    historical_quotes: "NOT CONNECTED: no access to NetSuite quote history yet. Once available (see the parallel volumetric pricing project), the tool could note 'we've quoted something like this before' as a qualitative signal, without exposing price."
+  };
+  function profileBlock() {
+    return "EDEN'S CURRENT CAPABILITY PROFILE (use this to sharpen red flags and fit checks; if a field says NOT YET PROVIDED, do not guess. Just note in the relevant red flag or follow-up question that this should be checked internally rather than treating the requirement as automatically satisfied or automatically disqualifying):\n" +
+      "- Certifications & licenses: " + EDEN_PROFILE.certifications + "\n" +
+      "- Catalog / capacity limits: " + EDEN_PROFILE.catalog_limits + "\n" +
+      "- Divisions & real scope: " + EDEN_PROFILE.divisions + "\n" +
+      "- Standard commercial terms: " + EDEN_PROFILE.commercial_norms + "\n" +
+      "- Historical quotes: " + EDEN_PROFILE.historical_quotes;
+  }
+
+  // ===== Sample bid packages (synthetic, for demo only) =====
   const SCENARIOS = {
-    desal: {
-      appType: "Prefiltration ahead of RO / desalination",
-      app: "Prefiltration ahead of a reverse-osmosis skid at a coastal luxury resort. Incoming brackish well water carries sand, silt and some organic matter. The existing stainless prefilter housing corroded and failed after a few years in the saline environment and needs replacing.",
-      flow: "150\u2013300 gpm", pressure: "125\u2013175 psi", fluid: "Brackish / saline (corrosive)",
-      temp: "Ambient (under 40\u00b0C)", space: "Standard vertical clearance", standard: "ASME Section X"
+    chlorine: {
+      label: "Chlorine plant process filtration RFQ",
+      text: `REQUEST FOR QUOTATION
+Project: Chlor-Alkali Facility, Brine & Process Stream Filtration
+Buyer: Gulf Coast Chemical Processing LLC (industrial chemical manufacturer)
+RFQ No: GCC-2026-0447
+
+1. SCOPE OF SUPPLY
+Vendor to supply filtration vessels and cartridge elements for two duty points: (a) saturated brine filtration ahead of the electrolyzer feed, and (b) a secondary caustic soda (50% NaOH) polishing filter downstream of the evaporators.
+
+2. PROCESS CONDITIONS
+- Brine filtration: average flow 220 gpm, max 280 gpm, continuous 24/7 operation. Feed contains suspended calcium/magnesium precipitates and trace sulfate scale, target removal to 5 micron nominal ahead of the membrane cells.
+- Caustic polishing: average flow 60 gpm, batch campaigns of 8-12 hours, feed temperature typically 85-95°C, target 1 micron absolute to protect downstream instrumentation.
+- Both streams are highly corrosive; vendor must state wetted material compatibility with 50% NaOH at elevated temperature and with saturated brine (chlorides).
+
+3. CODES & STANDARDS
+Vessels must be built to ASME Section VIII Div. 1 with National Board registration. Facility operates under a Process Safety Management (PSM) program per OSHA 1910.119; documentation package must support PSM equipment files. Electrical area classification at the brine filtration skid is Class I, Div 2.
+
+4. CONNECTIONS
+150# ANSI flanged inlet/outlet, 4" on the brine train, 2" on the caustic polishing unit. Vessels must accept davit-assisted top head removal for cartridge changeout; existing structural steel platform has 8'-6" of overhead clearance.
+
+5. DELIVERY
+Need equipment on site within 14 weeks of PO to support a planned turnaround window. Ship to: Gulf Coast Chemical Processing LLC, 4100 Battleground Rd, Freeport, TX 77541. Partial shipments acceptable if brine train ships first.
+
+6. SHIPPING & PACKAGING
+FOB Origin, freight collect, buyer's carrier. Vessels over 500 lb require export-grade crating suitable for flatbed transport; include lifting lug certification.
+
+7. COMMERCIAL TERMS
+Net 45 from invoice. Buyer requires a 10% retention held until commissioning sign-off. Firm pricing required for 90 days. Buyer to issue PO against this RFQ; no blanket order.
+
+8. CLARIFICATIONS REQUESTED FROM BIDDER
+Please confirm cartridge change-out frequency assumptions, provide a materials compatibility statement for both duty points, and note any deviations from the stated code requirements.`
     },
-    municipal: {
-      appType: "Municipal / potable water treatment",
-      app: "High-capacity prefiltration for a municipal water treatment plant serving a national park. Needs to remove sand, organic matter and other solids ahead of a desalination system running in continuous service. Priority is high flow in the smallest practical footprint with long filter life.",
-      flow: "600\u20131,000 gpm", pressure: "125\u2013175 psi", fluid: "Process water with suspended solids",
-      temp: "Ambient (under 40\u00b0C)", space: "Tight footprint", standard: "ASME Section X"
+    swro: {
+      label: "SWRO cartridge filters, Fortaleza, Brazil",
+      text: `SOLICITAÇÃO DE COTAÇÃO / REQUEST FOR QUOTATION
+Project: Fortaleza Seawater Desalination Expansion, Cartridge Prefiltration Package
+Buyer: Companhia de Água e Saneamento (regional water utility, Ceará, Brazil)
+Reference: CAS-DESAL-2026-118
+
+1. BACKGROUND
+The utility is expanding an existing SWRO (seawater reverse osmosis) plant by two trains. Bidder is asked to supply cartridge-style prefiltration housings and replacement elements ahead of the RO membrane skids, sized for continuous operation.
+
+2. PROCESS DATA
+Average flow per train: 850 gpm, maximum 1,050 gpm, continuous duty, 2 trains (parallel). Source water is raw Atlantic seawater with seasonal turbidity spikes during the rainy season (Feb-May); SDI15 target at RO inlet is <3. Target cartridge rating: 5 micron nominal, with a coarser 20 micron stage under consideration to extend element life ahead of the fine stage. Two-stage filtration is open for bidder recommendation.
+
+3. WATER QUALITY
+Feed turbidity: 0.5-15 NTU depending on season. Feed contains fine sand, algae/organic matter, and occasional oil sheen near the intake (adjacent small-craft harbor). Chlorination is dosed upstream for biofouling control and neutralized (SBS) just ahead of the cartridge stage.
+
+4. CODES & CERTIFICATIONS
+Housings must be NSF/ANSI 61 certified for potable water contact (post-RO water is used for municipal supply) and rated for max working pressure of 150 psi. Utility also requests confirmation of ISO 9001 manufacturing certification.
+
+5. CONNECTIONS
+Victaulic grooved connections preferred, 8" on the main header per train, with davit or hinged-head design for rapid element changeout by a two-person crew, since the plant runs with minimal staffing.
+
+6. TIMELINE
+Award decision expected within 60 days of bid close. Delivery required within 20 weeks of PO to support a fixed commissioning date tied to municipal water supply contracts.
+
+7. LOCATION & LOGISTICS
+Delivery point: Porto do Mucuripe, Fortaleza, Ceará, Brazil (ocean freight). Bidder to quote both CIF Fortaleza and FOB origin (US port) pricing so the utility can compare against its own freight forwarder rates. Equipment must be suitable for tropical marine ambient storage prior to installation (humidity, salt air).
+
+8. SHIPPING & PACKAGING
+Seaworthy export crating required, moisture barrier packaging on all wetted internals, and full commercial invoice / packing list / certificate of origin for Brazilian customs clearance (importer of record is the utility).
+
+9. COMMERCIAL TERMS
+Payment: 30% with PO, 60% on shipment (against copy of bill of lading), 10% on commissioning. Requires an irrevocable letter of credit or equivalent for the balance. Local Brazilian agent/representative may be required for spare parts support post-installation. Please indicate if bidder has one.
+
+10. QUESTIONS FOR BIDDER
+Confirm single-stage vs. two-stage filtration recommendation with rationale, replacement element lead time and minimum order quantities, and whether a local (Brazil-based) spares stocking arrangement is available.`
     },
-    caustic: {
-      appType: "Process or chemical filtration",
-      app: "Filtration on a chemical process stream at an industrial plant. The fluid is aggressive and highly caustic with elevated temperature, running near-continuous duty. Corrosion resistance and chemical compatibility are the top priorities, and the plant wants quick cartridge change-outs without downtime.",
-      flow: "50\u2013150 gpm", pressure: "75\u2013125 psi", fluid: "Caustic / high-pH chemical (aggressive)",
-      temp: "Hot (60\u201390\u00b0C)", space: "Zero-downtime / redundancy required", standard: ""
+    hospital: {
+      label: "Hospital nuclear medicine ward exhaust filtration",
+      text: `INVITATION TO BID
+Project: Methodist Regional Medical Center, Nuclear Medicine Ward Exhaust Air Filtration Upgrade
+Buyer: Methodist Health System, Facilities Engineering
+Bid Reference: MHS-FAC-2026-092
+
+1. PROJECT DESCRIPTION
+The hospital is upgrading exhaust air handling serving the Nuclear Medicine department (hot lab, uptake/dose rooms, and patient holding areas where I-131 and Tc-99m procedures are performed). Scope covers replacement of the dedicated exhaust filtration bank prior to discharge, and associated housing/frames.
+
+2. AIR HANDLING DATA
+System exhausts approximately 4,000 CFM continuously from the affected suite (24/7, hospital cannot tolerate downtime beyond a scheduled 6-hour maintenance window). Current bank is HEPA (99.97% @ 0.3 micron) with an upstream activated carbon/impregnated carbon stage for iodine capture (radioiodine, particularly I-131 vapor species). Facilities wants bidder's recommendation on whether the existing HEPA + iodine-rated carbon configuration should be retained or modified.
+
+3. AIR QUALITY / CONTAMINANT PROFILE
+Exhaust stream carries low-level airborne radioactive particulate and volatile iodine species from patient dose preparation and administration. No liquid process involved. This is an air/gas filtration scope, not liquid filtration. Facility operates under an NRC (Nuclear Regulatory Commission) materials license and must maintain effluent releases within license limits.
+
+4. CODES & STANDARDS
+Filtration must comply with ASHRAE 170 (Ventilation of Health Care Facilities) for the space type, and housings/media must meet applicable NRC guidance for radioiodine effluent control (per ANSI/ASME AG-1 filter housing practices where applicable, even though this is a non-nuclear-power hospital application; bidder to confirm applicable standard). Bag-in/bag-out (BIBO) housing design is required for safe filter changeout without technician exposure.
+
+5. CONNECTIONS / PHYSICAL
+Existing ductwork is 24" round, housing must mount in-line in a mechanical penthouse with 7'-2" clearance. Must accommodate bag-in/bag-out changeout procedure per current radiation safety officer (RSO) protocol.
+
+6. TIMELINE
+Facilities wants the work scheduled around a already-approved shutdown window in 10 weeks; equipment must be on-site with 3 weeks of lead time before that date for RSO and infection-control sign-off.
+
+7. LOCATION
+Methodist Regional Medical Center, Central Plant / Nuclear Medicine wing. Delivery to hospital loading dock, coordination with facilities required for after-hours delivery (occupied healthcare environment).
+
+8. SHIPPING & PACKAGING
+Standard domestic freight, but bidder must note if any media components are radioactive-material-license-controlled for shipment (they should not be, since unused filter media is not licensed material, but confirm).
+
+9. COMMERCIAL TERMS
+Hospital purchasing requires quote to reference their standard PO terms (Net 30, hospital tax-exempt certificate on file). RSO and infection control sign-off required before final acceptance; retention of 5% until sign-off.
+
+10. QUESTIONS FOR BIDDER
+Confirm HEPA + iodine-rated carbon is the correct approach vs. alternatives, confirm BIBO housing compatibility with existing 24" ductwork, and flag any gap between ASHRAE 170 and NRC-oriented guidance the hospital's RSO should be aware of.`
     }
   };
 
-  const SYSTEM_PROMPT = `You are a sales-engineering assistant for Eden Equipment Company (brand: Eden Excel), a 40-year Austin-based manufacturer of custom fiberglass-reinforced plastic (FRP) industrial liquid filtration vessels and cartridges. You help a sales rep turn a loose customer application into a defensible FIRST-PASS configuration. You are not issuing a final quote or price.
+  const SYSTEM_PROMPT = `You are a senior bid/proposal analyst for Eden Equipment Company (brand: Eden Excel), a 40-year Austin-based manufacturer of custom fiberglass-reinforced plastic (FRP) industrial LIQUID filtration vessels and cartridges, and industrial AIR filtration equipment (baghouse / dust collection / pleated bag filters). Eden's sales team receives RFQs, tender packages, and bid solicitations — often 30-60+ pages — covering water, chemical, and air/gas filtration needs across municipal, industrial, and institutional buyers. Your job is to read an entire bid package and produce a structured first-pass read that a sales rep can act on immediately, replacing hours of manual reading.
 
-Reason using ONLY Eden's real, publicly documented product line:
+You must explicitly answer the following ten questions, which are the exact questions Eden's president asks about every incoming bid. For each, cite a short supporting quote or paraphrase FROM THE SOURCE TEXT (a few words to one sentence) as evidence — if the source doesn't state it, say "Not stated in package" as the answer and leave citation empty.
+
+1. PRODUCT LINE / DIVISION — what is being filtered (water, chemicals, air/gas, etc.) and which Eden division should this route to: Liquid Filtration Vessels, Liquid Filter Cartridges, Industrial Air Pollution Control / Baghouse & Dust Collection, Bag Filtration, or Other/Not a fit.
+2. FLOW / VOLUME — average flow rate, maximum flow rate, and whether duty is continuous, batch, or intermittent.
+3. INFLUENT CONDITION — how dirty/contaminated is the input (turbidity, particulate, chemistry, biological/radiological considerations, etc.)
+4. EFFLUENT TARGET — how clean the buyer wants the output (micron rating, SDI, removal efficiency, purity spec, etc.)
+5. CODES & STANDARDS — every applicable code/standard mentioned (ASME, NSF, ASHRAE, MIL-SPEC, NRC, OSHA/PSM, ISO, seismic, etc.)
+6. CONNECTIONS & INTERFACES — physical connection type/size, orientation, clearance constraints, changeout method (davit, BIBO, hinged head, etc.)
+7. TIMELINE — when they want it (lead time, award date, need-by / shutdown window, etc.)
+8. LOCATION — where it ships/installs (site address, port, region, environment considerations like marine/tropical/hospital)
+9. SHIPPING & PACKAGING — Incoterms, freight terms, crating/packaging requirements, customs/import considerations
+10. COMMERCIAL TERMS — payment terms, retention, LC/bonding requirements, pricing validity, contract vehicle
+
+Beyond the ten questions, you must also produce:
+- RED FLAGS: anything that should give Eden pause before bidding — unusual risk, contract terms that look tighter than Eden's normal posture, code or certification requirements Eden may not currently hold, catalog/capacity mismatches, unrealistic timeline, ambiguous scope, scope outside Eden's real product line, or any internal inconsistency within the package itself (conflicting locations, dates, or requirements between documents in the same package — check for this explicitly). Be direct and specific, not generic. Cross-check code/certification requirements and commercial terms against Eden's capability profile provided below; if the profile field is marked "NOT YET PROVIDED", say so explicitly in the flag (e.g. "confirm internally whether Eden currently holds an ASME X / NB 'R' stamp — not yet in this tool's records") rather than assuming either way.
+- FOLLOW-UP QUESTIONS: the specific clarifying questions Eden's rep should send back to the buyer before quoting, ranked by importance.
+- STARTING CONFIGURATION: if and only if the scope is a liquid filtration vessel/cartridge application within Eden's real product line, reason across Eden's actual product line below to propose a first-pass vessel type, wetted material, and cartridge media, exactly as an experienced applications engineer would. If the scope is air filtration, industrial baghouse, or otherwise outside the vessel/cartridge line, leave this section null and say why in a one-line note instead — do not force-fit a vessel recommendation onto an air filtration or unrelated scope.
+- EXECUTIVE SUMMARY: 3-5 short bullet points, each one plain sentence, that a rep could read aloud to their manager in ten seconds. Cover, in this order: what this bid is (project and buyer, one line), the product-line fit verdict, the single biggest risk or red flag, and a clear pursue/hold/no-bid recommendation. Each bullet should stand alone; do not write a paragraph split across bullets.
+
+Eden's real product line for the "starting configuration" section, when applicable:
 
 VESSEL TYPES (pick the single best fit):
 - Type 1: Original Eden Excel design. Superior flow dynamics, low-positioned I/O for flexible plumbing orientation, minimal pressure drop. Good general-purpose default.
@@ -542,7 +725,7 @@ WETTED MATERIALS (select by chemistry + temperature; do not over-spec):
 - CPVC: handles higher temperatures than PVC, good for hot water and moderate chemical duty.
 - Polypropylene (PolyPro): broad chemical resistance across acids and bases, good for aggressive/caustic streams at moderate-to-elevated temperature.
 - PVDF: highest chemical resistance and highest temperature capability, for the most aggressive chemicals. Most expensive; only specify when the chemistry truly requires it.
-Note: Eden FRP vessels offer pH resistance roughly 2-13, are 3-5x stronger and up to 50% lighter than stainless steel, and resist corrosion far better than stainless in saline/brackish service.
+Note: Eden FRP vessels offer pH resistance roughly 2-13, are 3-5x stronger and up to 50% lighter than stainless steel, and resist corrosion far better than stainless in saline/brackish/corrosive service. For ASME Section VIII code-stamped metallic vessel requirements outside Eden's FRP scope, flag this as a red flag / scope gap rather than force-fitting FRP.
 
 CARTRIDGE MEDIA:
 - String wound (depth): general sediment, layered filament.
@@ -553,30 +736,54 @@ CARTRIDGE MEDIA:
 - Lead removal: specialized activated carbon for lead and heavy metals.
 - High Flow: simplest, most efficient, cost-effective; more flow in less space, longer life, lower energy. Available 20" to 80". Choose when flow-per-footprint and energy are priorities.
 
-REASONING RULES:
-- Match material to the WORST-CASE chemistry and temperature stated. Corrosive/brackish -> FRP is already the pitch; wetted internals PVC or CPVC by temperature. Caustic/aggressive high pH or high temp -> PolyPro or PVDF.
-- Match vessel type to space/redundancy cues: low clearance -> H1/H2; zero-downtime -> Duo/Quad; bag filtration -> Type 3; high capacity -> Type 2; high flow in small footprint -> Type 2 or a High Flow cartridge approach.
-- Prefer High Flow cartridges when flow-per-footprint and energy efficiency are called out.
-- Flag for engineering review anything involving: pressure above typical ranges, extreme temperature, ambiguous or unstated chemistry, ASME Section X code stamping, seismic requirements, or custom I/O orientation. When in doubt, flag it rather than guessing.
-- List the concrete open questions a rep must resolve before a real quote (exact micron target, continuous vs intermittent duty, connection sizes/orientation, particulate loading, water analysis, changeout frequency, etc.).
+IMPORTANT CONSTRAINTS:
+- You are NOT quoting price. Eden's pricing, catalog SKUs, and historical quote data are not connected to this tool yet; never invent a price or claim a historical quote match. If the source material references pricing, note it under commercial terms as "buyer-stated" only.
+- Ground every answer in the actual text provided. Do not invent facts not present or reasonably inferable from the package. If something is genuinely absent, say "Not stated in package."
+- Be specific and numeric wherever the source gives numbers (flow rates, micron ratings, dates, quantities).
+- Keep every field concise: answers 1-2 sentences, citations under 20 words, red flags and follow-up questions 1-2 sentences each. This is a fixed-length budget, not a suggestion; a complete, terse response is far more useful than a detailed one that gets cut off. Do not pad any field with restated context.
+- Output must be a single valid JSON object: escape any newline inside a string as \n, escape any double-quote inside a string as \", and do not leave any string unterminated.
 
 Return ONLY valid JSON, no markdown, no preamble, in exactly this shape:
 {
-  "vessel": {"type": "string (one Eden vessel type name)", "reason": "1-2 sentences"},
-  "material": {"choice": "string (wetted material)", "reason": "1-2 sentences"},
-  "cartridge": {"media": "string (media type)", "micron": "string (a sensible starting micron or range, note it's a starting point)", "reason": "1-2 sentences"},
-  "config_notes": ["short configuration note", "..."],
-  "engineering_review": ["item that must be checked by an engineer", "..."],
-  "open_questions": ["question to resolve before quoting", "..."],
-  "summary": "one plain-language paragraph a rep could paraphrase back to the customer"
+  "project_name": "short project/bid name pulled from the package",
+  "buyer": "buyer/organization name if stated, else 'Not stated'",
+  "routing": {"division": "one of Eden's divisions listed above, or Other/Not a fit", "reason": "1-2 sentences"},
+  "qa": {
+    "flow_volume": {"answer": "string", "citation": "string or empty"},
+    "influent_condition": {"answer": "string", "citation": "string or empty"},
+    "effluent_target": {"answer": "string", "citation": "string or empty"},
+    "codes_standards": {"answer": "string", "citation": "string or empty"},
+    "connections_interfaces": {"answer": "string", "citation": "string or empty"},
+    "timeline": {"answer": "string", "citation": "string or empty"},
+    "location": {"answer": "string", "citation": "string or empty"},
+    "shipping_packaging": {"answer": "string", "citation": "string or empty"},
+    "commercial_terms": {"answer": "string", "citation": "string or empty"}
+  },
+  "starting_configuration": {
+    "applicable": true,
+    "vessel": {"type": "string", "reason": "string"},
+    "material": {"choice": "string", "reason": "string"},
+    "cartridge": {"media": "string", "micron": "string", "reason": "string"},
+    "note": "one-line note; if applicable is false, explain why here instead"
+  },
+  "red_flags": ["string", "..."],
+  "follow_up_questions": ["string", "..."],
+  "config_notes": ["string", "..."],
+  "executive_summary": ["short standalone bullet 1", "short standalone bullet 2", "..."]
 }`;
 
-  const form = document.getElementById("intakeForm");
-  const output = document.getElementById("output");
-  const runBtn = document.getElementById("runBtn");
-  const chips = document.getElementById("chips");
+  // ---- Tabs ----
+  document.querySelectorAll(".tab").forEach((t) => {
+    t.addEventListener("click", () => {
+      document.querySelectorAll(".tab").forEach((x) => x.classList.remove("active"));
+      document.querySelectorAll(".tabpane").forEach((x) => x.classList.remove("active"));
+      t.classList.add("active");
+      document.getElementById("pane-" + t.dataset.tab).classList.add("active");
+      lastMode = t.dataset.tab;
+    });
+  });
 
-  // ---- Custom-value reveals ----
+  // ---- Custom-value reveals (manual tab) ----
   document.querySelectorAll("select[data-custom]").forEach((sel) => {
     sel.addEventListener("change", () => {
       const inp = document.getElementById(sel.dataset.custom);
@@ -584,7 +791,6 @@ Return ONLY valid JSON, no markdown, no preamble, in exactly this shape:
       else { inp.classList.remove("show"); inp.value = ""; }
     });
   });
-
   function valOf(id) {
     const sel = document.getElementById(id);
     if (sel.value === "__custom") {
@@ -594,33 +800,162 @@ Return ONLY valid JSON, no markdown, no preamble, in exactly this shape:
     return sel.value.trim() || "not stated";
   }
 
-  // ---- Scenario loading ----
-  chips.addEventListener("click", (e) => {
-    const btn = e.target.closest(".chip"); if (!btn) return;
-    const s = SCENARIOS[btn.dataset.scenario]; if (!s) return;
-    setSelect("appType", s.appType);
-    document.getElementById("app").value = s.app;
-    setSelect("flow", s.flow); setSelect("pressure", s.pressure);
-    setSelect("fluid", s.fluid); setSelect("temp", s.temp);
-    setSelect("space", s.space); setSelect("standard", s.standard);
-    document.getElementById("app").scrollIntoView({ behavior: "smooth", block: "center" });
+  // ---- Sample scenario loading ----
+  // Sample-scenario chips removed from the UI; SCENARIOS data kept unused in case they're reinstated later.
+
+  // ---- File drop / upload / client-side parsing ----
+  const dropzone = document.getElementById("dropzone");
+  const fileInput = document.getElementById("fileInput");
+  const fileListEl = document.getElementById("fileList");
+  const fileListHint = document.getElementById("fileListHint");
+  const parsingMsg = document.getElementById("parsingMsg");
+  const rfqText = document.getElementById("rfqText");
+  let loadedFiles = []; // { name, size, text, included, source }
+
+  dropzone.addEventListener("click", () => fileInput.click());
+  dropzone.addEventListener("dragover", (e) => { e.preventDefault(); dropzone.classList.add("drag"); });
+  dropzone.addEventListener("dragleave", () => dropzone.classList.remove("drag"));
+  dropzone.addEventListener("drop", (e) => {
+    e.preventDefault(); dropzone.classList.remove("drag");
+    handleFiles(e.dataTransfer.files);
   });
-  function setSelect(id, val) {
-    const sel = document.getElementById(id);
-    const norm = (t) => t.replace(/\s+/g, "").toLowerCase();
-    let idx = -1;
-    [...sel.options].forEach((o, i) => { if (norm(o.text) === norm(val)) idx = i; });
-    if (idx >= 0) sel.selectedIndex = idx; else if (val === "") sel.selectedIndex = 0;
-    if (sel.dataset && sel.dataset.custom) { const c = document.getElementById(sel.dataset.custom); if (c) { c.classList.remove("show"); c.value = ""; } }
+  fileInput.addEventListener("change", () => { handleFiles(fileInput.files); fileInput.value = ""; });
+
+  function renderFileList() {
+    fileListHint.style.display = loadedFiles.length > 1 ? "block" : "none";
+    fileListEl.innerHTML = loadedFiles.map((f, i) =>
+      '<div class="filechip"><label style="display:flex;align-items:center;gap:7px;cursor:pointer;flex:1;min-width:0;">' +
+        '<input type="checkbox" class="fchk" data-i="' + i + '" ' + (f.included ? "checked" : "") + ' />' +
+        '<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(f.name) + (f.source ? " <span style=\"color:var(--muted)\">(from " + esc(f.source) + ")</span>" : "") + " &middot; " + Math.round(f.size / 1024) + " KB" + (f.text === "" ? " &middot; parsing…" : (/^\[/.test(f.text) ? " &middot; " + esc(f.text) : "")) + '</span>' +
+      '</label><span class="rm" data-i="' + i + '">✕</span></div>'
+    ).join("");
+    fileListEl.querySelectorAll(".rm").forEach((el) => {
+      el.addEventListener("click", () => { loadedFiles.splice(+el.dataset.i, 1); renderFileList(); rebuildTextFromFiles(); });
+    });
+    fileListEl.querySelectorAll(".fchk").forEach((el) => {
+      el.addEventListener("change", () => { loadedFiles[+el.dataset.i].included = el.checked; rebuildTextFromFiles(); });
+    });
+  }
+  function rebuildTextFromFiles() {
+    const active = loadedFiles.filter((f) => f.included);
+    const combined = active.map((f) => "===== " + f.name + " =====\n" + (f.text || "[not yet parsed]")).join("\n\n");
+    if (loadedFiles.length) rfqText.value = combined;
   }
 
-  // ---- Speech to text ----
+  // Reorder PDF text items by reading position (top-to-bottom, then left-to-right within
+  // a text row) instead of raw extraction order, which is frequently scrambled on
+  // drawing- and legend-heavy PDFs (title blocks, multi-column notes).
+  function orderPdfItems(items) {
+    const rows = [];
+    const rowTol = 4; // px tolerance for "same line"
+    items.forEach((it) => {
+      const y = it.transform[5], x = it.transform[4];
+      let row = rows.find((r) => Math.abs(r.y - y) <= rowTol);
+      if (!row) { row = { y, items: [] }; rows.push(row); }
+      row.items.push({ x, str: it.str });
+    });
+    rows.sort((a, b) => b.y - a.y); // top of page first
+    return rows.map((r) => r.items.sort((a, b) => a.x - b.x).map((i) => i.str).join(" ")).join("\n");
+  }
+
+  async function extractPdfText(buf) {
+    if (!window.pdfjsLib) return "[pdf parser unavailable]";
+    const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+    let out = "";
+    for (let p = 1; p <= pdf.numPages; p++) {
+      const page = await pdf.getPage(p);
+      const content = await page.getTextContent();
+      out += "[page " + p + "]\n" + orderPdfItems(content.items) + "\n\n";
+    }
+    return out.trim();
+  }
+
+  async function extractXlsxText(buf) {
+    if (!window.XLSX) return "[xlsx parser unavailable]";
+    const wb = XLSX.read(buf, { type: "array" });
+    return wb.SheetNames.map((name) => {
+      const csv = XLSX.utils.sheet_to_csv(wb.Sheets[name]);
+      return "--- sheet: " + name + " ---\n" + csv.trim();
+    }).join("\n\n");
+  }
+
+  async function parseOneFile(name, blobOrArrayBuffer, isBlob) {
+    try {
+      if (/\.txt$/i.test(name)) {
+        return isBlob ? await blobOrArrayBuffer.text() : new TextDecoder().decode(blobOrArrayBuffer);
+      }
+      const buf = isBlob ? await blobOrArrayBuffer.arrayBuffer() : blobOrArrayBuffer;
+      if (/\.docx$/i.test(name)) {
+        if (!window.mammoth) return "[docx parser unavailable]";
+        const res = await mammoth.extractRawText({ arrayBuffer: buf });
+        return res.value || "";
+      }
+      if (/\.pdf$/i.test(name)) return await extractPdfText(buf);
+      if (/\.xlsx$/i.test(name) || /\.xls$/i.test(name)) return await extractXlsxText(buf);
+      return "[unsupported file type; open it and paste the relevant text instead]";
+    } catch (err) {
+      return "[could not parse: " + (err.message || err) + "]";
+    }
+  }
+
+  async function handleFiles(fileArr) {
+    const files = Array.from(fileArr || []);
+    for (const f of files) {
+      if (/\.zip$/i.test(f.name)) {
+        await handleZipFile(f);
+        continue;
+      }
+      const entry = { name: f.name, size: f.size, text: "", included: true, source: "" };
+      loadedFiles.push(entry);
+      renderFileList();
+      parsingMsg.textContent = "Parsing " + f.name + "…";
+      entry.text = await parseOneFile(f.name, f, true);
+      renderFileList();
+      rebuildTextFromFiles();
+    }
+    parsingMsg.textContent = loadedFiles.length ? "Parsed " + loadedFiles.length + " file(s). Review the text below before analyzing." : "";
+  }
+
+  async function handleZipFile(zipFile) {
+    if (!window.JSZip) {
+      const entry = { name: zipFile.name, size: zipFile.size, text: "[zip parser unavailable]", included: true, source: "" };
+      loadedFiles.push(entry); renderFileList(); return;
+    }
+    parsingMsg.textContent = "Unpacking " + zipFile.name + "…";
+    try {
+      const buf = await zipFile.arrayBuffer();
+      const zip = await JSZip.loadAsync(buf);
+      const inner = Object.values(zip.files).filter((zf) => !zf.dir && !/\/\.|^__MACOSX|\.DS_Store$/.test(zf.name));
+      for (const zf of inner) {
+        const shortName = zf.name.split("/").pop();
+        if (!/\.(pdf|docx|txt|xlsx|xls)$/i.test(shortName)) continue; // skip drawings/images/CAD inside the zip
+        const entry = { name: shortName, size: 0, text: "", included: true, source: zipFile.name };
+        loadedFiles.push(entry);
+        renderFileList();
+        parsingMsg.textContent = "Parsing " + shortName + " (from " + zipFile.name + ")…";
+        try {
+          const ab = await zf.async("arraybuffer");
+          entry.size = ab.byteLength;
+          entry.text = await parseOneFile(shortName, ab, false);
+        } catch (err) {
+          entry.text = "[could not parse: " + (err.message || err) + "]";
+        }
+        renderFileList();
+        rebuildTextFromFiles();
+      }
+      const skipped = Object.values(zip.files).filter((zf) => !zf.dir).length - inner.filter((zf) => /\.(pdf|docx|txt|xlsx|xls)$/i.test(zf.name)).length;
+      if (skipped > 0) parsingMsg.textContent = "Unpacked " + zipFile.name + ": " + skipped + " non-document file(s) inside (drawings/CAD/images) were skipped. Open the zip directly if one of those matters.";
+    } catch (err) {
+      const entry = { name: zipFile.name, size: zipFile.size, text: "[could not open zip: " + (err.message || err) + "]", included: true, source: "" };
+      loadedFiles.push(entry); renderFileList();
+    }
+  }
+
+  // ---- Speech to text (dictate a summary into the RFQ box) ----
   const micBtn = document.getElementById("micBtn");
   const micLabel = document.getElementById("micLabel");
-  const appBox = document.getElementById("app");
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   let recognizing = false, recognition = null, baseText = "";
-
   if (!SR) {
     micBtn.classList.add("disabled");
     micBtn.title = "Voice input works in Chrome or Edge";
@@ -637,11 +972,11 @@ Return ONLY valid JSON, no markdown, no preamble, in exactly this shape:
         if (event.results[i].isFinal) final += t; else interim += t;
       }
       if (final) baseText = (baseText ? baseText + " " : "") + final.trim();
-      appBox.value = (baseText + (interim ? " " + interim : "")).trim();
+      rfqText.value = (baseText + (interim ? " " + interim : "")).trim();
     };
     micBtn.addEventListener("click", () => {
       if (recognizing) { recognition.stop(); return; }
-      baseText = appBox.value.trim();
+      baseText = rfqText.value.trim();
       try { recognition.start(); } catch (_) {}
     });
   }
@@ -651,9 +986,9 @@ Return ONLY valid JSON, no markdown, no preamble, in exactly this shape:
     const el = document.getElementById("keyStatus");
     el.className = "keystatus " + state;
     const txt = el.querySelector(".txt");
-    if (state === "unlocked") txt.textContent = "Key unlocked \u00b7 ready";
-    else if (state === "locked") txt.textContent = "Locked \u00b7 password required";
-    else txt.textContent = "Preview mode \u00b7 no key loaded";
+    if (state === "unlocked") txt.textContent = "Key unlocked · ready";
+    else if (state === "locked") txt.textContent = "Locked · password required";
+    else txt.textContent = "Preview mode · no key loaded";
   }
 
   // ---- Unlock overlay ----
@@ -662,14 +997,12 @@ Return ONLY valid JSON, no markdown, no preamble, in exactly this shape:
   const unlockBtn = document.getElementById("unlockBtn");
   const lockMsg = document.getElementById("lockMsg");
   const lockSkip = document.getElementById("lockSkip");
-
   function showLock() { lockOverlay.classList.add("show"); setTimeout(function () { unlockPw.focus(); }, 50); }
   function hideLock() { lockOverlay.classList.remove("show"); }
-
   async function attemptUnlock() {
     const pw = unlockPw.value;
     if (!pw) { lockMsg.textContent = "Enter the password."; return; }
-    lockMsg.className = "lk-msg"; lockMsg.textContent = "Unlocking\u2026";
+    lockMsg.className = "lk-msg"; lockMsg.textContent = "Unlocking…";
     try {
       API_KEY = await decryptApiKey(ENCRYPTED_KEY, pw);
       lockMsg.className = "lk-msg ok"; lockMsg.textContent = "Unlocked.";
@@ -684,8 +1017,6 @@ Return ONLY valid JSON, no markdown, no preamble, in exactly this shape:
   unlockBtn.addEventListener("click", attemptUnlock);
   unlockPw.addEventListener("keydown", function (e) { if (e.key === "Enter") attemptUnlock(); });
   lockSkip.addEventListener("click", function () { hideLock(); setKeyStatus("preview"); });
-
-  // Show the gate on load only if an encrypted key is embedded
   if (hasEncryptedKey()) { setKeyStatus("locked"); showLock(); } else { setKeyStatus("preview"); }
 
   // ---- One-time setup: encrypt a key ----
@@ -707,159 +1038,360 @@ Return ONLY valid JSON, no markdown, no preamble, in exactly this shape:
     }
   });
 
-  // ---- Submit ----
-  form.addEventListener("submit", async (e) => {
+  // ---- Helpers ----
+  function esc(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+  function listItems(a) { return (!Array.isArray(a) || !a.length) ? "<li>None flagged.</li>" : a.map(x => "<li>" + esc(x) + "</li>").join(""); }
+  // Accepts either the intended array of bullets or, as a fallback if a model response
+  // doesn't comply, a single paragraph string, and normalizes both into a bullet array.
+  function toBullets(val) {
+    if (Array.isArray(val)) return val.filter(Boolean);
+    if (typeof val === "string" && val.trim()) return val.split(/(?<=[.!?])\s+(?=[A-Z0-9])/).map(s => s.trim()).filter(Boolean);
+    return [];
+  }
+  const output = document.getElementById("output");
+  const LOAD_STEPS_RFQ = ["Reading the bid package", "Routing to a product line", "Extracting flow & fluid data", "Checking codes & standards", "Scanning terms & logistics", "Flagging risks", "Compiling the brief"];
+  const LOAD_STEPS_MANUAL = ["Reading the application", "Matching wetted material", "Sizing the vessel", "Selecting cartridge media", "Flagging engineering review", "Compiling the brief"];
+  let loadTimer = null;
+  function setLoading(btn, steps) {
+    btn.disabled = true; btn.textContent = "Reasoning through it…";
+    let h = '<div class="loading"><div class="scanner"></div><div class="load-steps">';
+    for (let i = 0; i < steps.length; i++) h += '<div class="load-step"><span class="ic"></span>' + steps[i] + '</div>';
+    h += '</div></div>';
+    output.innerHTML = h;
+    const stepEls = output.querySelectorAll(".load-step");
+    let idx = 0;
+    function advance() {
+      for (let i = 0; i < stepEls.length; i++) {
+        stepEls[i].classList.remove("active");
+        if (i < idx) stepEls[i].classList.add("done");
+      }
+      if (idx < stepEls.length) stepEls[idx].classList.add("active");
+      if (idx < stepEls.length - 1) idx++;
+    }
+    advance();
+    loadTimer = setInterval(advance, 850);
+  }
+  function stopLoading() { if (loadTimer) { clearInterval(loadTimer); loadTimer = null; } }
+
+  async function callClaudeRaw(systemPrompt, userMsg, maxTokens) {
+    const headers = { "Content-Type": "application/json", "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" };
+    if (API_KEY) headers["x-api-key"] = API_KEY;
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST", headers,
+      body: JSON.stringify({ model: MODEL, max_tokens: maxTokens, system: systemPrompt, messages: [{ role: "user", content: userMsg }] })
+    });
+    if (!res.ok) { const d = await res.text(); throw new Error("API returned " + res.status + ". " + d.slice(0, 200)); }
+    return res.json();
+  }
+
+  // Attempts to recover valid JSON from a response that was cut off mid-string/mid-object
+  // because it hit the token limit. Trims back to the last complete top-level field and
+  // closes any open braces/brackets/strings so JSON.parse can still succeed on a partial
+  // (but still useful) result, rather than failing outright.
+  function repairTruncatedJson(text) {
+    let s = text;
+    // Close an unterminated string first.
+    let inString = false, escaped = false;
+    for (let i = 0; i < s.length; i++) {
+      const ch = s[i];
+      if (escaped) { escaped = false; continue; }
+      if (ch === "\\") { escaped = true; continue; }
+      if (ch === '"') inString = !inString;
+    }
+    if (inString) s = s + '"';
+    // Trim trailing comma/colon fragments, then balance braces/brackets.
+    s = s.replace(/,\s*$/, "").replace(/:\s*$/, "");
+    const opens = (s.match(/[{[]/g) || []).length;
+    const closes = (s.match(/[}\]]/g) || []).length;
+    let closers = "";
+    const stack = [];
+    inString = false; escaped = false;
+    for (let i = 0; i < s.length; i++) {
+      const ch = s[i];
+      if (escaped) { escaped = false; continue; }
+      if (ch === "\\") { escaped = true; continue; }
+      if (ch === '"') { inString = !inString; continue; }
+      if (inString) continue;
+      if (ch === "{" || ch === "[") stack.push(ch);
+      else if (ch === "}" || ch === "]") stack.pop();
+    }
+    for (let i = stack.length - 1; i >= 0; i--) closers += stack[i] === "{" ? "}" : "]";
+    return s + closers;
+  }
+
+  // Models occasionally emit a literal newline, tab, or unescaped quote inside a JSON
+  // string value instead of the escaped form. That's invalid JSON and trips JSON.parse
+  // partway through the document (not just at the end), which repairTruncatedJson can't
+  // fix since it only patches the tail. This walks the text and escapes raw control
+  // characters found *inside* string literals, and turns a raw quote inside a string into
+  // an escaped quote when it's clearly not the string's closing quote (i.e. the next
+  // non-space character isn't a JSON structural character).
+  function sanitizeJsonString(text) {
+    let out = "";
+    let inString = false, escaped = false;
+    for (let i = 0; i < text.length; i++) {
+      const ch = text[i];
+      if (inString) {
+        if (escaped) { out += ch; escaped = false; continue; }
+        if (ch === "\\") { out += ch; escaped = true; continue; }
+        if (ch === '"') {
+          // Peek ahead past whitespace to see what follows this quote.
+          let j = i + 1;
+          while (j < text.length && /\s/.test(text[j])) j++;
+          const next = text[j];
+          const looksLikeClose = next === undefined || ",}]:".includes(next);
+          if (looksLikeClose) { inString = false; out += ch; continue; }
+          // Not a real closing quote (e.g. an inch mark or nested quote) - escape it.
+          out += '\\"';
+          continue;
+        }
+        if (ch === "\n") { out += "\\n"; continue; }
+        if (ch === "\r") { continue; }
+        if (ch === "\t") { out += "\\t"; continue; }
+        out += ch;
+        continue;
+      } else {
+        if (ch === '"') { inString = true; out += ch; continue; }
+        out += ch;
+      }
+    }
+    return out;
+  }
+
+  // claude-sonnet-4-5 supports up to 64,000 output tokens, so a package with a lot of
+  // files (long executive summary + 10 detailed Q&A + citations + red flags) can need far
+  // more than the old 8,000-token ceiling. Keep doubling the budget on truncation instead
+  // of giving up after one retry.
+  const MAX_TOKEN_CEILING = 32000;
+  async function callClaude(systemPrompt, userMsg, maxTokens) {
+    let data = await callClaudeRaw(systemPrompt, userMsg, maxTokens);
+    let truncated = data.stop_reason === "max_tokens";
+    let budget = maxTokens;
+    // If the model ran out of room, automatically retry with more headroom (doubling each
+    // time, up to the ceiling) before falling back to a best-effort repair.
+    while (truncated && budget < MAX_TOKEN_CEILING) {
+      budget = Math.min(budget * 2, MAX_TOKEN_CEILING);
+      data = await callClaudeRaw(systemPrompt, userMsg, budget);
+      truncated = data.stop_reason === "max_tokens";
+    }
+    const text = (data.content || []).filter(b => b.type === "text").map(b => b.text).join("\n").replace(/```json|```/g, "").trim();
+    try {
+      return JSON.parse(text);
+    } catch (err) {
+      // First try fixing stray raw control characters / quotes inside string values,
+      // which causes parse failures in the middle of the document (not just at the end).
+      try {
+        const cleaned = JSON.parse(sanitizeJsonString(text));
+        cleaned._truncated = truncated;
+        return cleaned;
+      } catch (errSanitize) {
+        // Fall back to the truncation-repair path (closes unterminated strings/braces),
+        // running it on the sanitized text too in case both problems are present.
+        try {
+          const repaired = JSON.parse(repairTruncatedJson(sanitizeJsonString(text)));
+          repaired._truncated = truncated;
+          return repaired;
+        } catch (err2) {
+          throw new Error(truncated
+            ? "The response was cut off before it finished (too much text for one pass). Try unchecking a few less-important files, or paste a shorter excerpt, then run again."
+            : "Could not parse the response as JSON: " + (err.message || err));
+        }
+      }
+    }
+  }
+
+  // ---- RFQ mode submit ----
+  document.getElementById("rfqForm").addEventListener("submit", async (e) => {
     e.preventDefault();
     if (recognizing && recognition) recognition.stop();
-    // Key priority: unlocked/decrypted key (already in API_KEY) wins; else session field.
     if (!API_KEY) {
       const key = document.getElementById("apiKey").value.trim();
       if (key) { API_KEY = key; setKeyStatus("unlocked"); }
     }
+    const text = rfqText.value.trim();
+    if (!text) { rfqText.focus(); return; }
+    const runBtn = document.getElementById("runBtn");
+    setLoading(runBtn, LOAD_STEPS_RFQ);
+    try {
+      const r = await callClaude(SYSTEM_PROMPT + "\n\n" + profileBlock(), "BID PACKAGE / RFQ TEXT:\n\n" + text, 6000);
+      renderRFQResult(r);
+    } catch (err) { renderError(err.message || String(err)); }
+    finally { stopLoading(); runBtn.disabled = false; runBtn.innerHTML = "Analyze bid package &rarr;"; }
+  });
 
-    const app = appBox.value.trim();
+  const QLABELS = {
+    flow_volume: "02 · Flow rate / volume & duty",
+    influent_condition: "03 · How dirty is the input",
+    effluent_target: "04 · How clean is the target output",
+    codes_standards: "05 · Applicable codes & standards",
+    connections_interfaces: "06 · Connections & interfaces",
+    timeline: "07 · When do they want it",
+    location: "08 · Where do they want it",
+    shipping_packaging: "09 · Shipping terms & packaging",
+    commercial_terms: "10 · Desired commercial terms"
+  };
+
+  function renderRFQResult(r) {
+    lastResult = r; lastMode = "rfq";
+    const routing = r.routing || {};
+    const qa = r.qa || {};
+    const sc = r.starting_configuration || {};
+    let qaHtml = "";
+    Object.keys(QLABELS).forEach((key) => {
+      const item = qa[key] || {};
+      const notStated = !item.answer || /^not stated/i.test(item.answer);
+      const badge = notStated ? '<span class="badge na">Not stated</span>' : (item.citation ? '<span class="badge ok">Cited</span>' : '<span class="badge warn">No citation</span>');
+      qaHtml += '<div class="qa-row"><div class="q"><span class="qn">' + esc(QLABELS[key]) + '</span></div><div class="a-wrap">' +
+        '<div class="a"><div class="val">' + esc(item.answer || "Not stated in package") + '</div>' + badge + '</div>' +
+        (item.citation ? '<div class="cite"><b>Source</b>' + esc(item.citation) + '</div>' : '') +
+        '</div></div>';
+    });
+    let configHtml = "";
+    if (sc.applicable) {
+      const v = sc.vessel || {}, m = sc.material || {}, c = sc.cartridge || {};
+      configHtml =
+        '<div class="specrow"><div class="k">Vessel type</div><div class="v"><div class="val">' + esc(v.type || "-") + '</div><div class="why">' + esc(v.reason || "") + '</div></div></div>' +
+        '<div class="specrow"><div class="k">Wetted material</div><div class="v"><div class="val">' + esc(m.choice || "-") + '</div><div class="why">' + esc(m.reason || "") + '</div></div></div>' +
+        '<div class="specrow"><div class="k">Cartridge media</div><div class="v"><div class="val">' + esc(c.media || "-") + ' (' + esc(c.micron || "-") + ')</div><div class="why">' + esc(c.reason || "") + '</div></div></div>';
+    } else {
+      configHtml = '<div class="hint-sm" style="padding:10px 0;">' + esc(sc.note || "Not applicable to Eden's vessel/cartridge line based on this package.") + '</div>';
+    }
+    const summaryBullets = toBullets(r.executive_summary || r.summary);
+    output.innerHTML =
+      '<div class="result">' +
+        (r._truncated ? '<div class="error" style="margin-bottom:16px;"><b>Partial result</b>The response was cut off before it finished, so some sections below may be missing or incomplete. Try again with fewer files selected, or a shorter excerpt, for a complete read.</div>' : '') +
+        '<div class="export-bar"><button type="button" class="export-btn" id="exportBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M8 11l4 4 4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>Export PDF</button></div>' +
+        (summaryBullets.length ? '<div class="summary"><div class="slabel">Executive summary</div><ul class="items">' + summaryBullets.map(x => "<li>" + esc(x) + "</li>").join("") + '</ul></div>' : '') +
+        '<div class="verdict"><div class="vlabel">01 · Product line / division</div><div class="vname">' + esc(routing.division || "-") + '</div><div class="vreason">' + esc(routing.reason || "") + '</div>' +
+          '<div class="vmeta"><span>' + esc(r.project_name || "Untitled bid") + '</span><span>Buyer: ' + esc(r.buyer || "Not stated") + '</span></div>' +
+        '</div>' +
+        '<div class="qa-grid">' + qaHtml + '</div>' +
+        '<div class="block flags"><h3>Red flags before bidding</h3><ul class="items">' + listItems(r.red_flags) + '</ul></div>' +
+        '<div class="block questions"><h3>Follow-up questions to send the buyer</h3><ul class="items">' + listItems(r.follow_up_questions) + '</ul></div>' +
+        '<details class="collapse" open><summary>Suggested starting configuration (if applicable)</summary><div class="cbody">' + configHtml +
+          (r.config_notes && r.config_notes.length ? '<div class="block notes" style="margin-top:16px;"><h3>Configuration notes</h3><ul class="items">' + listItems(r.config_notes) + '</ul></div>' : '') +
+        '</div></details>' +
+        '<div class="disclaimer">FIRST-PASS READ ONLY. Reasoned from the pasted/uploaded text and Eden\'s public product line, not Eden\'s internal catalog, pricing, or historical quote data (not yet connected). Every answer above should be verified by a rep against the full package before a quote goes out. No price is implied or should be inferred.</div>' +
+      '</div>';
+    const eb = document.getElementById("exportBtn");
+    if (eb) eb.addEventListener("click", () => exportPDF("rfq"));
+    output.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  // ---- Manual mode submit (legacy vessel configurator, kept for quick spec work) ----
+  const MANUAL_SYSTEM_PROMPT = `You are a sales-engineering assistant for Eden Equipment Company (brand: Eden Excel). Given a short structured application description, propose a first-pass vessel, material, and cartridge configuration using the same Eden product line and reasoning rules described for the full RFQ assistant: vessel types (Type 1, Type 2, Type 3, H1, H2, Duo Inline, Quad Inline), wetted materials (PVC, CPVC, PolyPro, PVDF), and cartridge media (string wound, pleated, meltblown, coconut shell, activated carbon, lead removal, high flow). Flag anything needing engineering review and list open questions. Return ONLY valid JSON: {"vessel":{"type":"","reason":""},"material":{"choice":"","reason":""},"cartridge":{"media":"","micron":"","reason":""},"config_notes":[],"engineering_review":[],"open_questions":[],"summary":""}`;
+
+  document.getElementById("manualForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (!API_KEY) {
+      const key = document.getElementById("apiKey").value.trim();
+      if (key) { API_KEY = key; setKeyStatus("unlocked"); }
+    }
+    const app = document.getElementById("app").value.trim();
     const appType = document.getElementById("appType").value.trim();
     if (!app && !appType) { document.getElementById("appType").focus(); return; }
-
     const userMsg = [
       "APPLICATION TYPE: " + (appType || "not stated"),
       "DESCRIPTION: " + (app || "not stated"),
       "FLOW RATE: " + valOf("flow"),
       "OPERATING PRESSURE: " + valOf("pressure"),
       "FLUID & ENVIRONMENT: " + (document.getElementById("fluid").value.trim() || "not stated"),
-      "TEMPERATURE: " + valOf("temp"),
-      "SPACE / CLEARANCE: " + (document.getElementById("space").value.trim() || "not stated"),
-      "STANDARD: " + (document.getElementById("standard").value.trim() || "not stated")
+      "STANDARD: " + (document.getElementById("standard").value.trim() || "not stated"),
+      "NEED-BY: " + (document.getElementById("needBy").value.trim() || "not stated")
     ].join("\n");
-
-    lastInputs = {
-      appType: appType || "Not stated",
-      description: app || "Not stated",
-      flow: valOf("flow"), pressure: valOf("pressure"),
-      fluid: document.getElementById("fluid").value.trim() || "Not stated",
-      temp: valOf("temp"),
-      space: document.getElementById("space").value.trim() || "Not stated",
-      standard: document.getElementById("standard").value.trim() || "Not stated"
-    };
-
-    setLoading();
+    const runBtn = document.getElementById("runBtnManual");
+    setLoading(runBtn, LOAD_STEPS_MANUAL);
     try {
-      const headers = { "Content-Type": "application/json", "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" };
-      if (API_KEY) headers["x-api-key"] = API_KEY;
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST", headers,
-        body: JSON.stringify({ model: MODEL, max_tokens: 1400, system: SYSTEM_PROMPT, messages: [{ role: "user", content: userMsg }] })
-      });
-      if (!res.ok) { const d = await res.text(); throw new Error("API returned " + res.status + ". " + d.slice(0, 200)); }
-      const data = await res.json();
-      const text = (data.content || []).filter(b => b.type === "text").map(b => b.text).join("\n").replace(/```json|```/g, "").trim();
-      renderResult(JSON.parse(text));
+      const r = await callClaude(MANUAL_SYSTEM_PROMPT, userMsg, 1400);
+      renderManualResult(r);
     } catch (err) { renderError(err.message || String(err)); }
+    finally { stopLoading(); runBtn.disabled = false; runBtn.innerHTML = "Generate configuration &rarr;"; }
   });
 
-  const LOAD_STEPS = ["Reading the application", "Matching wetted material", "Sizing the vessel", "Selecting cartridge media", "Flagging engineering review", "Compiling the brief"];
-  let loadTimer = null;
-  function setLoading() {
-    runBtn.disabled = true; runBtn.textContent = "Reasoning through the spec\u2026";
-    let h = '<div class="loading"><div class="scanner"></div><div class="load-steps">';
-    for (let i = 0; i < LOAD_STEPS.length; i++) h += '<div class="load-step"><span class="ic"></span>' + LOAD_STEPS[i] + '</div>';
-    h += '</div></div>';
-    output.innerHTML = h;
-    const steps = output.querySelectorAll(".load-step");
-    let idx = 0;
-    function advance() {
-      for (let i = 0; i < steps.length; i++) {
-        steps[i].classList.remove("active");
-        if (i < idx) steps[i].classList.add("done");
-      }
-      if (idx < steps.length) steps[idx].classList.add("active");
-      if (idx < steps.length - 1) idx++;
-    }
-    advance();
-    loadTimer = setInterval(advance, 850);
-  }
-  function stopLoading() { if (loadTimer) { clearInterval(loadTimer); loadTimer = null; } }
-  function resetBtn() { runBtn.disabled = false; runBtn.innerHTML = "Generate configuration &rarr;"; }
-  function esc(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
-  function listItems(a) { return (!Array.isArray(a) || !a.length) ? "<li>None flagged.</li>" : a.map(x => "<li>" + esc(x) + "</li>").join(""); }
-
-  function renderResult(r) {
-    stopLoading();
-    resetBtn();
-    lastResult = r;
+  function renderManualResult(r) {
+    lastResult = r; lastMode = "manual";
     const v = r.vessel || {}, m = r.material || {}, c = r.cartridge || {};
     output.innerHTML =
       '<div class="result">' +
-        '<div class="export-bar"><button type="button" class="export-btn" id="exportBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M8 11l4 4 4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>Export PDF</button></div>' +
-        '<div class="verdict"><div class="vlabel">Recommended vessel</div><div class="vname">' + esc(v.type || "\u2014") + '</div><div class="vreason">' + esc(v.reason || "") + '</div></div>' +
-        '<div class="specrow"><div class="k">Wetted material</div><div class="v"><div class="val">' + esc(m.choice || "\u2014") + '</div><div class="why">' + esc(m.reason || "") + '</div></div></div>' +
-        '<div class="specrow"><div class="k">Cartridge media</div><div class="v"><div class="val">' + esc(c.media || "\u2014") + '</div><div class="why">' + esc(c.reason || "") + '</div></div></div>' +
-        '<div class="specrow"><div class="k">Starting micron</div><div class="v"><div class="val">' + esc(c.micron || "\u2014") + '</div></div></div>' +
+        '<div class="export-bar"><button type="button" class="export-btn" id="exportBtn">Export PDF</button></div>' +
+        '<div class="verdict"><div class="vlabel">Recommended vessel</div><div class="vname">' + esc(v.type || "-") + '</div><div class="vreason">' + esc(v.reason || "") + '</div></div>' +
+        '<div class="specrow"><div class="k">Wetted material</div><div class="v"><div class="val">' + esc(m.choice || "-") + '</div><div class="why">' + esc(m.reason || "") + '</div></div></div>' +
+        '<div class="specrow"><div class="k">Cartridge media</div><div class="v"><div class="val">' + esc(c.media || "-") + '</div><div class="why">' + esc(c.reason || "") + '</div></div></div>' +
+        '<div class="specrow"><div class="k">Starting micron</div><div class="v"><div class="val">' + esc(c.micron || "-") + '</div></div></div>' +
         '<div class="block notes"><h3>Configuration notes</h3><ul class="items">' + listItems(r.config_notes) + '</ul></div>' +
         '<div class="block review"><h3>Flag for engineering review</h3><ul class="items">' + listItems(r.engineering_review) + '</ul></div>' +
         '<div class="block questions"><h3>Open questions before quoting</h3><ul class="items">' + listItems(r.open_questions) + '</ul></div>' +
         '<div class="summary"><div class="slabel">Plain-language brief</div>' + esc(r.summary || "") + '</div>' +
-        '<div class="disclaimer">FIRST-PASS ONLY. Reasoned from Eden\'s public product line, not internal catalog, pricing, or compatibility charts. A production build would draw on real spec sheets and past quotes for sharper output. No price is implied.</div>' +
+        '<div class="disclaimer">FIRST-PASS ONLY. Reasoned from Eden\'s public product line, not internal catalog, pricing, or compatibility charts. No price is implied.</div>' +
       '</div>';
     const eb = document.getElementById("exportBtn");
-    if (eb) eb.addEventListener("click", exportPDF);
+    if (eb) eb.addEventListener("click", () => exportPDF("manual"));
     output.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
-  // ---- PDF export (print to PDF) ----
-  function escp(s) { return esc(s); }
-  function bulletList(arr) {
-    if (!Array.isArray(arr) || !arr.length) return "<ul><li>None flagged.</li></ul>";
-    return "<ul>" + arr.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul>";
-  }
-  function buildPrintDoc() {
-    if (!lastResult) return;
-    const r = lastResult, v = r.vessel || {}, m = r.material || {}, c = r.cartridge || {};
-    const i = lastInputs || {};
-    const logo = (document.querySelector(".brand img") || {}).src || "";
-    const dateStr = new Date().toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" });
-    const pd = document.getElementById("printDoc");
-    pd.innerHTML =
-      '<div class="pd-head">' +
-        (logo ? '<img class="pd-logo" src="' + logo + '" alt="Eden Equipment" />' : '') +
-        '<div class="pd-title">Vessel Configuration &mdash; First-Pass Spec</div>' +
-        '<div class="pd-meta">Generated ' + dateStr + ' &nbsp;&middot;&nbsp; Prepared with the Eden Excel Configurator &nbsp;&middot;&nbsp; Lina Forge</div>' +
-      '</div>' +
-      '<div class="pd-sec"><div class="pd-label">Application</div>' +
-        '<div class="pd-kv"><span class="k">Type</span> &nbsp; ' + esc(i.appType || "Not stated") + '</div>' +
-        '<div class="pd-kv"><span class="k">Description</span> &nbsp; ' + esc(i.description || "Not stated") + '</div>' +
-        '<div class="pd-kv"><span class="k">Flow</span> ' + esc(i.flow || "-") + ' &nbsp;&nbsp; <span class="k">Pressure</span> ' + esc(i.pressure || "-") + ' &nbsp;&nbsp; <span class="k">Temp</span> ' + esc(i.temp || "-") + '</div>' +
-        '<div class="pd-kv"><span class="k">Fluid</span> ' + esc(i.fluid || "-") + ' &nbsp;&nbsp; <span class="k">Space</span> ' + esc(i.space || "-") + ' &nbsp;&nbsp; <span class="k">Standard</span> ' + esc(i.standard || "-") + '</div>' +
-      '</div>' +
-      '<div class="pd-sec"><div class="pd-verdict"><div class="l">Recommended vessel</div><div class="n">' + esc(v.type || "\u2014") + '</div><div class="r">' + esc(v.reason || "") + '</div></div></div>' +
-      '<div class="pd-sec">' +
-        '<div class="pd-kv"><b>Wetted material:</b> ' + esc(m.choice || "\u2014") + ' &mdash; ' + esc(m.reason || "") + '</div>' +
-        '<div class="pd-kv"><b>Cartridge media:</b> ' + esc(c.media || "\u2014") + ' (' + esc(c.micron || "\u2014") + ') &mdash; ' + esc(c.reason || "") + '</div>' +
-      '</div>' +
-      '<div class="pd-sec"><div class="pd-label">Configuration notes</div>' + bulletList(r.config_notes) + '</div>' +
-      '<div class="pd-sec"><div class="pd-label">Flag for engineering review</div>' + bulletList(r.engineering_review) + '</div>' +
-      '<div class="pd-sec"><div class="pd-label">Open questions before quoting</div>' + bulletList(r.open_questions) + '</div>' +
-      '<div class="pd-sec"><div class="pd-label">Plain-language brief</div><div class="pd-brief">' + esc(r.summary || "") + '</div></div>' +
-      '<div class="pd-disc">FIRST-PASS ONLY. Reasoned from Eden\'s public product line, not internal catalog, pricing, or compatibility charts. A production build would draw on real spec sheets and past quotes for sharper output. No price is implied.</div>';
-  }
-  function exportPDF() {
-    if (!lastResult) return;
-    buildPrintDoc();
-    window.print();
-  }
   function renderError(msg) {
-    stopLoading();
-    resetBtn();
     var isAuth = /401|authentication|x-api-key/i.test(msg);
     if (isAuth) {
       var det = document.querySelector(".apikey");
       if (det) det.open = true;
       var kf = document.getElementById("apiKey");
       if (kf) kf.focus();
-      output.innerHTML = '<div class="error"><b>Add your API key to run this</b>Running from a saved or hosted file needs your Anthropic API key. Open <b style="display:inline">API key settings</b> below the button, paste your key, and generate again. (Inside the Claude.ai preview no key is needed.)</div>';
+      output.innerHTML = '<div class="error"><b>Add your API key to run this</b>Running from a saved or hosted file needs your Anthropic API key. Open <b style="display:inline">Key settings</b> below the button, paste your key, and generate again. (Inside the Claude.ai preview no key is needed.)</div>';
       return;
     }
-    output.innerHTML = '<div class="error"><b>Could not generate the configuration</b>' + esc(msg) + '<br><br>If running from the hosted page, confirm your API key is set under "API key settings" and that it allows direct browser access.</div>';
+    output.innerHTML = '<div class="error"><b>Could not complete the analysis</b>' + esc(msg) + '<br><br>If running from the hosted page, confirm your API key is set under "Key settings" and that it allows direct browser access. If a PDF returned no text, try pasting the key sections manually.</div>';
+  }
+
+  // ---- PDF export ----
+  function bulletList(arr) {
+    if (!Array.isArray(arr) || !arr.length) return "<ul><li>None flagged.</li></ul>";
+    return "<ul>" + arr.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul>";
+  }
+  function buildPrintDocRFQ(r) {
+    const routing = r.routing || {}, qa = r.qa || {}, sc = r.starting_configuration || {};
+    const dateStr = new Date().toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" });
+    let qaHtml = "";
+    Object.keys(QLABELS).forEach((key) => {
+      const item = qa[key] || {};
+      qaHtml += '<div class="pd-qa"><span class="k">' + esc(QLABELS[key]) + '</span><span class="v">' + esc(item.answer || "Not stated in package") + '</span>' +
+        (item.citation ? '<div class="c">“' + esc(item.citation) + '”</div>' : '') + '</div>';
+    });
+    let configHtml = '<div class="pd-kv">Not applicable to the vessel/cartridge line: ' + esc((sc && sc.note) || "") + '</div>';
+    if (sc && sc.applicable) {
+      const v = sc.vessel || {}, m = sc.material || {}, c = sc.cartridge || {};
+      configHtml = '<div class="pd-kv"><b>Vessel:</b> ' + esc(v.type || "-") + ': ' + esc(v.reason || "") + '</div>' +
+        '<div class="pd-kv"><b>Material:</b> ' + esc(m.choice || "-") + ': ' + esc(m.reason || "") + '</div>' +
+        '<div class="pd-kv"><b>Cartridge:</b> ' + esc(c.media || "-") + ' (' + esc(c.micron || "-") + '): ' + esc(c.reason || "") + '</div>';
+    }
+    return '<div class="pd-head"><div class="pd-title">RFQ / Bid Package: Structured Read</div>' +
+        '<div class="pd-meta">' + esc(r.project_name || "Untitled bid") + ' &nbsp;&middot;&nbsp; Buyer: ' + esc(r.buyer || "Not stated") + ' &nbsp;&middot;&nbsp; Generated ' + dateStr + ' &nbsp;&middot;&nbsp; Lina Forge / Eden Excel</div></div>' +
+      '<div class="pd-sec"><div class="pd-label">Executive summary</div>' + bulletList(toBullets(r.executive_summary || r.summary)) + '</div>' +
+      '<div class="pd-sec"><div class="pd-verdict"><div class="l">Product line / division</div><div class="n">' + esc(routing.division || "-") + '</div><div class="r">' + esc(routing.reason || "") + '</div></div></div>' +
+      '<div class="pd-sec"><div class="pd-label">The ten questions</div>' + qaHtml + '</div>' +
+      '<div class="pd-sec"><div class="pd-label">Red flags before bidding</div>' + bulletList(r.red_flags) + '</div>' +
+      '<div class="pd-sec"><div class="pd-label">Follow-up questions for the buyer</div>' + bulletList(r.follow_up_questions) + '</div>' +
+      '<div class="pd-sec"><div class="pd-label">Suggested starting configuration</div>' + configHtml + '</div>' +
+      '<div class="pd-disc">FIRST-PASS READ ONLY. Reasoned from the supplied text and Eden\'s public product line, not internal catalog, pricing, or historical quote data. Verify against the full package before quoting. No price implied.</div>';
+  }
+  function buildPrintDocManual(r) {
+    const v = r.vessel || {}, m = r.material || {}, c = r.cartridge || {};
+    const dateStr = new Date().toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" });
+    return '<div class="pd-head"><div class="pd-title">Vessel Configuration: First-Pass Spec</div>' +
+        '<div class="pd-meta">Generated ' + dateStr + ' &nbsp;&middot;&nbsp; Lina Forge / Eden Excel</div></div>' +
+      '<div class="pd-sec"><div class="pd-verdict"><div class="l">Recommended vessel</div><div class="n">' + esc(v.type || "-") + '</div><div class="r">' + esc(v.reason || "") + '</div></div></div>' +
+      '<div class="pd-sec"><div class="pd-kv"><b>Wetted material:</b> ' + esc(m.choice || "-") + ': ' + esc(m.reason || "") + '</div>' +
+        '<div class="pd-kv"><b>Cartridge media:</b> ' + esc(c.media || "-") + ' (' + esc(c.micron || "-") + '): ' + esc(c.reason || "") + '</div></div>' +
+      '<div class="pd-sec"><div class="pd-label">Configuration notes</div>' + bulletList(r.config_notes) + '</div>' +
+      '<div class="pd-sec"><div class="pd-label">Flag for engineering review</div>' + bulletList(r.engineering_review) + '</div>' +
+      '<div class="pd-sec"><div class="pd-label">Open questions before quoting</div>' + bulletList(r.open_questions) + '</div>' +
+      '<div class="pd-sec"><div class="pd-label">Plain-language brief</div><div class="pd-brief">' + esc(r.summary || "") + '</div></div>' +
+      '<div class="pd-disc">FIRST-PASS ONLY. Reasoned from Eden\'s public product line, not internal catalog, pricing, or compatibility charts. No price implied.</div>';
+  }
+  function exportPDF(mode) {
+    if (!lastResult) return;
+    const pd = document.getElementById("printDoc");
+    pd.innerHTML = mode === "manual" ? buildPrintDocManual(lastResult) : buildPrintDocRFQ(lastResult);
+    window.print();
   }
 </script>
 </body>
