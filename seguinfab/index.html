@@ -99,6 +99,40 @@ iframe{width:100%;height:78vh;border:1px solid var(--line);border-radius:4px;bac
 .gate-foot{font-size:11px;color:var(--muted);margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
 footer{color:var(--muted);font-size:12px;text-align:center;padding:10px 0 30px}
 @media (max-width:860px){.review{grid-template-columns:1fr}.steps{grid-template-columns:repeat(2,1fr)}.stats{grid-template-columns:repeat(2,1fr)}}
+
+/* ---- refresh: same Seguin palette and type cues, lighter surfaces, softer edges ---- */
+:root{--radius:10px;--shadow:0 1px 2px rgba(12,37,68,.06),0 8px 24px rgba(12,37,68,.08);--edge:#e3eaef;--ui:"Segoe UI",-apple-system,system-ui,Roboto,Arial,sans-serif}
+body{font-family:var(--ui);background:radial-gradient(1200px 380px at 50% -120px,#d9e2e8 0,transparent 70%),linear-gradient(180deg,#eef3f6 0,var(--pale) 520px)}
+.topbar{font-size:11.5px;letter-spacing:.08em}
+h1{color:var(--navy);font-size:38px;letter-spacing:-.01em}
+.tag{border-radius:999px;padding:5px 12px}
+.steps{gap:10px}
+.step{border-radius:var(--radius);background:#fff;border:1px solid var(--edge);box-shadow:var(--shadow);padding:12px 16px;transition:background .2s}
+.step b{font:800 13px/1.2 var(--ui);letter-spacing:.06em}
+.step.active{background:var(--blue);border-color:var(--blue)}
+.step.done{background:var(--navy);border-color:var(--navy)}
+.card{border-radius:var(--radius);border:1px solid var(--edge);box-shadow:var(--shadow)}
+.bar{background:linear-gradient(90deg,#0b0f14,#16283d);font-size:14px;letter-spacing:.04em;padding:14px 18px}
+.body{padding:22px}
+.drop{border:2px dashed #9cc3dd;border-radius:var(--radius);background:linear-gradient(180deg,#fff,#f4f9fc)}
+.drop h2{color:var(--navy);font-size:28px}
+.btn{background:var(--blue);border:1px solid var(--blue);border-radius:8px;font-family:var(--ui);box-shadow:0 1px 2px rgba(12,37,68,.18);transition:transform .15s,box-shadow .15s,background .15s}
+.btn:hover{background:#2f6fa0;transform:translateY(-1px);box-shadow:0 6px 16px rgba(58,128,180,.3)}
+.btn.ghost{background:#fff;color:var(--navy);border-color:#c9d8e3}
+.btn.ghost:hover{background:#f2f8fc;box-shadow:0 4px 12px rgba(12,37,68,.08)}
+.sheet{border-radius:8px;border-color:var(--edge);box-shadow:0 1px 2px rgba(12,37,68,.05)}
+.sheet .meta b{font:800 14px var(--ui)}
+.progress{height:8px;border-radius:999px}
+.progress i{border-radius:999px}
+.tasks{border-radius:8px;border-color:var(--edge)}
+.feed{border-left-width:2px}
+.stat{border-radius:var(--radius);background:var(--blue);box-shadow:0 6px 18px rgba(58,128,180,.25)}
+.stat.gap{background:var(--navy);box-shadow:0 6px 18px rgba(12,37,68,.28)}
+.stat b{font-size:30px}
+iframe{border-radius:var(--radius);border-color:var(--edge)}
+.gate{background:radial-gradient(900px 520px at 50% 0,#1f4570 0,var(--navy) 70%)}
+.gate-card{border-radius:14px}
+.gate-card input{border-radius:8px;border-width:1.5px}
 </style>
 </head>
 <body>
@@ -178,7 +212,7 @@ footer{color:var(--muted);font-size:12px;text-align:center;padding:10px 0 30px}
    password (PBKDF2, SHA-256). It is only decrypted in this browser after the
    right password is entered. Build the encrypted block with key-encryptor.html.
    ========================================================================== */
-const ENCRYPTED_KEY = {"salt":"7Rr6Ewnlc+DyS1L6ytimVg==","iv":"jGRD8oOmAuwZe7tD","ct":"VJ0gC+SWFgGGG3weNRHWjpMp1bBtu4REb1UpylcbC9dbD3GNupkrrrC50f18nYMS38nOOxYHwVCaN/tAp8Y09P8Aydn7Tjl8eHuEXNPzcUAo+dI2u20R8tQoKQubqnpef2qZ3W6bZHW4jsel+pUDjrXTULDamzm6zhI=","iterations":600000}; /*__ENCRYPTED_KEY__*/
+const ENCRYPTED_KEY = {"salt":"naKHDHfwJEPhNJP4oyrkMA==","iv":"gfgQu58ywIntEPYQ","ct":"WFZgDKdXjliCiSLoOrK/bLL318xHEmgQmpf9aDNwpRl1KzbVyozd1wtn09vygEEuH/XTZXYKkH5Xm4EG5e22EFB2mypoNxfr8QeGfBiwLOxS+h3JXADDdMyjziLtVvNxo0r339TYHdhj9BaQmI45b1s7rkKA2voLNzI=","iterations":600000}; /*__ENCRYPTED_KEY__*/
 </script>
 
 <script type="module">
@@ -292,7 +326,7 @@ async function tiles(pdf, pageNo) {
 
 // ---------------- model calls ----------------
 const usage = { input_tokens: 0, output_tokens: 0, calls: 0 };
-let useTemp = true, MODELS = null;
+let useTemp = true, forceTool = true, MODELS = null;
 const headers = () => ({ "content-type": "application/json", "x-api-key": API_KEY, "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" });
 async function resolveModels() {
   if (MODELS) return MODELS;
@@ -311,8 +345,10 @@ async function callTool(model, tool, prompt, images = [], maxTokens = 16000) {
   }
   content.push({ type: "text", text: prompt });
   for (let attempt = 0; ; attempt++) {
-    const body = { model, max_tokens: maxTokens, system: P.SYSTEM, tools: [tool], tool_choice: { type: "tool", name: tool.name }, messages: [{ role: "user", content }] };
-    if (useTemp) body.temperature = CFG.TEMPERATURE;
+    const sentForce = forceTool, sentTemp = useTemp;
+    const msgContent = sentForce ? content : [...content, { type: "text", text: `Answer only by calling the ${tool.name} tool. Do not reply in plain text.` }];
+    const body = { model, max_tokens: maxTokens, system: P.SYSTEM, tools: [tool], tool_choice: sentForce ? { type: "tool", name: tool.name } : { type: "auto" }, messages: [{ role: "user", content: msgContent }] };
+    if (sentTemp) body.temperature = CFG.TEMPERATURE;
     let r;
     try { r = await fetch(API + "/messages", { method: "POST", headers: headers(), body: JSON.stringify(body) }); }
     catch (e) { if (attempt < 3) { await sleep(2000 * (attempt + 1)); continue; } throw new Error("Network error calling the API"); }
@@ -320,11 +356,15 @@ async function callTool(model, tool, prompt, images = [], maxTokens = 16000) {
       const j = await r.json();
       usage.input_tokens += j.usage?.input_tokens || 0; usage.output_tokens += j.usage?.output_tokens || 0; usage.calls++;
       const t = j.content.find(b => b.type === "tool_use");
-      if (!t) throw new Error("No structured output (stop reason " + j.stop_reason + ")");
-      return t.input;
+      if (t) return t.input;
+      const txt = j.content.filter(b => b.type === "text").map(b => b.text).join("");
+      const m = txt.match(/\{[\s\S]*\}/);
+      if (m) { try { return JSON.parse(m[0]); } catch (e) {} }
+      throw new Error("No structured output (stop reason " + j.stop_reason + ")");
     }
     let msg = ""; try { msg = (await r.json()).error?.message || ""; } catch (e) {}
-    if (r.status === 400 && /temperature/i.test(msg) && useTemp) { useTemp = false; continue; }
+    if (r.status === 400 && /temperature/i.test(msg) && sentTemp) { useTemp = false; continue; }
+    if (r.status === 400 && /tool_choice/i.test(msg) && sentForce) { forceTool = false; continue; }
     if ([429, 500, 502, 503, 529].includes(r.status) && attempt < 4) { await sleep(3000 * (attempt + 1)); continue; }
     throw new Error(`API ${r.status}: ${msg || r.statusText}`);
   }
@@ -569,7 +609,7 @@ function renderReport(r, meta) {
 <footer>Confidence: <b>high</b> means the size reads clearly on the drawing and matches the PDF text layer. <b>Medium</b> means only one source has it. <b>Verify</b> means the size or count is missing, the sources disagree, or the value changed between runs. No cost figures and no labor estimate are included.</footer></div>
 <script>document.querySelectorAll('.filters button').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.filters button').forEach(x=>x.classList.remove('on'));b.classList.add('on');const f=b.dataset.f;document.querySelectorAll('#bom tbody tr').forEach(r=>{r.style.display=(f==='all'||r.dataset.c===f)?'':'none'})}));<\/script></body></html>`;
 }
-const REPORT_CSS = "\n:root{\n--navy:#0c2544;--slate:#344b5f;--slate-2:#233341;--blue:#3a80b4;--blue-top:#609cc0;--blue-mid:#498cb6;\n--water:#a2d5f2;--water-soft:#cee6f2;--pale:#f3fcfd;--steel:#9ca0a1;--steel-2:#c8cece;\n--ink:#1a1f24;--muted:#5a6570;--line:#d3dbe0;--card:#ffffff;\n--hi:#1f7a4d;--hi-soft:#e2f2e9;--md:#8a6400;--md-soft:#fbf1d2;--vf:#b3261e;--vf-soft:#fbe4e2}\n*{box-sizing:border-box}\nbody{margin:0;color:var(--ink);font:14px/1.5 Arial,Helvetica,sans-serif;\nbackground:linear-gradient(180deg,var(--steel) 0,var(--steel-2) 260px,var(--pale) 900px,var(--pale) 100%)}\n.topbar{background:var(--navy);color:#fff;font-size:12px;letter-spacing:.06em;text-transform:uppercase}\n.topbar .wrap{padding-top:8px;padding-bottom:8px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}\n.wrap{max-width:1180px;margin:0 auto;padding:0 20px}\nheader{padding:30px 0 22px}\nh1{font:400 38px/1.15 \"Trebuchet MS\",Tahoma,sans-serif;color:var(--slate);margin:0 0 6px}\n.sub{color:var(--slate-2);font-size:15px}\n.preview{background:#fff8e1;border:1px solid #e8c768;color:#6b5000;border-radius:4px;padding:10px 14px;margin:0 0 18px;font-size:13px}\n.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:0 0 26px}\n.stat{background:linear-gradient(180deg,var(--blue-top),var(--blue));color:#fff;border-radius:4px;padding:12px 16px;\nbox-shadow:0 2px 4px rgba(12,37,68,.25)}\n.stat b{display:block;font:700 28px/1.1 \"Trebuchet MS\",Tahoma,sans-serif}\n.stat span{font-size:12px;text-transform:uppercase;letter-spacing:.05em;opacity:.92}\n.stat.gap{background:linear-gradient(180deg,#2a3f57,var(--navy))}\n.card{background:var(--card);border-radius:4px;box-shadow:0 1px 3px rgba(12,37,68,.18);margin:0 0 28px;overflow:hidden}\n.bar{background:#000;color:#fff;font:900 15px/1 \"Arial Black\",Arial,sans-serif;letter-spacing:.02em;padding:11px 16px;display:flex;gap:12px;align-items:center}\n.bar .n{background:var(--blue);border-radius:3px;padding:3px 8px;font-size:13px}\n.card.gaps .bar{background:var(--navy)}\n.card.gaps .bar .n{background:#fff;color:var(--navy)}\n.body{padding:16px}\nh3{font:700 13px/1.3 Arial,sans-serif;margin:18px 0 8px;text-transform:uppercase;letter-spacing:.05em;color:var(--slate)}\nh3:first-child{margin-top:0}\n.lede{color:var(--muted);margin:0 0 12px;max-width:860px}\ntable{width:100%;border-collapse:collapse;font-size:13px}\nth{text-align:left;background:var(--water-soft);color:var(--navy);font-weight:700;padding:7px 8px;border-bottom:2px solid var(--blue);white-space:nowrap}\ntd{padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}\ntbody tr:nth-child(even) td{background:#f7fbfd}\ntd.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}\ntd.mono{font-family:Consolas,\"Courier New\",monospace;font-size:12.5px;white-space:nowrap}\ntd.src{font-size:12px;color:var(--slate-2);min-width:110px}\n#bom td,#bom th{padding:6px 6px}\n#bom td.g{white-space:nowrap}\n#bom td.sz{white-space:normal;min-width:120px;max-width:190px}\n#bom td:nth-child(3){white-space:nowrap}\n.scroll{overflow-x:auto}\n.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}\n.box{border:1px solid var(--line);border-top:3px solid var(--blue);border-radius:3px;padding:12px 14px;background:#fff}\n.box ul{margin:6px 0 0;padding-left:18px}\n.chip{display:inline-block;padding:1px 8px;border-radius:10px;font-size:11.5px;font-weight:700;white-space:nowrap}\n.c-high{background:var(--hi-soft);color:var(--hi)} .c-medium{background:var(--md-soft);color:var(--md)} .c-verify{background:var(--vf-soft);color:var(--vf)}\n.t{background:#eef1f3;color:var(--slate-2)} .t-arch{background:var(--water-soft);color:var(--navy)} .t-mech{background:#ece6f4;color:#553080}\n.t-mfr{background:#e3f1ef;color:#1e5f58} .t-size{background:var(--vf-soft);color:var(--vf)}\n.act{font-weight:700;color:var(--navy)}\n.why{color:var(--muted)}\n.quote{color:var(--muted);font-size:12px;font-style:italic;margin-top:3px}\n.rep{font-size:11px;color:var(--blue);font-weight:700}\n.filters{margin:0 0 10px;display:flex;gap:6px;flex-wrap:wrap}\n.filters button{border:1px solid #2f6fa0;background:linear-gradient(180deg,#fff,#e9f1f7);color:var(--navy);border-radius:3px;padding:4px 14px;font:inherit;font-size:12px;cursor:pointer}\n.filters button.on{background:linear-gradient(180deg,var(--blue-top),var(--blue));color:#fff}\n.pending{border:1px dashed var(--steel);border-radius:3px;padding:10px 12px;color:var(--muted);margin-top:10px;font-size:13px}\n.note{font-size:12.5px;color:var(--muted);margin-top:8px}\n.card.gaps td:first-child{font-weight:700;color:var(--blue)}\n.unrev{margin-top:14px;font-size:13px;color:var(--muted)}\n.unrev summary{cursor:pointer;color:var(--blue);font-weight:700}\n.unrev li{margin:4px 0}\nhtml.embed .topbar,html.embed header,html.embed .stats{display:none}\nhtml.embed body{background:var(--pale)}\nhtml.embed .wrap{padding-top:16px}\nfooter{color:var(--muted);font-size:12px;padding:6px 0 40px}\n@media (max-width:760px){.stats{grid-template-columns:repeat(2,1fr)}.two{grid-template-columns:1fr}h1{font-size:30px}}\n@media print{body{background:#fff}.filters{display:none}.card{box-shadow:none;border:1px solid var(--line)}tr{break-inside:avoid}}\n\n#bom td.nw{white-space:nowrap}\n.preview{background:#fff8e1;border:1px solid #e8c768;color:#6b5000;border-radius:4px;padding:10px 14px;margin:0 0 18px;font-size:13px}\n";
+const REPORT_CSS = "\n:root{\n--navy:#0c2544;--slate:#344b5f;--slate-2:#233341;--blue:#3a80b4;--blue-top:#609cc0;--blue-mid:#498cb6;\n--water:#a2d5f2;--water-soft:#cee6f2;--pale:#f3fcfd;--steel:#9ca0a1;--steel-2:#c8cece;\n--ink:#1a1f24;--muted:#5a6570;--line:#d3dbe0;--card:#ffffff;\n--hi:#1f7a4d;--hi-soft:#e2f2e9;--md:#8a6400;--md-soft:#fbf1d2;--vf:#b3261e;--vf-soft:#fbe4e2}\n*{box-sizing:border-box}\nbody{margin:0;color:var(--ink);font:14px/1.5 Arial,Helvetica,sans-serif;\nbackground:linear-gradient(180deg,var(--steel) 0,var(--steel-2) 260px,var(--pale) 900px,var(--pale) 100%)}\n.topbar{background:var(--navy);color:#fff;font-size:12px;letter-spacing:.06em;text-transform:uppercase}\n.topbar .wrap{padding-top:8px;padding-bottom:8px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}\n.wrap{max-width:1180px;margin:0 auto;padding:0 20px}\nheader{padding:30px 0 22px}\nh1{font:400 38px/1.15 \"Trebuchet MS\",Tahoma,sans-serif;color:var(--slate);margin:0 0 6px}\n.sub{color:var(--slate-2);font-size:15px}\n.preview{background:#fff8e1;border:1px solid #e8c768;color:#6b5000;border-radius:4px;padding:10px 14px;margin:0 0 18px;font-size:13px}\n.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:0 0 26px}\n.stat{background:linear-gradient(180deg,var(--blue-top),var(--blue));color:#fff;border-radius:4px;padding:12px 16px;\nbox-shadow:0 2px 4px rgba(12,37,68,.25)}\n.stat b{display:block;font:700 28px/1.1 \"Trebuchet MS\",Tahoma,sans-serif}\n.stat span{font-size:12px;text-transform:uppercase;letter-spacing:.05em;opacity:.92}\n.stat.gap{background:linear-gradient(180deg,#2a3f57,var(--navy))}\n.card{background:var(--card);border-radius:4px;box-shadow:0 1px 3px rgba(12,37,68,.18);margin:0 0 28px;overflow:hidden}\n.bar{background:#000;color:#fff;font:900 15px/1 \"Arial Black\",Arial,sans-serif;letter-spacing:.02em;padding:11px 16px;display:flex;gap:12px;align-items:center}\n.bar .n{background:var(--blue);border-radius:3px;padding:3px 8px;font-size:13px}\n.card.gaps .bar{background:var(--navy)}\n.card.gaps .bar .n{background:#fff;color:var(--navy)}\n.body{padding:16px}\nh3{font:700 13px/1.3 Arial,sans-serif;margin:18px 0 8px;text-transform:uppercase;letter-spacing:.05em;color:var(--slate)}\nh3:first-child{margin-top:0}\n.lede{color:var(--muted);margin:0 0 12px;max-width:860px}\ntable{width:100%;border-collapse:collapse;font-size:13px}\nth{text-align:left;background:var(--water-soft);color:var(--navy);font-weight:700;padding:7px 8px;border-bottom:2px solid var(--blue);white-space:nowrap}\ntd{padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}\ntbody tr:nth-child(even) td{background:#f7fbfd}\ntd.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}\ntd.mono{font-family:Consolas,\"Courier New\",monospace;font-size:12.5px;white-space:nowrap}\ntd.src{font-size:12px;color:var(--slate-2);min-width:110px}\n#bom td,#bom th{padding:6px 6px}\n#bom td.g{white-space:nowrap}\n#bom td.sz{white-space:normal;min-width:120px;max-width:190px}\n#bom td:nth-child(3){white-space:nowrap}\n.scroll{overflow-x:auto}\n.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}\n.box{border:1px solid var(--line);border-top:3px solid var(--blue);border-radius:3px;padding:12px 14px;background:#fff}\n.box ul{margin:6px 0 0;padding-left:18px}\n.chip{display:inline-block;padding:1px 8px;border-radius:10px;font-size:11.5px;font-weight:700;white-space:nowrap}\n.c-high{background:var(--hi-soft);color:var(--hi)} .c-medium{background:var(--md-soft);color:var(--md)} .c-verify{background:var(--vf-soft);color:var(--vf)}\n.t{background:#eef1f3;color:var(--slate-2)} .t-arch{background:var(--water-soft);color:var(--navy)} .t-mech{background:#ece6f4;color:#553080}\n.t-mfr{background:#e3f1ef;color:#1e5f58} .t-size{background:var(--vf-soft);color:var(--vf)}\n.act{font-weight:700;color:var(--navy)}\n.why{color:var(--muted)}\n.quote{color:var(--muted);font-size:12px;font-style:italic;margin-top:3px}\n.rep{font-size:11px;color:var(--blue);font-weight:700}\n.filters{margin:0 0 10px;display:flex;gap:6px;flex-wrap:wrap}\n.filters button{border:1px solid #2f6fa0;background:linear-gradient(180deg,#fff,#e9f1f7);color:var(--navy);border-radius:3px;padding:4px 14px;font:inherit;font-size:12px;cursor:pointer}\n.filters button.on{background:linear-gradient(180deg,var(--blue-top),var(--blue));color:#fff}\n.pending{border:1px dashed var(--steel);border-radius:3px;padding:10px 12px;color:var(--muted);margin-top:10px;font-size:13px}\n.note{font-size:12.5px;color:var(--muted);margin-top:8px}\n.card.gaps td:first-child{font-weight:700;color:var(--blue)}\n.unrev{margin-top:14px;font-size:13px;color:var(--muted)}\n.unrev summary{cursor:pointer;color:var(--blue);font-weight:700}\n.unrev li{margin:4px 0}\nhtml.embed .topbar,html.embed header,html.embed .stats{display:none}\nhtml.embed body{background:var(--pale)}\nhtml.embed .wrap{padding-top:16px}\nfooter{color:var(--muted);font-size:12px;padding:6px 0 40px}\n@media (max-width:760px){.stats{grid-template-columns:repeat(2,1fr)}.two{grid-template-columns:1fr}h1{font-size:30px}}\n/* ---- refresh ---- */\n:root{--radius:10px;--shadow:0 1px 2px rgba(12,37,68,.06),0 8px 24px rgba(12,37,68,.08);--edge:#e3eaef;--ui:\"Segoe UI\",-apple-system,system-ui,Roboto,Arial,sans-serif}\nbody{font-family:var(--ui);background:radial-gradient(1200px 380px at 50% -120px,#d9e2e8 0,transparent 70%),linear-gradient(180deg,#eef3f6 0,var(--pale) 520px)}\nh1{color:var(--navy);letter-spacing:-.01em}\n.stat{border-radius:var(--radius);background:var(--blue);box-shadow:0 6px 18px rgba(58,128,180,.25)}\n.stat.gap{background:var(--navy);box-shadow:0 6px 18px rgba(12,37,68,.28)}\n.card{border-radius:var(--radius);border:1px solid var(--edge);box-shadow:var(--shadow)}\n.bar{background:linear-gradient(90deg,#0b0f14,#16283d);font-size:14px;letter-spacing:.04em;padding:14px 18px}\n.card.gaps .bar{background:linear-gradient(90deg,var(--navy),#1f4570)}\n.bar .n{border-radius:6px}\n.body{padding:20px}\n.box{border-radius:8px;border-color:var(--edge);border-top-color:var(--blue)}\nth{background:#eaf3f9;border-bottom:1px solid #c9dceb;font-size:11.5px;text-transform:uppercase;letter-spacing:.05em}\ntbody tr:hover td{background:#eef6fb}\n.filters button{border-radius:999px;background:#fff;border-color:#c9d8e3}\n.filters button.on{background:var(--navy);border-color:var(--navy);color:#fff}\n.preview{border-radius:8px}\n#gaps{border-top:0}\n@media print{body{background:#fff}.filters{display:none}.card{box-shadow:none;border:1px solid var(--line)}tr{break-inside:avoid}}\n\n#bom td.nw{white-space:nowrap}\n.preview{background:#fff8e1;border:1px solid #e8c768;color:#6b5000;border-radius:4px;padding:10px 14px;margin:0 0 18px;font-size:13px}\n";
 
 function toCsv(rows, cols) {
   const q = v => { const s = String(v ?? ""); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
@@ -647,6 +687,11 @@ async function start(file) {
     const results = [];
     for (let i = 0; i < runs; i++) { if (runs > 1) feed(`<b>Read ${i + 1} of ${runs}</b> started`); results.push(await runExtraction(pdf, sheets, M, ui)); }
     feed("<b>Assembling</b> BOM weights from the AISC table, grades, confidence, gap list");
+    const total = Object.keys(results[0]).filter(k => !k.startsWith("_")).length;
+    if (results[0]._failed.length >= total / 2) {
+      const firstErr = Object.values(results[0]).find(v => v && v.error)?.error || "unknown error";
+      throw new Error(`Most reads failed, so no report was built. First error: ${firstErr}`);
+    }
     const result = build(results, sheets);
     clearInterval(timer);
     const meta = { project: CFG.PROJECT, input: file.name, sheets: sheets.length, runs, generated: new Date().toLocaleString("en-US", { month: "long", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" }),
